@@ -1,0 +1,537 @@
+@import '../../theme/index.scss';
+
+.header {
+  @include desktop {
+    background: $primary;
+  }
+  @include tabletAndMobile {
+    height: 46px;
+  }
+
+  .accountDashboardMobileCartContainer {
+    display: flex;
+    justify-content: flex-end;
+    @include tabletAndMobile {
+      display: none;
+    }
+  }
+  .headerNav {
+    position: fixed;
+    width: 100%;
+    z-index: 999;
+    background-color: $primary;
+    @include tabletAndMobile {
+      background-color: unset;
+    }
+  }
+  .headerNavContainer {
+    display: flex;
+    align-items: center;
+    padding: 0px 16px;
+    position: relative;
+    z-index: 200;
+    max-width: 1232px;
+    margin: 0 auto;
+    min-height: 63px;
+    @include tabletAndMobile {
+      background: $primary;
+      padding: 10px 16px 12px;
+      min-height: auto;
+      height: 52px;
+    }
+  }
+  .headerHamburgerButtonContainer {
+    display: flex;
+    flex: 1;
+    margin-right: auto;
+    @include desktop {
+      display: inline-block;
+      flex: none;
+      margin: 0;
+    }
+  }
+  .headerMobileLogo {
+    display: flex;
+    flex: 2;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    top: 12px;
+    left: calc(50% - 12px);
+    @include desktop {
+      display: inline-block;
+      flex: none;
+      margin: 0;
+    }
+  }
+
+  .headerHamburgerButton {
+    background: none;
+    border: none;
+    width: 23px;
+    padding: 0;
+    @include tabletAndMobile {
+      display: flex; 
+      align-items: center;
+    }
+  }
+
+  .headerLogo {
+    height: 28px;
+    width: 28px;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    @include desktop {
+      display: inline-block;
+      flex: none;
+      margin: 0;
+      height: 36px;
+      width: 36px;
+    }
+  }
+
+  .navContainer {
+    @include tabletAndMobile {
+      position: relative;
+      z-index: 100;
+      transform: scaleY(0);
+      position: absolute;
+      background: $white;
+      width: 100%;
+    }
+  }
+
+  .profileTitle {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 18px;
+    @include desktop {
+      font-size: 16px;
+      }
+  }
+
+  .navSecondary {
+    display: none;
+    @include desktop {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+    .navSecondaryAnchor {
+      display: flex;
+      margin: 0 8px;
+      @include desktop {
+        margin: 0 16px 0 0;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      & > svg {
+        margin-left: 8px;
+      }
+      &:first-of-type {
+        .navSecondaryTitle {
+          display: none;
+          @include desktop {
+            display: inline-block;
+            font-size: 1.125rem;
+          }
+        }
+      }
+      &:nth-child(2) {
+        .navSecondaryTitle {
+          display: inline-block;
+          @include tabletAndMobile {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .signInMobile {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    @include desktop {
+      flex: none;
+      margin: none;
+      display: none;
+    }
+    p {
+      @include tabletAndMobile {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .accordionContainer {
+    padding: 0px 16px;
+    @include desktop {
+      padding: 0;
+      display: flex;
+      align-items: center;
+      margin-left: 50px;
+    }
+    @include tabletAndMobile {
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+      padding: 16px;
+      position: relative;
+      background-color: $white;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+  .hideUtilityNavMobile {
+    display: none;
+    @include desktop {
+      display: block;
+    }
+  }
+
+  .hideUtilityNavTablet {
+    @include desktop {
+      display: none;
+    }
+  }
+
+  .hideMainNavMobile {
+    display: none;
+    @include desktop {
+      display: flex;
+    }
+  }
+
+  .hideMainNavTablet {
+    @include desktop {
+      display: none;
+    }
+  }
+
+  .hideLogoMobile {
+    display: none;
+    @include desktop {
+      display: block;
+    }
+  }
+
+  .hideLogoTablet {
+    @include desktop {
+      display: none;
+    }
+  }
+
+  .hideHamburgerButton {
+    @include desktop {
+      display: none;
+    }
+  }
+
+  @keyframes firstChildClose {
+    0% {
+      transform: rotate(45deg) translate(3px, -3px);
+    }
+
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes secondChildClose {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes thirdChildClose {
+    0% {
+      transform: rotate(-45deg) translate(-9px, -2px);
+    }
+
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes firstChildOpen {
+    0% {
+      transform: none;
+    }
+
+    100% {
+      transform: rotate(45deg) translate(3px, -3px);
+    }
+  }
+
+  @keyframes secondChildOpen {
+    0% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes thirdChildOpen {
+    0% {
+      transform: none;
+    }
+
+    100% {
+      transform: rotate(-45deg) translate(-10px, -3px);
+    }
+  }
+
+  .toggleButtonClose {
+    :first-child {
+      animation: firstChildClose 0.3s forwards;
+    }
+
+    :nth-child(2) {
+      animation: secondChildClose 0.3s forwards;
+    }
+
+    :nth-child(3) {
+      animation: thirdChildClose 0.3s forwards;
+    }
+  }
+
+  .toggleButtonOpen {
+    :first-child {
+      animation: firstChildOpen 0.3s forwards;
+    }
+
+    :nth-child(2) {
+      animation: secondChildOpen 0.3s forwards;
+    }
+
+    :nth-child(3) {
+      animation: thirdChildOpen 0.3s forwards;
+    }
+  }
+
+  @keyframes growDown {
+    0% {
+      transform: scaleY(0);
+    }
+    100% {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes shrinkUp {
+    0% {
+      transform: scaleY(1);
+    }
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  .toggleNavClose {
+    animation: shrinkUp 0.2s ease-in-out forwards;
+    transform-origin: top center;
+  }
+
+  .toggleNavOpen {
+    animation: growDown 0.2s ease-in-out forwards;
+    transform-origin: top center;
+    &:before{
+      content: "";
+    position: fixed;
+    top: 45px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    transition: opacity 225ms cubic-bezier(.4,0,.2,1) 0ms;
+    opacity: 0.8;
+    background-color: $dark;
+    }
+  }
+
+  .loggedInUserNameWrapper {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    margin-top: 1.2rem;
+    padding-bottom: 1.2rem;
+    position: relative;
+    & > svg {
+      margin-left: 8px;
+    }
+    & :hover {
+      cursor: pointer;
+    }
+  }
+
+  .profileDropdownContainer {
+    background: $white;
+    padding: 16px;
+    @include tabletAndMobile {
+    &:before {
+        content: "";
+        position: fixed;
+        top: 45px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        transition: opacity 225ms cubic-bezier(.4, 0, .2, 1) 0ms;
+        opacity: 0.8;
+        background-color: $dark;
+        z-index:-1;
+      }
+    }
+  }
+
+  .profileDropdown {
+    position: absolute;
+    top: 2.72rem;
+    min-width: 216px;
+    right: 0px;
+    animation: shrinkUp 0.2s ease-in-out forwards;
+    max-height: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0, .25);
+    transform-origin: top center;
+    &.profileDropdownOpen {
+      animation: growDown 0.2s ease-in-out forwards;
+      max-height: unset;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, .25);
+      & :hover {
+        color: $primary;
+      }
+    }
+    @include tabletAndMobile {
+      padding-top: 0;
+      min-width: 100%;
+      top: 50px;
+      right: 0px;
+    }
+    & ul {
+      list-style: none;
+      margin: 0;
+      padding: 0px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      & li {
+        display: flex;
+        align-items: center;
+        & a span {
+          &:hover {
+            color: $primary;
+          }
+        }
+      }
+      & a:first-child li {
+        font-weight: 700;
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+    &:before {
+      content: '\A';
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid $white;
+      position: absolute;
+      right: 28px;
+      top: -8px;
+      @include tabletAndMobile {
+        right: 10px;
+        left: unset;
+        display:none;
+      }
+    }
+  }
+  .profileDropDownlist{
+    font-size: 16px;
+  }
+  .profileCloseIcon {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    @include desktop {
+      display: none;
+    }
+  }
+  .mobileUtilityNav {
+    padding: 0;
+    padding-bottom: 16px;
+  }
+  .profileTitleDropDownlist {
+    color: $dark2;
+  }
+  .headerBanner {
+    padding: 7px 0px;
+    text-align: center;
+    background-color: $background-gray;
+    .bannerText {
+      color: $primary;
+      & a {
+        color: $dark;
+        text-decoration: underline;
+      }
+    }
+  }
+  .showSearch {
+    display: block;
+  }
+  .hideSearch {
+    display: none;
+  }
+  .buyLinkContainer {
+    margin-right: 16px;
+  }
+
+  .signInTextAccountDashboard {
+    flex: none;
+    margin-left: 0.5rem;
+    @include tabletAndMobile {
+    max-width: 100px;
+    font-size: 1.125rem;
+    }
+  }
+
+  .profileTitleAccountDashboard {
+    width: auto;
+  }
+
+  .accordionContainerAccountDashboardMobile {
+    padding: 1rem;
+  }
+}
+
+.hide {
+  display: none !important;
+}
+
+.loggedInText {
+  display: flex;
+  align-items: center;
+}
+
+.profileDropdownItemAccountDashboard{
+  display: flex;
+  align-items: center;
+  @include font-bold;
+}

@@ -1,0 +1,60 @@
+@import '../../theme/index.scss';
+.headerBanner {
+  padding: 14.5px 5px;
+  text-align: center;
+  background-color: $light-bg-gray;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  @include mobile {
+    flex-direction: column;
+    padding: 16px;
+    gap: 0px;
+  }
+  p{
+    margin: 0px;
+    line-height: 12px;
+  }
+  span {
+    color: $primary2;
+    font-size: 18px;
+    line-height: 26px;
+    @include mobile {
+      font-size: 14px;
+      line-height: 22px;
+    }
+    &[styleType='h5'] {
+      font-size: 1.5rem;
+      line-height: 2rem;
+      margin: 0;
+      @include font-bold;
+      @include mobile {
+        font-size: 1.125rem;
+        line-height: 1.625rem;
+      }
+    }
+    a {
+      color: $dark;
+      &:hover {
+        color: $primary;
+        text-decoration: underline;
+      }
+      @include mobile {
+        margin-bottom: 1.5rem;
+      }
+    }
+  }
+  .bannerText {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  .planBtn {
+    max-width: max-content;
+    @include mobile {
+      margin-bottom: .5625rem;
+    }
+  }
+}
+

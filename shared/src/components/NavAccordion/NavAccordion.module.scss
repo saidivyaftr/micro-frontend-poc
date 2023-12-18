@@ -1,0 +1,265 @@
+@import '../../theme/index.scss';
+
+.accordion {
+  cursor: pointer;
+  margin: 0px;
+
+  @include tabletAndMobile {
+    margin: 0;
+    padding-top: 0px;
+
+    svg {
+      stroke-width: 1px;
+      stroke: $dark;
+    }
+  }
+
+  .accordionTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 24px;
+    padding-bottom: 16px;
+
+    @include tablet {
+      color: $white;
+      gap: 4px;
+      margin: 16px 34px 0 0;
+    }
+
+    @include tabletAndMobile {
+      margin: 0;
+      padding: 0px;
+    }
+  }
+
+  .accordionNavList {
+    list-style: none;
+    margin: 0;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    @include tabletAndMobile {
+      padding-bottom: 0px;
+    }
+  }
+
+  .accordionNavList .accordionNavList {
+    padding-bottom: 0px;
+  }
+
+  .accordionNavList .accordionNavList :first-child {
+    margin: 0px;
+  }
+
+  .accordionNavListItem {
+    min-width: 150px;
+    cursor: pointer;
+   
+  }
+
+  .navItemTitle {
+    padding: 0px;
+    font-size: 16px;
+
+    @include tabletAndMobile {
+      font-size: 16px;
+      padding: 0px;
+    }
+  }
+
+  .navItemTitle:hover {
+    color: $primary;
+  }
+
+  .accordionLink {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    a {
+      color: $white;
+
+      @include tabletAndMobile {
+        color: $primary;
+      }
+    }
+  }
+
+  .chevronDown {
+    @include tablet {
+      path {
+        fill: white;
+      }
+    }
+  }
+
+  .chevronUp {
+    @include tablet {
+      path {
+        fill: white;
+      }
+    }
+  }
+
+  .accordionLinkTitle {
+  
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    font-size: 18px;
+
+    @include tabletAndMobile {
+      font-size: 16px;
+    }
+
+    @include tabletAndMobile {
+      color: $dark;
+    }
+
+    &:before {
+      border-width: 0 12px 12px;
+      left: 28px;
+    }
+  }
+
+  .newIcon {
+    margin: 0 8px;
+
+    @include tablet {
+      margin-bottom: 16px;
+    }
+
+    rect {
+      @include tablet {
+        fill: white;
+        stroke: none;
+      }
+    }
+  }
+
+  @keyframes growDown {
+    0% {
+      transform: scaleY(0);
+    }
+
+    100% {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes shrinkUp {
+    0% {
+      transform: scaleY(1);
+    }
+
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  .menuContainer {
+    background: white;
+    position: absolute;
+    top: 63px;
+    padding-top: 2px;
+    transform: scaleY(0);
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .25);
+
+    @include tabletAndMobile {
+      padding: 0px;
+      position: static;
+      box-shadow: none;
+    }
+
+    @include tablet {
+      &:before {
+        content: '\A';
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid $white;
+        position: absolute;
+        border-width: 0 12px 12px;
+        left: 28px;
+        top: -9px;
+        border-width: 0 12px 12px; left: 28px;
+      }
+    }
+  }
+
+  .toggleMenuClose {
+    animation: shrinkUp 0.2s ease-in-out forwards;
+    transform-origin: top center;
+    display: none;
+  }
+
+  .toggleMenuOpen {
+    animation: growDown 0.2s ease-in-out forwards;
+    transform-origin: top center;
+    display: block;
+    border-top: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .25);
+    @include tabletAndMobile {
+      box-shadow: none;
+    }
+  }
+}
+
+.badge {
+  position: absolute;
+  height: 18px;
+  padding: 0 7px;
+  top: -2px;
+  left: calc(100% + 7px);
+  background: $white;
+  border-radius: 14px;
+  color: $primary;
+  font-size: 10px;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid $primary;
+  @include font-bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  @include tabletAndMobile {
+    color: $white;
+    background: $primary;
+  }
+}
+
+.red {
+  @include tabletAndMobile {
+    color: $primary !important;
+  }
+}
+
+.spinIcon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.chevronDesktop {
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+
+.navItemTitleAccountDashboard {
+  display: flex;
+  align-items: center;
+  @include font-bold;
+}
+
+.accordionAccountDashboard {
+  @include mobile {
+    border-bottom: none;
+    padding: 0;
+  }
+}

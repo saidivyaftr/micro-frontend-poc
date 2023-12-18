@@ -1,0 +1,24 @@
+@import '../../theme/index.scss';
+
+.hamburger {
+  & .line {
+    width: 24px;
+    height: 3px;
+    background-color: $white;
+    display: block;
+    margin: 5px auto;
+    transition: all 0.3s ease-in-out;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+  &.isActive .line:nth-child(2) {
+    opacity: 0;
+  }
+  &.isActive .line:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  &.isActive .line:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+}

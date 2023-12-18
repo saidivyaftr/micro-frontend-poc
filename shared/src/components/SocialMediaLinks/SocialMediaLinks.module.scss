@@ -1,0 +1,27 @@
+@import '../theme/index.scss';
+
+.footerSubListContainer {
+  padding: 0;
+  margin: 1.5rem 0;
+  list-style-type: none;
+  text-decoration: unset;
+
+  li {
+    margin: 0.625rem 0;
+  }
+}
+
+.socialMediaLinks {
+  @extend .footerSubListContainer;
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  @include tabletAndMobile {
+    width: 100%;
+    padding: 0 2rem;
+  }
+  @include mobile {
+    padding-bottom: 2rem;
+    padding-left: 1rem;
+  }
+}

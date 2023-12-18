@@ -1,0 +1,198 @@
+@import '../theme/index.scss';
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  margin: 0;
+}
+
+.defaultBold {
+  b,
+  strong {
+    @include font-bold;
+  }
+}
+
+.h1 {
+  @extend .defaultBold;
+  font-size: 4rem;
+  line-height: 4.5rem;
+  text-transform: uppercase;
+  @include font-regular-bandwidth;
+  @include mobile {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+  }
+}
+
+.h2 {
+  @extend .defaultBold;
+  font-size: 3.5rem;
+  line-height: 4rem;
+  @include font-bold;
+  @include mobile {
+    font-size: 1.875rem;
+    line-height: 2.375rem;
+  }
+}
+
+.h3 {
+  @extend .defaultBold;
+  font-size: 2.625rem;
+  line-height: 3.125rem;
+  @include font-bold;
+  @include mobile {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+.h4 {
+  @extend .defaultBold;
+  font-size: 1.875rem;
+  line-height: 2.375rem;
+  @include font-bold;
+  @include mobile {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+.h5 {
+  @extend .defaultBold;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  @include font-bold;
+  @include mobile {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+}
+
+.h6 {
+  @extend .defaultBold;
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  @include font-bold;
+  @include mobile {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+.p1 {
+  @extend .defaultBold;
+  @include font-regular;
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  @include mobile {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+.p2 {
+  @extend .defaultBold;
+  @include font-regular;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  @include mobile {
+    font-size: 0.875rem;
+    line-height: 1.125rem;
+  }
+}
+
+.p3 {
+  @extend .defaultBold;
+  @include font-regular;
+  font-size: 0.875rem;
+  line-height: 1.125rem;
+  @include mobile {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+}
+
+.p4 {
+  @extend .defaultBold;
+  @include font-regular;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  @include mobile {
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+  }
+}
+
+.legal {
+  @extend .defaultBold;
+  @include font-regular;
+  font-size: 0.625rem;
+  line-height: 0.75rem;
+  color: $dark;
+  a {
+    @include font-bold;
+    color: $dark;
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
+  }
+  p {
+    margin: 10px 0;
+  }
+  ul {
+    padding: 0;
+  }
+}
+
+.supSmall {
+  @include font-regular;
+  font-size: 1.25rem;
+  line-height: 1.625rem;
+}
+
+.supLarge {
+  @include font-regular;
+  font-size: 1.5rem;
+  line-height: 1.875rem;
+  @include mobile {
+    font-size: 1.25rem;
+    line-height: 2.25rem;
+  }
+}
+
+.defaultTextColor {
+  color: $dark;
+}
+
+.primaryTextColor {
+  color: $primary;
+}
+
+.secondaryTextColor {
+  color: $secondary;
+}
+
+.tertiaryTextColor {
+  color: $white;
+}
+
+.regularFont {
+  @include font-regular;
+}
+
+.mediumFont {
+  @include font-medium;
+}
+
+.boldFont {
+  @include font-bold;
+}
+
+.regularBandwidthFont {
+  @include font-regular-bandwidth;
+}

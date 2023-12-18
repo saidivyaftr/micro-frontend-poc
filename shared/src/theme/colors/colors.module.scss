@@ -1,0 +1,39 @@
+@import "../index.scss";
+
+.fontColorPrimary {
+  color: $primary
+}
+.fontColorSecondary {
+  color: $secondary
+}
+.fontColorBlack {
+  color: $dark
+}
+.fontColorWhite {
+  color: $white
+}
+
+.backgroundColorPrimary {
+  background-color: $primary
+}
+.backgroundColorSecondary {
+  background-color: $secondary
+}
+.backgroundColorBlack {
+  background-color: $dark
+}
+.backgroundColorWhite {
+  background-color: $white
+}
+.backgroundColorGray {
+  background-color: $background-gray
+}
+.backgroundColorBlue {
+  background-color: $dark-bg-blue
+}
+.backgroundColorLightGray{
+  background-color: $light-bg-gray;
+}
+.backgroundColorLightSecondary{
+  background-color: $secondaryLight;
+}

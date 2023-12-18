@@ -1,0 +1,326 @@
+{
+    "main_links": {
+      "Links": [
+        {
+          "title": "Shop",
+          "path": {
+            "url": ""
+          },
+          "badge": {
+            "value": ""
+          },
+          "items": [
+            {
+              "title": "Plans",
+              "path": {
+                "url": "/shop"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Internet",
+              "path": {
+                "url": "/shop/internet/fiber-internet"
+              },
+              "subitems": [
+                {
+                  "title": "5 Gig",
+                  "path": {
+                    "url": "/shop/internet/fiber-internet/5-gig"
+                  }
+                },
+                {
+                  "title": "2 Gig",
+                  "path": {
+                    "url": "/shop/internet/fiber-internet/2-gig"
+                  }
+                },
+                {
+                  "title": "1 Gig",
+                  "path": {
+                    "url": "/shop/internet/fiber-internet/gig"
+                  }
+                },
+                {
+                  "title": "500 Mbps",
+                  "path": {
+                    "url": "/shop/internet/fiber-internet/500"
+                  }
+                },
+                {
+                  "title": "Affordable Connectivity",
+                  "path": {
+                    "url": "/discount-programs/affordable-connectivity-program "
+                  }
+                }
+              ]
+            },
+            {
+              "title": "Phone",
+              "path": {
+                "url": "/shop/phone"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Video/TV",
+              "path": {
+                "url": "/shop/tv"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Additional Services",
+              "path": {
+                "url": "/shop/additional-services"
+              },
+              "subitems": [
+                
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Why Frontier",
+          "path": {
+            "url": "/why-frontier/why-fiber-internet"
+          },
+          "badge": {
+            "value": ""
+          },
+          "items": [
+            {
+              "title": "Why Frontier",
+              "path": {
+                "url": "/why-frontier"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Why Fiber",
+              "path": {
+                "url": "/why-frontier/why-fiber-internet"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Fiber Expansion",
+              "path": {
+                "url": "/why-frontier/why-fiber-internet/fiber-expansion"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Uncable Yourself",
+              "path": {
+                "url": "/why-frontier/get-fiber"
+              },
+              "subitems": [
+                
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Support",
+          "path": {
+            "url": ""
+          },
+          "badge": {
+            "value": ""
+          },
+          "items": [
+            {
+              "title": "Help Center",
+              "path": {
+                "url": "/helpcenter"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "How-To Videos",
+              "path": {
+                "url": "https://videos.frontier.com/"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Support Wizard",
+              "path": {
+                "url": "/helpcenter/categories/support-wizard"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Order/Ticket Status",
+              "path": {
+                "url": "/helpcenter/order-ticket-status"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Contact Us",
+              "path": {
+                "url": "/contact-us"
+              },
+              "subitems": [
+                
+              ]
+            },
+            {
+              "title": "Moving",
+              "path": {
+                "url": "/resources/movers"
+              },
+              "subitems": [
+                
+              ]
+            }
+          ]
+        },
+        {
+          "title": "5 Gig",
+          "path": {
+            "url": "/shop/internet/fiber-internet/5-gig"
+          },
+          "badge": {
+            "value": ""
+          },
+          "items": [
+            
+          ]
+        }
+      ]
+    },
+    "new_link": {
+      "targetItems": [
+        {
+          "title": "5 Gig",
+          "path": {
+            "url": "/shop/internet/fiber-internet/5-gig"
+          },
+          "color": {
+            "color": {
+              "field": {
+                "value": "#ff0037"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "logo_link": {
+      "url": "/"
+    },
+    "logo_image": {
+      "src": "https://content-qat.frontier.com/-/jssmedia/Project/Frontier/Dotcom/Images/Logo-updated.svg?rev=bb11053e226c4c9aa57cf2163f1974cf",
+      "alt": "logo"
+    },
+    "action_nav_links": {
+      "Links": [
+        {
+          "name": "Search",
+          "profileSubMenuTitle": {
+            "value": ""
+          },
+          "path": {
+            "url": "/search/"
+          },
+          "items": [
+            
+          ]
+        },
+        {
+          "name": "Buy",
+          "profileSubMenuTitle": {
+            "value": ""
+          },
+          "path": {
+            "url": "/buy"
+          },
+          "items": [
+            
+          ]
+        },
+        {
+          "name": "Sign In/Register",
+          "profileSubMenuTitle": {
+            "value": ""
+          },
+          "path": {
+            "url": "/login/"
+          },
+          "items": [
+            
+          ]
+        },
+        {
+          "name": "My Account",
+          "profileSubMenuTitle": {
+            "value": "My Account"
+          },
+          "path": {
+            "url": "/account#/summary"
+          },
+          "items": [
+            {
+              "name": "Account Summary",
+              "path": {
+                "url": "/account/dashboard"
+              }
+            },
+            {
+              "name": "My Payments",
+              "path": {
+                "url": "/account/billing/make-a-payment"
+              }
+            },
+            {
+              "name": "My Bills",
+              "path": {
+                "url": "/account/billing/billing-history"
+              }
+            },
+            {
+              "name": "My Profile",
+              "path": {
+                "url": "/account/profile"
+              }
+            },
+            {
+              "name": "MyFrontier Mobile App",
+              "path": {
+                "url": "/resources/myfrontier-mobile-app"
+              }
+            },
+            {
+              "name": "Sign Out",
+              "path": {
+                "url": "/logout"
+              }
+            }
+          ]
+        }
+      ]
+    }
+}
