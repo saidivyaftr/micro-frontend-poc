@@ -150,6 +150,7 @@ jobs:
           name: fuel-homepage-build
           path: |
             ${{ env.build_path }}
+  
   manage_infrastructure:
     runs-on: ubuntu-latest
     needs: strategy
@@ -161,27 +162,28 @@ jobs:
       TF_WORKSPACE: "fuel-homepage-assets-${{ needs.strategy.outputs.run_env }}"
       TF_IN_AUTOMATION: true
     steps:
-    - uses: actions/checkout@v3
-    - uses: hashicorp/setup-terraform@v2
+    - name: Checkout 🛎️
+      uses: actions/checkout@v3
+    - name: Setup Terraform     
+      uses: hashicorp/setup-terraform@v2
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      # TODO Add variables for environment and anything to be output
-    - uses: azure/login@v1
+    - name: Azure login
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Terraform Init
       id: init
       run: terraform init
-    
     - name: Terraform Apply
       id: apply
       run: terraform apply -var environment=${{ needs.strategy.outputs.run_env }} -input=false -auto-approve
-
-    - run: az logout
-      shell: bash
+    - name: Azure logout
       if: always()
-  deploy_build:
+      run: az logout
+      shell: bash
+
+  upload_artifact:
     runs-on: ubuntu-latest
     env:
       azure_bucket: fuelpageassets${{ needs.strategy.outputs.run_env }}
@@ -193,37 +195,297 @@ jobs:
       with:
         name: fuel-homepage-build
         path: ./${{ env.build_path }}
-    - uses: azure/login@v1
+    - name: Azure login
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - id: ip
+    - name: 🔎 Check IP
+      run: curl https://api.ipify.org
+      shell: bash
+    - name: Define IP address
+      id: ip
       run: |
+        sleep 5
         ip=`dig +short myip.opendns.com @resolver1.opendns.com`
         echo "address=$ip" >> $GITHUB_OUTPUT
       shell: bash
 
-    - run: |
-        az storage account network-rule add --account-name "${{ env.azure_bucket }}" --ip-address "${{ steps.ip.outputs.address }}"
-        sleep 20
-      shell: bash
-
-      #TODO: use outputs from previous steps to deploy build artifacts
-    - name: deploy
-      id: deploy
+    - name: Add network rule to storage account
+      id: addnetworkrule
       run: |
-        date=`date -u '+%Y-%m-%dT%H:%MZ'`
-        az storage blob upload-batch --account-name "${{ env.azure_bucket }}" --destination "\$web" --source "./${{ env.build_path }}" --auth-mode key --overwrite=True
-        az storage blob delete-batch --account-name "${{ env.azure_bucket }}" --source "\$web" --if-unmodified-since "$date" --pattern "${{ env.build_path }}/*" --auth-mode key
-        baseUrl=`az storage account show --name ${{ env.azure_bucket }} --query "primaryEndpoints.web" | tr -d \"`
-        url=${baseUrl}${{ env.build_path }}
-        echo "::notice title=site url::$url"
-      shell: bash
+        try {
+          $Error.Clear()
+          [Int32]$Retries = 24
+          [Int32]$SecondsDelay = 10
+          [Int32]$retrycount = 0
+          [Bool]$completed = $false          
+          $command = "(az storage account network-rule add --account-name `"${{ env.azure_bucket }}`" --ip-address `"${{ steps.ip.outputs.address }}`") 2>&1"
+          Write-Output "Executing command: '$command'"
 
-    - run: |
-        az storage account network-rule remove --account-name "${{ env.azure_bucket }}" --ip-address "${{ steps.ip.outputs.address }}"
-      shell: bash
+          while (-not $completed) {
+            $Error.Clear()
+            $result = Invoke-Expression -Command $command
+            if ($LastExitCode -ne 0) {
+              if ($retrycount -ge $Retries) {
+                $myMsg = "Command exit code '$LastExitCode' and result: '$result'"
+                Throw $myMsg
+              } else {
+                $myMsg = "Command exit code '$LastExitCode' and result: '$result'"
+                Write-Output "$myMsg`r`n`tRetrying in '$SecondsDelay' seconds"
+                Start-Sleep $SecondsDelay
+                $retrycount++
+                Write-Output "---------------------RETRY #($retrycount)-----------------------------------"
+                continue
+              }
+            } else {
+              Write-Output "Command succeeded"
+              Write-Output "Let's wait for 30 seconds for Azure to refresh white listed IP..."
+              Start-Sleep -s 30
+              $completed = $true
+            } 
+          }
+        } catch {
+          Write-Error "[ERR] Error happened while adding network rule to storage account. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+      shell: pwsh 
+
+    - name: Print logs for troubleshooting
+      if: steps.addnetworkrule.outcome == 'success'
+      run: |
+        try {
+          $Error.Clear()
+          [Bool]$completed = $false          
+          Write-Output "Listing Network rules"
+          Invoke-Expression -Command "az storage account network-rule list --account-name `"${{ env.azure_bucket }}`" | Select-String -Pattern ${{ steps.ip.outputs.address }} -SimpleMatch"
+          Write-Output "Command executed"
+        } catch {
+          Write-Error "[ERR] Error happened while printing logs. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+      shell: pwsh 
+
+    - name: Upload artifact to storage
+      if: steps.addnetworkrule.outcome == 'success'
+      run: |
+        try {
+          $Error.Clear()
+          [Int32]$Retries = 24
+          [Int32]$SecondsDelay = 10
+          [Int32]$retrycount = 0
+          [Bool]$completed = $false 
+          $command = "(az storage blob upload-batch --account-name `"${{ env.azure_bucket }}`" --destination `"```$web`" --source `"./${{ env.build_path }}`" --auth-mode key --overwrite=True --only-show-errors) 2>&1"
+          Write-Output "Executing command: '$command'"
+          while (-not $completed) {
+            [String]$errorString = ""
+            [String]$warningString = ""
+            [Bool]$bError = $false
+            [Bool]$bWarning = $false
+            [Bool]$errDetector = $false
+            [Bool]$warDetector = $false
+            $Error.Clear()
+            $result = Invoke-Expression -Command $command
+            $resultExitCode = $LastExitCode
+            Write-Output "Command finished with the following error code: '$resultExitCode'"
+            $outputStream = $result | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] }
+            if ($resultExitCode -ne 0) {
+              $outputStream | ForEach-Object { 
+                if ($_.ToString().StartsWith("ERROR: ")) {
+                  if ($errorString.Length -gt 0) { $errorString += "`n" }
+                  $bError = $true
+                  $errDetector = $true
+                  $bWarning = $false
+                }
+                if ($_.ToString().StartsWith("WARNING: ")) {
+                  if ($warningString.Length -gt 0) { $warningString += "`n" }  
+                  $bWarning = $true
+                  $warDetector = $true
+                  $bError = $false
+                }
+                if ($bError) {
+                  $errorString += $_.ToString() + " "
+                }
+                if ($bWarning) {
+                  $warningString += $_.ToString() + " "
+                }
+              }
+
+              # Output errors and warings
+              if ($errDetector) {
+                Write-Output "Following Errors detected:`r`n`t$errorString"
+              }
+              if ($warDetector) {
+                Write-Output "Following Warnings detected:`r`n`t$warningString"
+              }
+
+              # Need to retry only when ERROR detected; no need to retry in the case of WARNINGS only in the output stream
+              if ($errDetector -or ($resultExitCode -ne 0)) {
+                if ($retrycount -ge $Retries) {
+                  $myMsg = "Failed to successfully execute command with all retry commands exhausted"
+                  Throw $myMsg
+                } else {
+                  Write-Output "`r`n`tRetrying in '$SecondsDelay' seconds"
+                  Start-Sleep $SecondsDelay
+                  $retrycount++
+                  Write-Output "---------------------RETRY #($retrycount)-----------------------------------"
+                  continue
+                }
+              }
+            }
+            Write-Output "Command succeeded"
+            $completed = $true
+          }
+        } catch {
+          Write-Error "[ERR] Error happened while uploading batch to storage account. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+
+        # -----------------------------------------------------
+
+        try {
+          $Error.Clear()
+          [Int32]$Retries = 24
+          [Int32]$SecondsDelay = 10
+          [Int32]$retrycount = 0
+          [Bool]$completed = $false 
+          $date = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mmZ')
+          $command = "(az storage blob delete-batch --account-name `"${{ env.azure_bucket }}`" --source `"```$web`" --if-unmodified-since `"$date`" --pattern `"${{ env.build_path }}/*`" --auth-mode key --only-show-errors) 2>&1"
+          Write-Output "Executing command: '$command'"
+          while (-not $completed) {
+            [String]$errorString = ""
+            [String]$warningString = ""
+            [Bool]$bError = $false
+            [Bool]$bWarning = $false
+            [Bool]$errDetector = $false
+            [Bool]$warDetector = $false
+            $Error.Clear()
+            $result = Invoke-Expression -Command $command
+            $resultExitCode = $LastExitCode
+            Write-Output "Command finished with the following error code: '$resultExitCode'"
+            $outputStream = $result | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] }
+            if ($resultExitCode -ne 0) {
+              $outputStream | ForEach-Object { 
+                if ($_.ToString().StartsWith("ERROR: ")) {
+                  if ($errorString.Length -gt 0) { $errorString += "`n" }
+                  $bError = $true
+                  $errDetector = $true
+                  $bWarning = $false
+                }
+                if ($_.ToString().StartsWith("WARNING: ")) {
+                  if ($warningString.Length -gt 0) { $warningString += "`n" }  
+                  $bWarning = $true
+                  $warDetector = $true
+                  $bError = $false
+                }
+                if ($bError) {
+                  $errorString += $_.ToString() + " "
+                }
+                if ($bWarning) {
+                  $warningString += $_.ToString() + " "
+                }
+              }
+
+              # Output errors and warings
+              if ($errDetector) {
+                Write-Output "Following Errors detected:`r`n`t$errorString"
+              }
+              if ($warDetector) {
+                Write-Output "Following Warnings detected:`r`n`t$warningString"
+              }
+
+              # Need to retry only when ERROR detected; no need to retry in the case of WARNINGS only in the output stream
+              if ($errDetector -or ($resultExitCode -ne 0)) {
+                if ($retrycount -ge $Retries) {
+                  $myMsg = "Failed to successfully execute command with all retry commands exhausted"
+                  Throw $myMsg
+                } else {
+                  Write-Output "`r`n`tRetrying in '$SecondsDelay' seconds"
+                  Start-Sleep $SecondsDelay
+                  $retrycount++
+                  Write-Output "---------------------RETRY #($retrycount)-----------------------------------"
+                  continue
+                }
+              }
+            }
+            Write-Output "Command succeeded"
+            $completed = $true
+          }
+        } catch {
+          Write-Error "[ERR] Error happened while deleting batch to storage account. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+
+        # -----------------------------------------------------
+
+        #Add Annotation
+        try {
+          $Error.Clear()
+          [Bool]$completed = $false          
+          $command = "(az storage account show --name `"${{ env.azure_bucket }}`" --query `"primaryEndpoints.web`") 2>&1"
+          Write-Output "Executing command: '$command'"
+          $result = Invoke-Expression -Command $command
+          if ($LastExitCode -eq 0) {
+            Write-Output "Command succeeded"
+            $baseurl = $result
+            $baseurl = $baseurl.trim("`"")
+            $uri = "${{ env.build_path }}".trimStart("/")
+            $url = $baseurl + $uri
+            Write-Output "::notice title=site url::$url"    
+          } else {
+            $myMsg = "Failed to query base URL. Command exit code '$LastExitCode' and result: '$result'"
+            Throw $myMsg            
+          }
+        } catch {
+          Write-Error "[ERR] Error happened while adding annotation. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+      shell: pwsh 
+
+    - name: Remove network rule from storage account
       if: always()
-    - run: az logout
-      shell: bash
+      run: |
+        try {
+          $Error.Clear()
+          [Int32]$Retries = 24
+          [Int32]$SecondsDelay = 10
+          [Int32]$retrycount = 0
+          [Bool]$completed = $false          
+          $command = "(az storage account network-rule remove --account-name `"${{ env.azure_bucket }}`" --ip-address `"${{ steps.ip.outputs.address }}`") 2>&1"
+          Write-Output "Executing command: '$command'"
+
+          while (-not $completed) {
+            $Error.Clear()
+            $result = Invoke-Expression -Command $command
+            if ($LastExitCode -ne 0) {
+              if ($retrycount -ge $Retries) {
+                $myMsg = "Command exit code '$LastExitCode' and result: '$result'"
+                Throw $myMsg
+              } else {
+                $myMsg = "Command exit code '$LastExitCode' and result: '$result'"
+                Write-Output "$myMsg`r`n`tRetrying in '$SecondsDelay' seconds"
+                Start-Sleep $SecondsDelay
+                $retrycount++
+                Write-Output "---------------------RETRY #($retrycount)-----------------------------------"
+                continue
+              }
+            } else {
+              Write-Output "Command succeeded"
+              $completed = $true
+            } 
+          }
+        } catch {
+          Write-Error "[ERR] Error happened while removing network rule from storage account. Details: '$_'"
+        } finally {
+          $Error.Clear()
+        }
+      shell: pwsh 
+    
+    - name: Azure logout
       if: always()
+      run: az logout
+      shell: bash

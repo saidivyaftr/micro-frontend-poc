@@ -6,6 +6,9 @@ export const maskPhoneNumber = (phone: string) => {
 }
 
 export const maskEmail = (email: string) => {
+  if (email === '') {
+    return ''
+  }
   const [firstPart = '', secondPart = ''] = email.split('@')
   const maskedFirstPart =
     firstPart?.substring(0, 3) + generateStars(firstPart.length - 3)

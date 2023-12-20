@@ -22,6 +22,8 @@ export const getDotSize = (size?: IDotSize) => {
       return css.smallDot
     case 'medium':
       return css.mediumDot
+    case 'largest':
+      return css.largestDot
     case 'large':
     default:
       return css.largeDot

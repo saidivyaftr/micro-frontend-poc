@@ -14,21 +14,16 @@ import { State } from 'src/redux/types'
 import ModalWrapper from '../components/ModalWrapper'
 import ActionModal from '../components/ActionModal'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { CREATE_PASSWORD, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  CREATE_PASSWORD,
+  CUSTOMER,
+  SERVICEABLE,
+  WIFI,
+  WIFI_REGISTRATION,
+} from 'src/constants'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 
 const CreatePassword = () => {
-  usePageLoadEvents({
-    shouldTriggerDTMEvent: true,
-    eventData: {
-      pageName: CREATE_PASSWORD,
-      eVar22: CUSTOMER,
-      eVar49: SERVICEABLE,
-      events: 'event68, event77',
-      eVar68: CREATE_PASSWORD,
-    },
-  })
-
   const classes = useStyles()
   const {
     title,
@@ -55,11 +50,26 @@ const CreatePassword = () => {
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
 
   const dispatch = useDispatch()
-  const { createPassword: createPasswordData, email } = useSelector(
-    (state: State) => state.register,
-  )
+  const {
+    createPassword: createPasswordData,
+    email,
+    flowType,
+  } = useSelector((state: State) => state.register)
 
   const { isBusy } = createPasswordData || {}
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI ? WIFI_REGISTRATION.CREATE_PASSWORD : CREATE_PASSWORD
+
+  usePageLoadEvents({
+    shouldTriggerDTMEvent: true,
+    eventData: {
+      pageName: pageStr,
+      eVar22: CUSTOMER,
+      eVar49: SERVICEABLE,
+      events: 'event68, event77',
+      eVar68: pageStr,
+    },
+  })
 
   const handleSubmit = () => {
     DTMClient.triggerEvent(

@@ -13,7 +13,7 @@ import {
 import AddPaymentMethod from 'src/components/AddPaymentMethod'
 import { useDispatch } from 'react-redux'
 import { useState } from 'react'
-import { isAutoPayEnabled } from 'src/libs/account/welcome/helper'
+import { isAutoPayEnabled } from 'src/libs/account/helper'
 import { PaymentMethod } from 'src/redux/types/payments'
 import { UpdateAutoPayOrScheduledPayMethod } from '../shared-modals'
 import {

@@ -7,6 +7,7 @@ import { Loading } from '@/shared-ui/components'
 import { useEffect } from 'react'
 import { fetchServicesForWelcomePage } from 'src/redux/slicers/welcome'
 import { useDispatch } from 'react-redux'
+
 interface PageProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any
@@ -17,8 +18,9 @@ function WelcomePage(props: PageProps): JSX.Element {
   const classes = useStyles()
   const dispatch = useDispatch()
   const isServicesLoading = useIsServicesLoading()
+
   useEffect(() => {
-    dispatch(fetchServicesForWelcomePage(false, false))
+    dispatch(fetchServicesForWelcomePage())
   }, [])
 
   return (

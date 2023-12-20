@@ -112,6 +112,7 @@ const AddOnsTile = ({
             className={classes.buttonClassName}
             objectID={tile?.LearnMoreButton?.objectID}
             hoverVariant="primary"
+            onContextMenu={(e) => e.preventDefault()}
           />
         )}
       </div>

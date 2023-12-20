@@ -7,19 +7,24 @@ import {
   CUSTOMER,
   SERVICEABLE,
   REG_TECHNICALERR_MODAL,
+  WIFI,
 } from 'src/constants'
 import { registerSlice } from 'src/redux/slicers/register'
+import { State } from 'src/redux/types'
 import { useDispatch, useSelector } from 'react-redux'
 import ModalWrapper from './ModalWrapper'
 import useAppData from '@/shared-ui/hooks/useAppData'
-import ChatWithUsLine from '../components/./ChatWithUs'
+//import ChatWithUsLine from '../components/./ChatWithUs'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
+import { formatUrl } from 'src/utils/urlHelpers'
 
 const ApiErrorModal = () => {
   const classes = useStyles()
   const { title, info, info2 } = useAppData('genericErrorModal', true)
   const dispatch = useDispatch()
-  const { hasApiFailed } = useSelector((state: any) => state?.register) || {}
+  const { hasApiFailed, flowType } =
+    useSelector((state: State) => state?.register) || {}
+  const isWIFI = flowType === WIFI
   useEffect(() => {
     if (hasApiFailed) {
       DTMClient.triggerEvent({
@@ -30,7 +35,11 @@ const ApiErrorModal = () => {
     }
   }, [hasApiFailed])
   const dismissModal = () => {
-    dispatch(registerSlice.actions.setApiErrorModal(false))
+    if (isWIFI) {
+      window.location.href = formatUrl('/login')
+    } else {
+      dispatch(registerSlice.actions.setApiErrorModal(false))
+    }
   }
   return (
     <>
@@ -59,9 +68,9 @@ const ApiErrorModal = () => {
                 {info2?.value}
               </Typography>
             </div>
-            <div className={classes.infoWrapper}>
+            {/* <div className={classes.infoWrapper}>
               <ChatWithUsLine handleClose={dismissModal} />
-            </div>
+            </div> */}
           </div>
         }
       />

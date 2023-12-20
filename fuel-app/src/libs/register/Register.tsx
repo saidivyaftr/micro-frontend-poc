@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Typography } from '@/shared-ui/components'
 import { LeftArrowIcon, Logo } from '@/shared-ui/react-icons'
-import { COMPONENT_WRAPPER, REG_EXIT } from 'src/constants'
+import { COMPONENT_WRAPPER, REG_EXIT, WIFI } from 'src/constants'
 import { useAppData } from 'src/hooks'
 import colors from '@/shared-ui/colors'
 import { useSelector, useDispatch } from 'react-redux'
@@ -17,6 +17,7 @@ import FrontierAppBanner from './components/FrontierAppBanner'
 import ModalWrapper from './components/ModalWrapper'
 
 // STEPS imports
+import SearchByIP from './steps/SearchByIP'
 import RegisterWithMobileOrEmail from './steps/RegisterWithMobileOrEmail'
 import RegisterWithNameAndAddress from './steps/RegisterWithNameAndAddress'
 import VerifyMobileOTP from './steps/VerifyMobileOTP'
@@ -32,6 +33,7 @@ import AddEmailAddress from './steps/AddEmailAddress'
 import ConfirmAddress from './steps/ConfirmAddress'
 import RegistrationConfirmation from './steps/RegistrationConfirmation'
 import { registerSlice } from 'src/redux/slicers'
+import MobileAndOrEmailFound from './steps/MobileAndOrEmailFound'
 
 const BackArrowComponent = ({ text }: { text: string }) => {
   return (
@@ -48,7 +50,7 @@ const Register = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const classes = useStyles()
   const dispatch = useDispatch()
-  const { step, phone, email, isAddressVerified } =
+  const { step, phone, email, isAddressVerified, isIPAddressVerified } =
     useSelector((state: State) => state?.register) || {}
   const { signInLinkText, signInLinkHref, registerWithEmailOrMobileText } =
     useAppData('register', true)
@@ -58,11 +60,15 @@ const Register = () => {
     'startRegistrationText',
     true,
   )
+  const { flowType } = useSelector((state: State) => state.register)
+  const isWIFI = flowType === WIFI
   const areYouSureModal = useAppData('areYouSureModal', true)
   const areYouSureModalSecOTP = useAppData('areYouSureModalSecOTP', true)
-
+  const backText = { back: { value: 'Back' } } || {}
   const renderStep = () => {
     switch (step) {
+      case 'SEARCH_BY_IPADDRESS':
+        return <SearchByIP />
       case 'REGISTER_WITH_EMAIL_OR_MOBILE':
         return <RegisterWithMobileOrEmail />
       case 'REGISTER_WITH_NAME_AND_ADDRESS':
@@ -91,6 +97,8 @@ const Register = () => {
         return <CreatePassword />
       case 'REGISTER_SUCCESS':
         return <RegistrationConfirmation />
+      case 'MOBILE_EMAIL_FOUND':
+        return <MobileAndOrEmailFound />
     }
   }
 
@@ -156,9 +164,24 @@ const Register = () => {
   const shouldShowBack = useMemo(() => {
     return (
       (step === 'VERIFY_EMAIL_OTP' || step === 'VERIFY_MOBILE_OTP') &&
-      isAddressVerified
+      (isAddressVerified || isIPAddressVerified)
     )
-  }, [step, isAddressVerified])
+  }, [step, isAddressVerified, isIPAddressVerified])
+
+  const wifiBackDisplayStep = () => {
+    if (isWIFI) {
+      switch (step) {
+        case 'ADD_NEW_EMAIL_ADDRESS':
+        case 'ADD_NEW_MOBILE_NUMBER':
+          return true
+        default:
+          return false
+      }
+    } else {
+      return false
+    }
+  }
+  const wifiBackDisplay = wifiBackDisplayStep()
 
   return (
     <RegisterTimeout>
@@ -185,6 +208,18 @@ const Register = () => {
             >
               <BackArrowComponent text={signInLinkText?.value} />
             </a>
+          )}
+          {wifiBackDisplay && (
+            <div
+              className={classes.signInHeader}
+              role="button"
+              data-id="register-with-email-and-mobile-back-btn"
+              onClick={() =>
+                dispatch(registerSlice.actions.setStep('CONFIRM_EMAIL'))
+              }
+            >
+              <BackArrowComponent text={backText.back?.value} />
+            </div>
           )}
           {step === 'REGISTER_WITH_NAME_AND_ADDRESS' && (
             <div
@@ -277,24 +312,29 @@ const Register = () => {
   )
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ breakpoints }) => ({
   root: {
     backgroundColor: colors.main.lightGray,
     minHeight: 'calc(100vh - 184px)',
   },
   innerWrapper: {
     ...COMPONENT_WRAPPER,
-    maxWidth: 680,
+    //maxWidth: 680,
+    maxWidth: 776,
     paddingTop: 42,
     paddingBottom: 42,
   },
   headerLogoContainer: {
     textAlign: 'center',
     marginBottom: 32,
+    display: 'none',
     '& button': {
       border: 0,
       background: 'transparent',
       cursor: 'pointer',
+    },
+    [breakpoints.up('md')]: {
+      display: 'block',
     },
   },
   signInHeader: {

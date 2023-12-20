@@ -110,7 +110,7 @@ const useStyles = makeStyles(() => ({
     },
     '& ::after': {
       content: "'Expand'",
-      display: "none",
+      display: 'none',
       margin: 'auto',
       padding: 4,
       borderRadius: 4,
@@ -122,8 +122,8 @@ const useStyles = makeStyles(() => ({
       right: -40,
     },
     '& :hover::after': {
-        display: "block",
-        position: "absolute",
+      display: 'block',
+      position: 'absolute',
     },
   },
   menuCustom: {

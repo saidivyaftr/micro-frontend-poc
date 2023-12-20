@@ -137,7 +137,7 @@ const BannerCarousal = () => {
         allowSlidePrev={true}
         slidesPerView={1}
         autoplay={{
-          delay: 700000,
+          delay: 7000,
           disableOnInteraction: false,
         }}
       >

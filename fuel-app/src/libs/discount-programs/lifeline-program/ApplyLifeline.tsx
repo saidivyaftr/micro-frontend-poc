@@ -102,6 +102,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     width: 'unset',
     color: colors.main.white,
     textDecoration: 'none !important',
+    height: "auto", 
     [breakpoints.down('md')]: {
       fontSize: '1rem',
     },

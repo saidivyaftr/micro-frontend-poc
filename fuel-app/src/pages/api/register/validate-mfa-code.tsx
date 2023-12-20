@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { STATUS_CODES } from 'src/constants'
 import fetcher from '../fetcherApi'
-import { v4 as uuidv4 } from 'uuid'
 import { primaryValidateMFA } from './mock-data'
 import moment from 'moment'
 
@@ -11,9 +10,9 @@ const validateMFACode = async (req: NextApiRequest, res: NextApiResponse) => {
     if (shouldMockAPI) {
       return returnMockData(req, res)
     }
+
     const endpoint = `cssauthorization/v1/validate/mfacode`
     const response = await fetcher.post(endpoint, req.body, {
-      CorrelationId: uuidv4(),
       ApplicationName: 'frontierdotcom',
       UserName: null,
     })

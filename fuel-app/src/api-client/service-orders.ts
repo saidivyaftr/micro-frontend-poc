@@ -2,41 +2,23 @@ import axios, { AxiosResponse } from 'axios'
 import { CancelOrderTicket, ServiceOrders } from './types'
 
 const serviceOrdersAPIs = (getBaseURL: () => string) => ({
-  getOrderInfo: (uuid: string) => {
-    try {
-      return axios(`${getBaseURL()}/api/accounts/${uuid}/service-order`)
-    } catch (error: any) {
-      return error
-    }
+  getServiceOrderDetails: (
+    serviceId: string,
+    env: string,
+    type: string,
+  ): Promise<AxiosResponse<ServiceOrders.ServiceOrderList>> => {
+    return axios.get(
+      `${getBaseURL()}/api/services/${serviceId}/serviceOrders?historyDays=90&serviceEnv=${env}&serviceType=${type}`,
+    )
   },
-  getAppointmentDetails: (uuid: string) => {
-    try {
-      return axios.get(
-        `${getBaseURL()}/api/accounts/${uuid}/service-order/appointments`,
-      )
-    } catch (error: any) {
-      return error
-    }
-  },
-  updateAppointment: (uuid: string, payload: any) => {
-    try {
-      return axios.post(
-        `${getBaseURL()}/api/accounts/${uuid}/service-order/appointments`,
-        payload,
-      )
-    } catch (error: any) {
-      return error
-    }
-  },
-  updateContactNumber: (uuid: string, payload: any) => {
-    try {
-      return axios.put(
-        `${getBaseURL()}/api/accounts/${uuid}/service-order/contact-number`,
-        payload,
-      )
-    } catch (error: any) {
-      return error
-    }
+  getAppointmentDetails: (
+    serviceId: string,
+    orderId: string,
+    startDate: string,
+  ) => {
+    return axios.get(
+      `${getBaseURL()}/api/services/${serviceId}/serviceOrders/${orderId}/appointments?daysToSearch=14&startDate=${startDate}`,
+    )
   },
   editAppointmentDetails: (payload: ServiceOrders.UpdateAppointmentPayload) => {
     return axios.put(
@@ -44,6 +26,12 @@ const serviceOrdersAPIs = (getBaseURL: () => string) => ({
         payload.id
       }`,
       payload,
+    )
+  },
+  updateServiceContactNumber: (data: ServiceOrders.ServiceOrderContact) => {
+    return axios.put(
+      `${getBaseURL()}/api/services/${data.serviceId}/serviceOrders/${data.id}`,
+      data,
     )
   },
   getUsersLinkedToService: (serviceId: string) => {

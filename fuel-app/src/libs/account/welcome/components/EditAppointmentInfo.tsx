@@ -14,11 +14,13 @@ const EditAppointmentInfo = () => {
     return null
   }
 
-  const {arrivalWindow} = unprovisionedServiceOrder?.appointment;
+  const { startTime, endTime } = formatSchedule(
+    unprovisionedServiceOrder?.appointment,
+  )
 
-  const { startTime, endTime } = formatSchedule(arrivalWindow)
-
-  const formattedAppointmentDate = getFormattedDate(arrivalWindow.start)
+  const formattedAppointmentDate = getFormattedDate(
+    unprovisionedServiceOrder?.appointment?.startDate,
+  )
 
   return (
     <>

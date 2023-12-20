@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import {
   Register,
   RegisterStep,
+  SearchIpaddress,
   SearchEmailOrMobile,
   SearchLastNameAndAddress,
   VerifySSNAndDOB,
@@ -14,8 +15,9 @@ import { scrollToTop } from 'src/utils/register'
 import { State } from '../types'
 
 export const initialState: Register = {
-  step: 'REGISTER_WITH_EMAIL_OR_MOBILE',
-  flowType: 'EMAIL',
+  //step: 'REGISTER_WITH_EMAIL_OR_MOBILE',
+  step: 'SEARCH_BY_IPADDRESS',
+  flowType: 'WIFI',
   hasApiFailed: false,
 
   accountUuid: undefined,
@@ -40,6 +42,7 @@ export const initialState: Register = {
   gigyaUid: undefined,
   associatedEmailId: undefined,
 
+  searchIpaddress: undefined,
   searchEmailOrMobile: undefined,
   searchLastNameAndAddress: undefined,
   verifySSNAndDOB: undefined,
@@ -48,6 +51,7 @@ export const initialState: Register = {
   updateEmail: undefined,
   updatePhone: undefined,
   isAddressVerified: false,
+  isIPAddressVerified: false,
   createPassword: undefined,
   password: undefined,
   completeRegistration: undefined,
@@ -154,6 +158,10 @@ export const registerSlice = createSlice({
       ...state,
       gigyaUid: action.payload,
     }),
+    searchIpAddressData: (state, action: { payload: SearchIpaddress }) => ({
+      ...state,
+      searchIpaddress: action.payload,
+    }),
     searchEmailOrMobileData: (
       state,
       action: { payload: SearchEmailOrMobile },
@@ -187,6 +195,10 @@ export const registerSlice = createSlice({
     setUpdateOrAddNewPhonePayload: (state, action) => ({
       ...state,
       updatePhone: action.payload,
+    }),
+    setIPAddressVerified: (state, action) => ({
+      ...state,
+      isIPAddressVerified: action.payload,
     }),
     setAddressVerified: (state, action) => ({
       ...state,

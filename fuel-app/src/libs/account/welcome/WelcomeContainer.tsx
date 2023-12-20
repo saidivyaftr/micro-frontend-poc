@@ -1,9 +1,8 @@
 import { Loading } from 'src/blitz'
 import { useEffect, useLayoutEffect } from 'react'
-import {
-  useWelcomePageData,
-} from 'src/selector-hooks'
+import { useWelcomePageData } from 'src/selector-hooks'
 import { useDispatch } from 'react-redux'
+import { fetchServiceOrderData } from 'src/redux/slicers/welcome'
 import { WelcomeContainerImpl } from './WelcomeContainerImpl'
 import {
   VERIFIED_SERVICE_AREA,
@@ -22,7 +21,6 @@ import TechnicalErrorCard from './components/TechnicalErrorCard'
 import OrderNotFoundCard from './components/OrderNotFoundCard'
 import { usePageLoadEvents } from '@/shared-ui/hooks/index'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
-import { fetchServiceOrderData, fetchBillingSummary } from 'src/redux/slicers/welcome'
 
 const EVENT88_MESSAGE =
   'Something went wrong on our end. Please try again later.'
@@ -30,6 +28,7 @@ const EVENT88_MESSAGE =
 const WelcomeContainer = () => {
   const classes = useStyles()
   const dispatch = useDispatch()
+
   const {
     selectedService,
     isLoadingServiceOrders,
@@ -40,26 +39,12 @@ const WelcomeContainer = () => {
     isNoInstallationOrder,
     hasNoAppointment,
   } = useWelcomePageData()
-  console.log(unprovisionedServiceOrder, selectedService)
 
   useLayoutEffect(() => {
     if (selectedService) {
-      dispatch(fetchServiceOrderData(selectedService.id))
+      dispatch(fetchServiceOrderData(selectedService))
     }
   }, [selectedService])
-
-  useLayoutEffect(() => {
-    if (selectedService && unprovisionedServiceOrder) {
-      dispatch(fetchBillingSummary({
-        uuid: selectedService.id,
-        environmentCode: selectedService?.address?.environment || '',
-        orderNumber: unprovisionedServiceOrder?.OrderNumber,
-        status: selectedService.accountStatus,
-      }))
-    }
-  }, [selectedService, unprovisionedServiceOrder])
-
-     
 
   // Adobe tagging
   let pageName = WELCOME_PAGE_TECH_INSTALL
@@ -115,6 +100,7 @@ const WelcomeContainer = () => {
       </div>
     )
   }
+
   if (errorFetchingUnprovisionedServiceOrder) {
     return <TechnicalErrorCard />
   }

@@ -5,6 +5,7 @@ import { useAppData } from 'src/hooks'
 import { FAQ_EXPAND, SITE_INTERACTION } from 'src/constants'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import { IShopComponents } from './types'
+import colors from '@/shared-ui/colors'
 
 const FiberInternetFAQ = ({ styles }: IShopComponents) => {
   const classes = useStyles()
@@ -81,6 +82,9 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     padding: 16,
     '& a': {
       textDecoration: 'underline',
+      '&:hover': {
+        color: colors.main.brightRed,
+      },
     },
     '& p': {
       margin: '0!important',

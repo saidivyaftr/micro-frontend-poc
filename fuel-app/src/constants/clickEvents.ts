@@ -151,6 +151,7 @@ export const FORGOT_PASSWORD = { CHAT_EVENT: 'ForgotPW-Reset_Password' }
 export const RETURNS_FIND = 'equipment_returns'
 export const RETURNS_FIND_ACCOUNT = 'equipment_returns_account'
 export const RETURNS_FIND_SERVICES = 'equipment_returns_service'
+export const WIFI = 'WIFI'
 
 export const QUANTITY_ACTIONS = {
   INCREMENT: 'INCREMENT',

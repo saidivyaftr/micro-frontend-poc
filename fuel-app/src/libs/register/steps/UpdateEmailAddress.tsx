@@ -7,7 +7,12 @@ import { isValidEmail } from 'src/utils/validator'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateEmailAction } from 'src/redux/actions/register'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { ADD_NEW_EMAIL_ADDRESS, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  WIFI,
+  ADD_NEW_EMAIL_ADDRESS,
+  CUSTOMER,
+  SERVICEABLE,
+} from 'src/constants'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import { State } from 'src/redux/types'
 import ModalWrapper from '../components/ModalWrapper'
@@ -26,9 +31,15 @@ const UpdateEmailAddress = () => {
   })
 
   const classes = useStyles()
-  const { title, info, addEmailBtnText } = useAppData('AddEmailAddress', true)
+  const { title, info, addEmailBtnText, wifiAddEmailCTA } = useAppData(
+    'AddEmailAddress',
+    true,
+  )
   const dispatch = useDispatch()
-  const { email, updateEmail } = useSelector((state: State) => state.register)
+  const { email, updateEmail, flowType } = useSelector(
+    (state: State) => state.register,
+  )
+  const isWIFI = flowType === WIFI
   const alreadyRegisteredEmail = useAppData('alreadyRegisteredEmail', true)
 
   // State management
@@ -105,7 +116,7 @@ const UpdateEmailAddress = () => {
         hoverVariant="primary"
         className={classes.submitBtn}
         onClick={handleUpdateEmail}
-        text={addEmailBtnText?.value}
+        text={isWIFI ? wifiAddEmailCTA?.value : addEmailBtnText?.value}
         disabled={!isValidEmailAddress}
         isBusy={updateEmail?.isBusy}
         data-tid="update-email-submit-btn"

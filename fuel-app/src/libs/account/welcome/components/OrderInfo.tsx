@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 import { makeStyles } from '@material-ui/core'
 import { Typography } from 'src/blitz'
-import { CircleCheckMark } from 'src/blitz/assets/react-icons'
+import { CheckMark } from 'src/blitz/assets/react-icons'
 import UpsTrackingNumber from './UpsTrackingNumber'
 import AddressRenderer from './AddressRenderer'
 import {
@@ -18,11 +18,12 @@ import { useWelcomePageData } from 'src/selector-hooks'
 const OrderInfo = () => {
   const { setChatState, setChatParams } = useChatState()
   const classes = useStyles()
+
   const {
     isCancelledOrder,
     isNoInstallationOrder,
     isSelfInstallationOrder,
-    unprovisionedServiceOrder: orderInfo,
+    unprovisionedServiceOrder,
   } = useWelcomePageData()
   const {
     orderNumber: orderNo,
@@ -42,71 +43,77 @@ const OrderInfo = () => {
     'YourInformation',
     true,
   )
+
   const handleOpenChat = () => {
     setChatParams({ launchOption: 'WelcomePage_NewServiceOrderInquiry' })
     setChatState(true)
   }
 
-  if (!orderInfo) {
+  if (!unprovisionedServiceOrder) {
     return null
   }
   const {
-    OrderNumber,
-    ServicesOrdered,
-    OrderDueDate,
-    ServiceAddress,
-    trackingNumbers,
-  } = orderInfo
+    id: orderNumber,
+    productsAdded,
+    dueDate,
+    serviceAddress,
+  } = unprovisionedServiceOrder
 
   const showUPSTrackingNumber =
     isSelfInstallationOrder &&
-    hasUPSTrackingNumber(trackingNumbers)
+    hasUPSTrackingNumber(unprovisionedServiceOrder.trackingNumbers)
   return (
     <>
       <div className={classes.container}>
         <div className={classes.leftCol}>
-          <Typography styleType="h6">{orderNo?.value}</Typography>
+          <Typography fontType="boldFont" styleType="p2">
+            {orderNo?.value}
+          </Typography>
         </div>
 
         <div>
-          <Typography fontType="regularFont" styleType="h6">
-            {OrderNumber}
+          <Typography fontType="regularFont" styleType="p2">
+            {orderNumber}
           </Typography>
         </div>
       </div>
 
-      { isSelfInstallationOrder &&
+      {unprovisionedServiceOrder &&
+        isSelfInstallationOrder &&
         !isCancelledOrder && (
           <div className={classes.container}>
             <div className={classes.leftCol}>
-              <Typography styleType="h6">
+              <Typography fontType="boldFont" styleType="p2">
                 {orderInstallationType?.value}
               </Typography>
             </div>
             <div>
-              <Typography fontType="regularFont" styleType="h6">
+              <Typography fontType="regularFont" styleType="p2">
                 {orderTypeSelfInstall?.value}
               </Typography>
             </div>
           </div>
         )}
 
-      {(isSelfInstallationOrder || isNoInstallationOrder) &&
+      {unprovisionedServiceOrder &&
+        (isSelfInstallationOrder || isNoInstallationOrder) &&
         !isCancelledOrder &&
-        OrderDueDate && (
+        dueDate && (
           <div className={classes.container}>
             <div className={classes.leftCol}>
-              <Typography styleType="h6">{serviceStartDate?.value}</Typography>
+              <Typography fontType="boldFont" styleType="p2">
+                {serviceStartDate?.value}
+              </Typography>
             </div>
             <div>
-              <Typography fontType="regularFont" styleType="h6">
-                {`${getDayFromDate(OrderDueDate)},
-                ${getFormattedDate(OrderDueDate)}`}
+              <Typography fontType="regularFont" styleType="p2">
+                {`${getDayFromDate(dueDate)},
+                ${getFormattedDate(dueDate)}`}
               </Typography>
               {isSelfInstallationOrder && (
                 <Typography
                   fontType="regularFont"
-                  styleType="p2"
+                  styleType="p3"
                   className={classes.serviceStatus}
                 >
                   {selfInstallServiceStatus?.value}
@@ -128,12 +135,14 @@ const OrderInfo = () => {
       {isCancelledOrder && (
         <div className={classes.container}>
           <div className={classes.leftCol}>
-            <Typography styleType="h6">{status?.value}</Typography>
+            <Typography fontType="boldFont" styleType="p2">
+              {status?.value}
+            </Typography>
           </div>
 
           <div className={classes.orderStatus}>
             <CancelIcon height={24} width={24} />
-            <Typography fontType="regularFont" styleType="h6">
+            <Typography fontType="regularFont" styleType="p2">
               {cancelled?.value}
             </Typography>
           </div>
@@ -142,36 +151,42 @@ const OrderInfo = () => {
       {!isCancelledOrder && showUPSTrackingNumber && (
         <div className={classes.container}>
           <div className={classes.leftCol}>
-            <Typography styleType="h6">{upsTrackingNumber?.value}</Typography>
+            <Typography fontType="boldFont" styleType="p2">
+              {upsTrackingNumber?.value}
+            </Typography>
           </div>
           <UpsTrackingNumber />
         </div>
       )}
 
-      {servicesOrdered?.length > 0 && (<div className={classes.container}>
+      <div className={classes.container}>
         <div className={classes.leftCol}>
-          <Typography styleType="h6">{servicesOrdered?.value}</Typography>
+          <Typography fontType="boldFont" styleType="p2">
+            {servicesOrdered?.value}
+          </Typography>
         </div>
 
         <div>
-          {ServicesOrdered?.map((item: any) => (
+          {productsAdded.map((item: any) => (
             <div className={classes.productsList} key={item.id}>
-              {!isCancelledOrder && <CircleCheckMark height={24} width={24} />}
-              <Typography fontType="regularFont" styleType="h6">
-                {item}
+              {!isCancelledOrder && <CheckMark />}
+              <Typography fontType="regularFont" styleType="p2">
+                {item.filteredDescription}
               </Typography>
             </div>
           ))}
         </div>
-      </div>)}
+      </div>
       <div className={classes.container}>
         <div className={classes.leftCol}>
-          <Typography styleType="h6">{serviceAddressTitle?.value}</Typography>
+          <Typography fontType="boldFont" styleType="p2">
+            {serviceAddressTitle?.value}
+          </Typography>
         </div>
         <div>
-          {ServiceAddress && (
+          {serviceAddress && (
             <AddressRenderer
-              address={getFormattedServiceAddress(ServiceAddress)}
+              address={getFormattedServiceAddress(serviceAddress)}
             />
           )}
         </div>

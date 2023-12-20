@@ -14,6 +14,7 @@ import { registerSlice } from '../slicers/register'
 import { State } from '../types'
 import { ValidateSecondaryMFAPayload } from 'src/api-client/registerAPI'
 import { login } from 'src/utils/loginHelper'
+import { publicIpv4 } from 'public-ip'
 
 const MAX_OTP_ATTEMPTS_LIMITS = 3
 
@@ -26,6 +27,7 @@ export const setPassword = registerSlice.actions.setPassword
 export const setApiErrorModal = registerSlice.actions.setApiErrorModal
 export const searchLastNameAndAddressData =
   registerSlice.actions.searchLastNameAndAddressData
+const searchIpAddressData = registerSlice.actions.searchIpAddressData
 const searchEmailOrMobileData = registerSlice.actions.searchEmailOrMobileData
 const setIsBusySendingMFA = registerSlice.actions.setIsBusySendingMFA
 const setConfirmMFA = registerSlice.actions.setConfirmMFA
@@ -63,6 +65,107 @@ export const setCompleteRegistration =
 ////// ******************* //////
 ////// CSSAuthorization API's Actions
 ////// ******************* //////
+
+//Search with IpAddress
+export const searchIpAddressAction = (ip?: string | undefined) => {
+  return async (dispatch: any) => {
+    //clear data from previous search
+    dispatch(
+      searchLastNameAndAddressData({
+        isBusy: false,
+        failedReason: undefined,
+        isFound: false,
+      }),
+    )
+    dispatch(
+      searchEmailOrMobileData({
+        isBusy: false,
+        failedReason: undefined,
+        isFound: false,
+      }),
+    )
+    dispatch(
+      searchIpAddressData({
+        isBusy: true,
+        failedReason: undefined,
+        isFound: false,
+        isRegistered: false,
+        useSSNDOB: false,
+      }),
+    )
+
+    let isFound = false,
+      isRegistered = false,
+      useSSNDOB = false
+    let failedReason: PrimarySearchErrorCode = undefined
+    try {
+      const ipAddress = ip || (await publicIpv4())
+      //TODO remove query string ip logicfor release
+      console.log('@@ ipAddress >>> ', ipAddress)
+      const response = await APIClient.searchAuthorizationMethods({
+        ipAddress: { value: ipAddress },
+      })
+
+      // setting grant token & methods
+      const grantToken = response?.data?.grantToken
+      const methods = response?.data?.methods
+      dispatch(setCssAPIGrantToken(grantToken))
+      dispatch(setAuthorizationMethods(methods || []))
+      isFound = true
+
+      let status,
+        hasSMS = false,
+        hasEmail = false
+
+      for (const m of methods) {
+        if (m.method === 'frontierId') {
+          status = 'REGISTERED'
+          break
+        } else if (m.method === 'mfaSms') {
+          hasSMS = true
+        } else if (m.method === 'mfaEmail') {
+          hasEmail = true
+        }
+      }
+
+      if (status !== 'REGISTERED') {
+        if (hasSMS && hasEmail) status = 'BOTH'
+        else if (hasSMS && !hasEmail) status = 'SMS'
+        else if (!hasSMS && hasEmail) status = 'EMAIL'
+        dispatch(registerSlice.actions.setIPAddressVerified(true))
+      }
+
+      if (status === 'REGISTERED') {
+        isRegistered = true
+      } else if (status === 'BOTH' || status === 'SMS' || status === 'EMAIL') {
+        dispatch(setStep('MOBILE_EMAIL_FOUND'))
+        dispatch(setFlowType('WIFI'))
+      } else if (status === 'EMAIL') {
+        await APIClient.sendPrimaryMFAByEmail({ grantToken })
+        dispatch(setStep('VERIFY_EMAIL_OTP'))
+        dispatch(setFlowType('WIFI'))
+      } else {
+        useSSNDOB = true
+      }
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        failedReason = 'ACCOUNT_NOT_FOUND'
+        dispatch(setStep('REGISTER_WITH_EMAIL_OR_MOBILE'))
+      } else {
+        dispatch(setApiErrorModal(true))
+      }
+    }
+    dispatch(
+      searchIpAddressData({
+        isBusy: false,
+        failedReason,
+        isFound,
+        isRegistered,
+        useSSNDOB,
+      }),
+    )
+  }
+}
 
 // Search with EMAIL or MOBILE
 export const searchEmailOrMobileAction = (payload: any, method: mfaMethod) => {

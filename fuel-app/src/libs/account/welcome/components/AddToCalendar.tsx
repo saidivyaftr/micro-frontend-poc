@@ -36,15 +36,15 @@ const AddToCalendar = ({ title, description, start, end }: PageProps) => {
     },
   ]
 
-  const links = calendarList.map((cal: any, index: number) =>
+  const links = calendarList.map((cal: any, index: number) => (
     <div className={classes.link} key={index}>
       <a target="_blank" href={cal.title} rel="noreferrer">
         <Typography fontType="mediumFont" styleType="p2">
           {cal.value}
         </Typography>
       </a>
-    </div>,
-  )
+    </div>
+  ))
   return (
     <>
       <div className={classes.container}>
@@ -53,9 +53,7 @@ const AddToCalendar = ({ title, description, start, end }: PageProps) => {
             {addTo?.value}
           </Typography>
         </div>
-        <div className={classes.linkwrapper}>
-          {links}
-        </div>
+        <div className={classes.linkwrapper}>{links}</div>
       </div>
     </>
   )
@@ -93,7 +91,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
   linkwrapper: {
     display: 'flex',
-  }
+  },
 }))
 
 export default AddToCalendar

@@ -14,9 +14,10 @@ import {
 import { useMemo } from 'react'
 import { formSingleLineAddressForESBAddress } from 'src/utils/addressHelpers'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
-import ChatWithUsLine from '../components/./ChatWithUs'
+//import ChatWithUsLine from '../components/./ChatWithUs'
 
-const ConfirmAddress = (props: any) => {
+//const ConfirmAddress = (props: any) => {
+const ConfirmAddress = () => {
   const { flowType, phone, email, accountVerifiedAddress } = useSelector(
     (state: State) => state.register,
   )
@@ -123,11 +124,11 @@ const ConfirmAddress = (props: any) => {
           className={classes.continueBtn}
           text={confirmBtnText?.value}
         />
-        {flowType !== 'LAST_NAME_AND_ADDRESS' && (
+        {/* {flowType !== 'LAST_NAME_AND_ADDRESS' && (
           <p className={classes.textCenter}>
             <ChatWithUsLine handleClose={props?.handleClose} />
           </p>
-        )}
+        )} */}
       </form>
     </div>
   )

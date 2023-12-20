@@ -2,22 +2,24 @@ import { makeStyles } from '@material-ui/core'
 import { Typography } from 'src/blitz'
 import { COMPONENT_WRAPPER } from 'src/constants'
 import colors from 'src/styles/theme/colors'
-import { useProfileData, useWelcomePageData } from 'src/selector-hooks'
+import { useProfileData } from 'src/selector-hooks'
 import cls from 'classnames'
 import { WelcomePageAccountDropdown } from './WelcomePageAccountDropdown'
-import useAppData from '@/shared-ui/hooks/useAppData'
-const WelcomeHero = () => {
+
+interface PageProps {
+  title?: string
+  subTitle?: string
+}
+
+const WelcomeHero = ({ title, subTitle }: PageProps) => {
   const classes = useStyles()
   const profileData = useProfileData()
-  const { isCancelledOrder, isTechInstallationOrder, isNoInstallationOrder } =
-    useWelcomePageData()
-  const { title, selfInstallSubTitle, techInstallSubTitle } =
-    useAppData('WelcomeMessage', true) || {}
+
   return (
     <div className={classes.wrapper}>
       <div
         className={cls(classes.container, {
-          [classes.fullHeight]: !(isCancelledOrder || isNoInstallationOrder),
+          [classes.fullHeight]: !subTitle,
         })}
       >
         <div className={classes.flex1}>
@@ -28,7 +30,7 @@ const WelcomeHero = () => {
             color="tertiary"
             className={classes.title}
           >
-            {title.value}
+            {title}
           </Typography>
           <Typography
             testId="test-profileData"
@@ -39,16 +41,14 @@ const WelcomeHero = () => {
           >
             {profileData?.firstName || ''}
           </Typography>
-          {!(isNoInstallationOrder || isCancelledOrder) && (
+          {subTitle && (
             <Typography
               testId="test-subTitle"
               styleType="h5"
               color="tertiary"
               className={classes.subTitle}
             >
-              {isTechInstallationOrder
-                ? techInstallSubTitle?.value
-                : selfInstallSubTitle?.value}
+              {subTitle}
             </Typography>
           )}
         </div>

@@ -62,17 +62,17 @@ const VacationServiceModal = ({ modal, setModal, setVacationType }: any) => {
             VacationServiceModals.Success,
             VacationServiceModals.CancelSuccess,
           ].includes(modal) && (
-              <div className={classes.modalCloseIconWrapper}>
-                <ModalCloseIcon
-                  strokeWidth="4"
-                  color={colors.main.black}
-                  onClick={() => {
-                    setModal(VacationServiceModals.Init)
-                  }}
-                  className={classes.closeIcon}
-                />
-              </div>
-            )}
+            <div className={classes.modalCloseIconWrapper}>
+              <ModalCloseIcon
+                strokeWidth="4"
+                color={colors.main.black}
+                onClick={() => {
+                  setModal(VacationServiceModals.Init)
+                }}
+                className={classes.closeIcon}
+              />
+            </div>
+          )}
           {modalContent}
         </div>
       }

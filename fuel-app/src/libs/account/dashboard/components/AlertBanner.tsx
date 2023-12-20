@@ -12,7 +12,7 @@ import {
 import useWindowDimensions from '@/shared-ui/hooks/useWindowDimensions'
 import clx from 'classnames'
 import { useAppData } from 'src/hooks'
-import { getFormattedDate } from 'src/libs/account/welcome/helper'
+import { getFormattedDate } from 'src/libs/account/helper'
 SwiperCore.use([Autoplay, Navigation, Pagination])
 
 const AlertBanner = () => {

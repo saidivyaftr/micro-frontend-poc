@@ -206,7 +206,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   accountDropdown: {
     '&::after': {
       content: "'Expand'",
-      display: "none",
+      display: 'none',
       margin: 'auto',
       padding: 4,
       borderRadius: 4,
@@ -216,11 +216,11 @@ const useStyles = makeStyles(({ breakpoints }) => ({
       fontStyle: 'normal',
       fontWeight: 400,
       right: -30,
-      top:10,
+      top: 10,
     },
     '&:hover::after': {
-        display: "block",
-        position: "absolute",
+      display: 'block',
+      position: 'absolute',
     },
     width: '100%',
     minWidth: '25rem',

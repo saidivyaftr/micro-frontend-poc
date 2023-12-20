@@ -10,12 +10,12 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   root: {
     backgroundColor: colors.main.white,
     borderRadius: 32,
-    padding: 48,
-    minWidth: 685,
+    padding: '40px 16px',
+    minWidth: 'unset',
     marginBottom: 32,
-    [breakpoints.down('xs')]: {
-      padding: 36,
-      minWidth: 'unset',
+    [breakpoints.up('sm')]: {
+      padding: 48,
+      minWidth: 648,
     },
   },
 }))

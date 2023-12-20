@@ -25,6 +25,7 @@ export type Register = {
   gigyaUid?: string
   associatedEmailId?: string
 
+  searchIpaddress?: SearchIpaddress
   searchEmailOrMobile?: SearchEmailOrMobile
   searchLastNameAndAddress?: SearchLastNameAndAddress
   verifySSNAndDOB?: VerifySSNAndDOB
@@ -33,12 +34,14 @@ export type Register = {
   updateEmail?: UpdateOrAddNewEmail
   updatePhone?: UpdateOrAddNewPhone
   isAddressVerified: boolean
+  isIPAddressVerified: boolean
   createPassword?: CreatePassword
   password?: string
   completeRegistration?: CompleteRegistation
 }
 
 export type RegisterStep =
+  | 'SEARCH_BY_IPADDRESS'
   | 'REGISTER_WITH_EMAIL_OR_MOBILE'
   | 'REGISTER_WITH_NAME_AND_ADDRESS'
   | 'VERIFY_WITH_SSN'
@@ -53,8 +56,9 @@ export type RegisterStep =
   | 'CONFIRM_ADDRESS'
   | 'CREATE_PASSWORD'
   | 'REGISTER_SUCCESS'
+  | 'MOBILE_EMAIL_FOUND'
 
-export type FlowType = 'EMAIL' | 'PHONE' | 'LAST_NAME_AND_ADDRESS'
+export type FlowType = 'WIFI' | 'EMAIL' | 'PHONE' | 'LAST_NAME_AND_ADDRESS'
 
 export type VerifySSNAndDOB = {
   data?: {
@@ -79,6 +83,14 @@ export type UpdateOrAddNewEmail = {
   isBusy: boolean
   failedReason?: UpdateOrAddNewEmailErrorCode
   errorMessage?: string
+}
+
+export type SearchIpaddress = {
+  isBusy: boolean
+  failedReason?: PrimarySearchErrorCode
+  isFound: boolean
+  isRegistered: boolean
+  useSSNDOB: boolean
 }
 
 export type SearchEmailOrMobile = {

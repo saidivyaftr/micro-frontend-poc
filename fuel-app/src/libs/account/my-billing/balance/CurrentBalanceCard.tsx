@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import { AppRoutes } from 'src/constants/appRoutes'
 import colors from 'src/styles/theme/colors'
 import { pick } from 'src/utils/appData/dataExtractor'
-import { extractBill, getLabelAndIcon } from '../../welcome/helper'
+import { extractBill, getLabelAndIcon } from '../../helper'
 import {
   TotalBalance,
   ManagePayments,

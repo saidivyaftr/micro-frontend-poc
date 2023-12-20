@@ -13,7 +13,7 @@ import { useVacationServicesInfo } from 'src/selector-hooks'
 import ModalCloseIcon from '@/shared-ui/react-icons/modalClose'
 import { useChatState } from 'src/hooks'
 import { PP_OBJECT_SANS_MEDIUM } from 'src/constants/fontFamilyNames'
-import { getFormattedDate } from 'src/libs/account/welcome/helper'
+import { getFormattedDate } from 'src/libs/account/helper'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import {
   VACATION_SERVICES_PAGES,

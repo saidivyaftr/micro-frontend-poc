@@ -4,7 +4,7 @@ import { Typography, Button } from '@/shared-ui/components'
 import { COMPONENT_WRAPPER, CUSTOMER, SERVICEABLE } from 'src/constants'
 import colors from '@/shared-ui/colors'
 import { usePageLoadEvents } from 'src/hooks'
-import ChatWithUsLine from './ChatWithUs'
+//import ChatWithUsLine from './ChatWithUs'
 const ActionModal = (props: any) => {
   const classes = useStyles()
   const {
@@ -16,7 +16,7 @@ const ActionModal = (props: any) => {
     btn2,
     icon = 'warning',
     trackingPageName,
-    hideChatWithUsMsg = false,
+    //hideChatWithUsMsg = false,
   } = props.data
   usePageLoadEvents({
     shouldTriggerDTMEvent: true,
@@ -80,9 +80,9 @@ const ActionModal = (props: any) => {
           />
         )}
       </div>
-      {hideChatWithUsMsg ? null : (
+      {/* {hideChatWithUsMsg ? null : (
         <ChatWithUsLine handleClose={props?.handleClose} />
-      )}
+      )} */}
     </div>
   )
 }

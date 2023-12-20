@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Button, InjectHTML } from '@/shared-ui/components'
 import { ErrorTriangeOutline } from '@/shared-ui/react-icons/index'
 import { useActiveAccount } from 'src/selector-hooks'
-import { extractBill } from 'src/libs/account/welcome/helper'
+import { extractBill } from 'src/libs/account/helper'
 
 const SuspendedTile = ({ textData }: any) => {
   const classes = useStyles()

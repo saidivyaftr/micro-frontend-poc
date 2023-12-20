@@ -1,6 +1,5 @@
 import moment from 'moment'
 import { ServiceOrders } from 'src/api-client/types'
-import { IServiceOrder, IAppointment, IServiceAddress, ArrivalWindow  } from 'src/redux/types/welcomeTypes'
 import { AppointmentDetailsProps } from './types'
 import { BSS_RESULT } from './constant'
 import { formAddressToTitleCase } from 'src/utils/addressHelpers'
@@ -34,10 +33,10 @@ export const getDates = (
 }
 
 export const formatSchedule = function (
-  appointment: ArrivalWindow,
+  appointment: AppointmentDetailsProps['appointment'],
 ) {
-  const startDateTime = moment(appointment?.start),
-    endDateTime = moment(appointment?.end)
+  const startDateTime = moment(appointment?.startDate),
+    endDateTime = moment(appointment?.endDate)
   return {
     month: startDateTime.format('MMM'),
     day: startDateTime.format('DD'),
@@ -58,29 +57,43 @@ export const getDayFromDate = (date: string) => {
   return dateTime?.format('dddd') || ''
 }
 
-export const isOrderCancelled = (order: IServiceOrder = {} as IServiceOrder) => {
-  // return order?.status === 'Cancelled' || order?.deactivatedDate !== null
-  return false;
-}
-export const isTechInstallOrder = (VXEventCode: string) => {
-  return ['PINSTALL'].includes(VXEventCode)
+export const isOrderCancelled = (
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return order?.status === 'Cancelled' || order?.deactivatedDate !== null
 }
 
-export const isSelfInstallOrder = (VXEventCode: string) => {
-  return ['SINSTALL'].includes(VXEventCode) 
+export const isOrderCanceled = (
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return order?.status === 'Canceled' || order?.deactivatedDate !== null
 }
 
-export const isNoInstallOrder = (VXEventCode: string) => {
-  return ['SINSTLLLLLALL'].includes(VXEventCode) 
+export const isTechInstallOrder = (
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return order?.installationType === 'FULL_INSTALL'
+}
+
+export const isSelfInstallOrder = (
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return order?.installationType === 'SELF_INSTALL'
+}
+
+export const isNoInstallOrder = (
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return order?.installationType === 'NO_INSTALL'
 }
 
 export const hasAppointmentDetails = (
-  order: IServiceOrder = {} as IServiceOrder,
+  order: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
 ) => {
   return Boolean(
     order?.appointment &&
-      order.appointment.arrivalWindow.start &&
-      order.appointment.arrivalWindow.end,
+      order.appointment.startDate &&
+      order.appointment.endDate,
   )
 }
 
@@ -109,23 +122,36 @@ export const hasUPSTrackingNumber = (upsNumber: any) => {
   return upsNumber != '0' && upsNumber?.length
 }
 
+export const pageSubTitle: any = (
+  selfInstallSubTitle: string,
+  techInstallSubTitle: string,
+  orderDetailsData: ServiceOrders.ServiceOrderDetails = {} as ServiceOrders.ServiceOrderDetails,
+) => {
+  return isOrderCancelled(orderDetailsData)
+    ? null
+    : (isSelfInstallOrder(orderDetailsData) && selfInstallSubTitle) ||
+        (isTechInstallOrder(orderDetailsData) && techInstallSubTitle) ||
+        null
+}
+
 export const getFormattedServiceAddress = (
-  serviceAddress: IServiceAddress,
+  serviceAddress: ServiceOrders.ServiceAddress,
 ) => {
   const {
     streetNumber = '',
     streetName = '',
     streetSuffix = '',
-    city,
-    state = '',
+    secondaryNumber = '',
+    cityName,
+    stateAbbreviation = '',
     zipCode = '',
   } = serviceAddress || {}
-  return{
+  return {
     street: formAddressToTitleCase(
-      `${streetNumber} ${streetName} ${streetSuffix}`,
+      `${streetNumber} ${streetName} ${streetSuffix}, ${secondaryNumber}`,
     )?.trim(),
-    city: formAddressToTitleCase(city),
-    state,
+    city: formAddressToTitleCase(cityName),
+    state: stateAbbreviation,
     zip: zipCode,
   }
 }

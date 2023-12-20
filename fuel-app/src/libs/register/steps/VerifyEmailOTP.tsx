@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/indent */
 import { makeStyles } from '@material-ui/core'
 import { useEffect, useState } from 'react'
 import colors from '@/shared-ui/colors'
@@ -16,41 +17,37 @@ import TimeoutMessage from '../components/TimeoutMessage'
 import { State } from 'src/redux/types'
 import { maskEmail } from 'src/utils/register'
 import { RegisterStep } from 'src/redux/types/registerTypes'
-import { useAppData, usePageLoadEvents } from 'src/hooks'
+import { useAppData, usePageLoadEvents, useWindowDimensions } from 'src/hooks'
 import {
-  VERIFY_PRIMARY_OTP,
-  VERIFY_SECONDARY_OTP,
+  authorizationType,
+  authorizationMethodsType,
+} from 'src/constants/register'
+import {
   CUSTOMER,
   SERVICEABLE,
   REG_SUNVERIFIED_MODAL,
   REG_SUNVERIFIED_CONTINUE,
+  WIFI,
+  WIFI_REGISTRATION,
+  VERIFY_SECONDARY_OTP,
 } from 'src/constants'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
+import { formatUrl } from 'src/utils/urlHelpers'
+import { getMethod } from '../util'
 
 const VerifyEmailOTP = () => {
   const classes = useStyles()
-  const {
-    title,
-    incorrectCodeText,
-    info,
-    incorrectInfoText,
-    incorrectInfoText2,
-    disclaimer,
-    codeExpiry,
-    confirmBtnText,
-    UpdateNumberLink,
-    invalidOTPMessage,
-    supportUrl,
-    supportInfo,
-    supportLink,
-  } = useAppData('OTPEmail', true)
-  const securityTimeout = useAppData('securityTimeout', true)
-  const unverifiedContactMethod = useAppData('unverifiedContactMethod', true)
+  const otpEmail = useAppData('OTPEmail', true) || {}
+  const securityTimeout = useAppData('securityTimeout', true) || {}
+  const unverifiedContactMethod =
+    useAppData('unverifiedContactMethod', true) || {}
 
   const {
     confirmMFA,
     email,
     isAddressVerified,
+    isIPAddressVerified,
+    isPhoneVerified,
     authorizationMethods,
     accountInformation,
     flowType,
@@ -67,6 +64,14 @@ const VerifyEmailOTP = () => {
 
   const isPrimaryVerificationDone = !!accountInformation
 
+  const mobileDevice = 767
+  const { width } = useWindowDimensions()
+  const isMobile = width <= mobileDevice
+  const hasPhoneMethod = getMethod(
+    authorizationMethods,
+    authorizationMethodsType.MFA_SMS,
+  )
+
   const [OTPvalue, setOTPValue] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [failedOTP, setFailedOTP] = useState(false)
@@ -74,23 +79,28 @@ const VerifyEmailOTP = () => {
   const dispatch = useDispatch()
 
   const isOTPValid = OTPvalue.length === 6
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI
+    ? WIFI_REGISTRATION.VERIFY_ACCOUNT_EMAIL
+    : VERIFY_SECONDARY_OTP
 
   usePageLoadEvents({
     shouldTriggerDTMEvent: true,
     eventData: {
-      pageName: isAddressVerified ? VERIFY_SECONDARY_OTP : VERIFY_PRIMARY_OTP,
+      pageName: pageStr,
       eVar22: CUSTOMER,
       eVar49: SERVICEABLE,
       events: 'event68',
-      eVar68: isAddressVerified ? VERIFY_SECONDARY_OTP : VERIFY_PRIMARY_OTP,
+      eVar68: pageStr,
     },
   })
 
   useEffect(() => {
     if (isAccountLocked) {
       if (
-        flowType != 'LAST_NAME_AND_ADDRESS' ||
-        (flowType == 'LAST_NAME_AND_ADDRESS' && hasReachedMaxEmailAttempts)
+        flowType != authorizationType.LAST_NAME_AND_ADDRESS ||
+        (flowType == authorizationType.LAST_NAME_AND_ADDRESS &&
+          hasReachedMaxEmailAttempts)
       ) {
         setOTPValue('')
         setOpenDialog(true)
@@ -101,8 +111,9 @@ const VerifyEmailOTP = () => {
   useEffect(() => {
     if (failedReason) {
       if (
-        flowType != 'LAST_NAME_AND_ADDRESS' ||
-        (flowType == 'LAST_NAME_AND_ADDRESS' && emailFailedReason)
+        flowType != authorizationType.LAST_NAME_AND_ADDRESS ||
+        (flowType == authorizationType.LAST_NAME_AND_ADDRESS &&
+          emailFailedReason)
       ) {
         setFailedOTP(true)
         setOTPValue('')
@@ -118,7 +129,7 @@ const VerifyEmailOTP = () => {
       },
       'tl_o',
     )
-    if (isAddressVerified) {
+    if (isAddressVerified || (isIPAddressVerified && isPhoneVerified)) {
       dispatch(
         validateSecondaryMFACodeAction(
           OTPvalue,
@@ -136,9 +147,16 @@ const VerifyEmailOTP = () => {
       )
     }
   }
-
   const getStepPostOTPVerification = (): RegisterStep => {
-    return isAddressVerified ? 'CREATE_PASSWORD' : 'CONFIRM_ADDRESS'
+    if (isWIFI) {
+      return isPhoneVerified
+        ? 'CREATE_PASSWORD'
+        : hasPhoneMethod
+        ? 'CONFIRM_MOBILE'
+        : 'ADD_NEW_MOBILE_NUMBER'
+    } else {
+      return isAddressVerified ? 'CREATE_PASSWORD' : 'CONFIRM_ADDRESS'
+    }
   }
 
   const onHandleShowSentCodeMessage = () => {
@@ -156,7 +174,7 @@ const VerifyEmailOTP = () => {
       },
       'tl_o',
     )
-    if (isAddressVerified) {
+    if (isAddressVerified || (isIPAddressVerified && isPhoneVerified)) {
       dispatch(sendSecondaryMFAByEmailAction(onHandleShowSentCodeMessage))
     } else {
       dispatch(sendPrimaryMFAByEmailAction(onHandleShowSentCodeMessage))
@@ -178,22 +196,22 @@ const VerifyEmailOTP = () => {
   }
 
   const securityTimeoutModalData = {
-    title: securityTimeout?.title,
-    info: securityTimeout?.info,
+    title: securityTimeout.title,
+    info: securityTimeout.info,
     info1: { value: <TimeoutMessage timeout={accountLockedUntil || ''} /> },
     btn1: {
-      text: securityTimeout?.btn1,
+      text: securityTimeout.btn1,
     },
-    supportInfo,
-    supportLink,
-    supportUrl,
+    supportInfo: otpEmail.supportInfo?.value,
+    supportLink: otpEmail.supportLink?.value,
+    supportUrl: otpEmail.supportUrl?.value,
   }
 
   const unverifiedContactMethodModalData = {
-    title: unverifiedContactMethod?.title,
-    info: unverifiedContactMethod?.info,
+    title: unverifiedContactMethod.title,
+    info: unverifiedContactMethod.info,
     btn1: {
-      text: unverifiedContactMethod?.btn1,
+      text: unverifiedContactMethod.btn1,
     },
     hideChatWithUsMsg: true,
     trackingPageName: REG_SUNVERIFIED_MODAL,
@@ -223,8 +241,11 @@ const VerifyEmailOTP = () => {
       return email
     }
     const filteredMethod = authorizationMethods?.find(
-      ({ method }) => method === 'mfaEmail',
+      ({ method }) => method === authorizationMethodsType.MFA_EMAIL,
     )
+    if (!email && filteredMethod?.maskedDeliveryLocation) {
+      return filteredMethod?.maskedDeliveryLocation
+    }
     if (isPrimaryVerificationDone || !filteredMethod) {
       return maskEmail(email ?? '')
     }
@@ -232,14 +253,25 @@ const VerifyEmailOTP = () => {
   }
 
   const dismissModal = () => {
-    setOpenDialog(false)
-    dispatch(registerSlice.actions.resetRegistrationFlow())
+    if (isWIFI) {
+      window.location.href = formatUrl('/login')
+    } else {
+      setOpenDialog(false)
+      dispatch(registerSlice.actions.resetRegistrationFlow())
+    }
   }
 
+  const infoText = failedOTP
+    ? otpEmail.incorrectInfoText2?.value
+    : otpEmail.info?.value
+
+  const displayEmail = getDisplayEmail()
+
+  const resentOTPStyleStyle = isMobile ? 'p1' : 'p3'
   return (
     <div>
       <Typography styleType="h4" tagType="h3" className={classes.title}>
-        {failedOTP ? incorrectCodeText?.value : title?.value}
+        {failedOTP ? otpEmail.incorrectCodeText?.value : otpEmail.title?.value}
       </Typography>
       {remainingAttempts != null && (
         <Typography
@@ -249,7 +281,7 @@ const VerifyEmailOTP = () => {
           className={classes.info}
           data-tid="remaining-attempts"
         >
-          {incorrectInfoText?.value.replace(
+          {otpEmail.incorrectInfoText?.value.replace(
             '{{count}}',
             remainingAttempts.toString(),
           )}
@@ -261,39 +293,33 @@ const VerifyEmailOTP = () => {
           fontType={failedOTP ? '' : 'boldFont'}
           data-tid="otp-title"
         >
-          {failedOTP ? incorrectInfoText2?.value : info?.value}
-        </Typography>
-        &nbsp;
-        <Typography
-          styleType="p1"
-          fontType={failedOTP ? '' : 'boldFont'}
-          data-tid="email"
-        >
-          {getDisplayEmail()}
+          {`${infoText + ' ' + displayEmail}`}
         </Typography>
       </div>
       <OTPInput
         value={OTPvalue}
         onChange={setOTPValue}
         isInvalidOTP={!!failedOTP}
-        invalidOTPMessage={`${invalidOTPMessage?.value}.`}
+        invalidOTPMessage={otpEmail.invalidOTPMessage?.value}
       />
       <Typography
         styleType="p1"
         className={classes.description}
         data-tid="code-expiry"
       >
-        {codeExpiry?.value}
+        {otpEmail.codeExpiry?.value}
       </Typography>
-      <Typography styleType="p1" className={classes.description}>
-        {disclaimer?.value}
-      </Typography>
+      {!failedOTP && (
+        <Typography styleType="p1" className={classes.description}>
+          {otpEmail.disclaimer?.value}
+        </Typography>
+      )}
       <Button
         type="button"
         variant="primary"
         hoverVariant="primary"
         className={classes.continueBtn}
-        text={confirmBtnText?.value}
+        text={otpEmail.confirmBtnText?.value}
         onClick={onSubmit}
         data-tid="submit-btn"
         disabled={!isOTPValid}
@@ -305,6 +331,11 @@ const VerifyEmailOTP = () => {
         </Typography>
       ) : (
         <div className={classes.textCenter}>
+          {isWIFI && (
+            <Typography styleType={resentOTPStyleStyle} tagType="span">
+              {otpEmail.codeNotRecieved?.value}
+            </Typography>
+          )}
           <button
             disabled={isBusy || showNewCodeSentMessage}
             onClick={handleResendCode}
@@ -319,7 +350,7 @@ const VerifyEmailOTP = () => {
                   : classes.tryAnotherWayTypography
               }
             >
-              {UpdateNumberLink?.value}
+              {otpEmail.UpdateNumberLink?.value}
             </Typography>
           </button>
         </div>
@@ -346,30 +377,13 @@ const useStyles = makeStyles(() => ({
   description: {
     margin: '32px 0',
   },
-  error: {
-    color: `${colors.main.error}`,
-    marginLeft: '8px',
-  },
   continueBtn: {
     margin: '32px auto',
     maxWidth: 246,
     display: 'block',
-    fontWeight: 700,
-    fontSize: '0.875rem',
   },
   textCenter: {
     textAlign: 'center',
-  },
-  textWrongNo: {
-    fontWeight: 500,
-  },
-  updateLinkBtn: {
-    marginLeft: '15px',
-    textDecoration: 'underline',
-    color: `${colors.main.brightRed}`,
-    cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: 'inherit',
   },
   tryAnotherWayText: {
     background: 'transparent',

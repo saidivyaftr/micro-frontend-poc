@@ -7,7 +7,12 @@ import { isValidMobileNumber } from 'src/utils/validator'
 import { useDispatch, useSelector } from 'react-redux'
 import { updatePhoneNumberAction } from 'src/redux/actions/register'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { ADD_NEW_MOBILE_NUMBER, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  ADD_NEW_MOBILE_NUMBER,
+  CUSTOMER,
+  SERVICEABLE,
+  WIFI,
+} from 'src/constants'
 import { setApiErrorModal } from 'src/redux/actions/register'
 import { State } from 'src/redux/types'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
@@ -31,8 +36,10 @@ const UpdateMobileNumber = () => {
     'AddMobileNumber',
     true,
   )
-  const { phone, updatePhone } = useSelector((state: State) => state.register)
-
+  const { phone, updatePhone, flowType } = useSelector(
+    (state: State) => state.register,
+  )
+  const isWIFI = flowType === WIFI
   // State management
   const [value, setValue] = useState(`${phone ?? ''}`)
 
@@ -70,7 +77,7 @@ const UpdateMobileNumber = () => {
           fullWidth
           onChange={(e: any) => setValue(e.target.value)}
           className={classes.inputContainer}
-          mask={'(999) 999-9999'}
+          mask={!isWIFI ? '(999) 999-9999' : ''}
           isError={updatePhone?.errorMessage}
           helperText={updatePhone?.errorMessage}
           data-tid="mobile-input-container"

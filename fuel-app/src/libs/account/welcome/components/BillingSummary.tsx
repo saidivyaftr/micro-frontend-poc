@@ -18,6 +18,7 @@ import { useWelcomePageData } from 'src/selector-hooks'
 import useAppData from '@/shared-ui/hooks/useAppData'
 import { formatBillingDesc } from '../helper'
 import { formatAmountInDollar } from 'src/utils/amount'
+
 const BillingSummary = () => {
   const classes = useStyles()
   const [billingSummary, setBillingSummary] = useState<any>(null)
@@ -32,6 +33,25 @@ const BillingSummary = () => {
     included,
     free,
   } = useAppData('billingSummary', true)
+  const calculateTax = (taxes: any) =>
+    taxes?.reduce(
+      (services: any, item: any) => {
+        if (item.description) {
+          const price = Number(item?.price)
+          services.list.push({
+            description: formatBillingDesc(item?.description),
+            priceDesc:
+              price <= 0 ? included?.value : formatAmountInDollar(item?.price),
+          })
+          services.total += parseInt(item?.price)
+        }
+        return services
+      },
+      {
+        list: [],
+        total: 0,
+      },
+    )
   const formatBillSummary = (data: any) => {
     const {
       servicesOffered: {
@@ -39,7 +59,10 @@ const BillingSummary = () => {
         estimatedTotalForServicesOffered,
       },
       estimatedNextBillTotal,
-      estimatedTaxOtherCharge: { estimatedFederalTax },
+      estimatedTaxOtherCharge: {
+        estimatedFederalTax = [],
+        estimatedStateTax = [],
+      },
       estimatedMonthlyTotal,
       oneTimeCharge: {
         description: oneTimeChargesLabel,
@@ -71,23 +94,10 @@ const BillingSummary = () => {
           price <= 0 ? included?.value : formatAmountInDollar(item?.price),
       }
     })
-    const taxCharges = estimatedFederalTax?.reduce(
-      (services: any, item: any) => {
-        if (item.description) {
-          const price = Number(item?.price)
-          services.list.push({
-            description: formatBillingDesc(item?.description),
-            priceDesc:
-              price <= 0 ? included?.value : formatAmountInDollar(item?.price),
-          })
-        }
-        return services
-      },
-      {
-        list: [],
-        total: 0,
-      },
-    )
+    const taxCharges = calculateTax([
+      ...estimatedFederalTax,
+      ...estimatedStateTax,
+    ])
     const formattedData = {
       monthlyCharges: formatAmountInDollar(estimatedMonthlyTotal?.[0]?.price),
       oneTimeCharges: formatAmountInDollar(oneTimeChargesTotal?.[0]?.price),
@@ -162,9 +172,7 @@ const BillingSummary = () => {
           return (
             <div
               key={`${i}-${oneTimeCharge.description}`}
-              className={clsx(classes.sectionRow, {
-                [classes.lastRow]: oneTimeCharge.items?.length !== i + 1,
-              })}
+              className={clsx(classes.sectionRow)}
             >
               <Typography styleType="p3" tagType="h6">
                 {oneTimeCharge?.description}
@@ -184,48 +192,54 @@ const BillingSummary = () => {
   )
   const renderMonthCharges = () => (
     <AccordionDetails className={classes.accordionDetails}>
-      {billingSummary?.servicesOffered?.map((service: any, i: number) => {
-        return (
-          <div
-            key={`${i}-${service.description}`}
-            className={classes.sectionRow}
-          >
-            {renderItem(service?.description, service.priceDesc, 'div')}
-          </div>
-        )
-      })}
-      <div className={classes.line} />
-      <div className={classes.sectionRow}>
-        {renderItem(
-          totalServiceOrdered?.value,
-          formatAmountInDollar(
-            billingSummary?.estimatedTotalForServicesOffered,
-          ),
-          'div',
+      <div>
+        {billingSummary?.servicesOffered?.map((service: any, i: number) => {
+          return (
+            <div
+              key={`${i}-${service.description}`}
+              className={clsx(classes.sectionRow)}
+            >
+              {renderItem(service?.description, service.priceDesc, 'div')}
+            </div>
+          )
+        })}
+        <div className={classes.line} />
+        <div className={classes.sectionRow}>
+          {renderItem(
+            totalServiceOrdered?.value,
+            formatAmountInDollar(
+              billingSummary?.estimatedTotalForServicesOffered,
+            ),
+            'div',
+          )}
+        </div>
+      </div>
+      <div>
+        {billingSummary?.taxCharges?.list?.length > 0 && (
+          <>
+            {billingSummary?.taxCharges?.list?.map(
+              (service: any, i: number) => {
+                return (
+                  <div
+                    key={`${i}-${service.description}`}
+                    className={clsx(classes.sectionRow)}
+                  >
+                    {renderItem(service?.description, service.priceDesc, 'div')}
+                  </div>
+                )
+              },
+            )}
+            <div className={classes.line} />
+            <div className={classes.sectionRow}>
+              {renderItem(
+                totalEstimatedTax?.value,
+                formatAmountInDollar(billingSummary?.taxCharges.total),
+                'div',
+              )}
+            </div>
+          </>
         )}
       </div>
-      {billingSummary?.taxCharges?.list?.length > 0 && (
-        <>
-          {billingSummary?.taxCharges?.list?.map((service: any, i: number) => {
-            return (
-              <div
-                key={`${i}-${service.description}`}
-                className={classes.sectionRow}
-              >
-                {renderItem(service?.description, service.priceDesc, 'div')}
-              </div>
-            )
-          })}
-          <div className={classes.line} />
-          <div className={classes.sectionRow}>
-            {renderItem(
-              totalEstimatedTax?.value,
-              billingSummary?.taxCharges.total,
-              'div',
-            )}
-          </div>
-        </>
-      )}
     </AccordionDetails>
   )
 
@@ -309,7 +323,7 @@ const useStyles = makeStyles(({ breakpoints }) =>
       textAlign: 'right',
     },
     line: {
-      height: '1px',
+      height: '0.5px',
       background: colors.main.grayOpacity50,
       marginBottom: '.5rem',
     },
@@ -377,6 +391,7 @@ const useStyles = makeStyles(({ breakpoints }) =>
       borderRadius: '1rem',
       marginBottom: '1rem',
       padding: '2rem 1.5rem 2rem .5rem',
+      gap: '2rem',
     },
     accordionDesc: {
       '& a': {
@@ -400,7 +415,6 @@ const useStyles = makeStyles(({ breakpoints }) =>
         textAlign: 'left',
       },
     },
-    lastRow: {},
     accordionWrapper: {
       width: '100%',
     },

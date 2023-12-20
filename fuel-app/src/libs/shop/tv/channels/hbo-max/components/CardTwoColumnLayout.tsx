@@ -71,6 +71,7 @@ const useStyles = makeStyles(({ breakpoints, typography }) => ({
     [breakpoints.down('sm')]: {
       marginRight: 0,
     },
+    height: '100%',
     '& img': {
       display: 'flex',
       borderRadius: '32px 0px 0px 32px',

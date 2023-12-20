@@ -27,17 +27,24 @@ export const WelcomePageAccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const options = useMemo(() => {
-    return unprovisionedServices?.map(({ id, address }:any) => {
+    return unprovisionedServices?.map(({ id, details }) => {
       let displayAddress = ''
-      if (address) {
-        const { streetNumber, streetName, streetSuffix, state } = address;
-        displayAddress = [streetNumber, streetName,streetSuffix, state]
+
+      if (details.serviceAddress) {
+        const { streetNumber, streetName, stateAbbreviation, secondaryNumber } =
+          details.serviceAddress
+        displayAddress = [streetNumber, streetName, stateAbbreviation]
           .filter(Boolean)
           .join(' ')
+        if (secondaryNumber) {
+          displayAddress = [displayAddress, secondaryNumber].join(', ')
+        }
       }
+
       if (!displayAddress) {
         displayAddress = id
       }
+
       return {
         label: capitalizeString(displayAddress ?? ''),
         value: id,
@@ -169,7 +176,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   accountDropdown: {
     '&::after': {
       content: "'Expand'",
-      display: "none",
+      display: 'none',
       margin: 'auto',
       padding: 4,
       borderRadius: 4,
@@ -179,11 +186,11 @@ const useStyles = makeStyles(({ breakpoints }) => ({
       fontStyle: 'normal',
       fontWeight: 400,
       right: -30,
-      top:10,
+      top: 10,
     },
     '&:hover::after': {
-        display: "block",
-        position: "absolute",
+      display: 'block',
+      position: 'absolute',
     },
     width: '100%',
     minWidth: '18rem',

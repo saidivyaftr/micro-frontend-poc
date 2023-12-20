@@ -78,14 +78,12 @@ const VacationServicesInfo = () => {
           <VacationTimeLine />
         </div>
         <div className={classes.endWrapper}>
-          {vacationType === PAUSED && (
-            <Button
-              type="button"
-              text={buttonName}
-              onClick={handleTurnOff}
-              className={classes.pauseBtn}
-            />
-          )}
+          <Button
+            type="button"
+            text={buttonName}
+            onClick={handleTurnOff}
+            className={classes.pauseBtn}
+          />
           <Typography
             tagType="p"
             styleType="p2"

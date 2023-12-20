@@ -7,32 +7,41 @@ import { isValidEmail } from 'src/utils/validator'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'src/redux/types'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { ADD_NEW_EMAIL_ADDRESS, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  ADD_NEW_EMAIL_ADDRESS,
+  CUSTOMER,
+  SERVICEABLE,
+  WIFI,
+  WIFI_REGISTRATION,
+} from 'src/constants'
 import { addNewEmailAction } from 'src/redux/actions/register'
 import ActionModal from '../components/ActionModal'
 import ModalWrapper from '../components/ModalWrapper'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
+import { formatUrl } from 'src/utils/urlHelpers'
 
 const AddNewEmailAddress = () => {
+  const classes = useStyles()
+  const addEmailContent = useAppData('AddNewEmailAddress', true) || {}
+  const alreadyRegisteredEmail = useAppData('alreadyRegisteredEmail', true)
+  const dispatch = useDispatch()
+  const { email, updateEmail, flowType } = useSelector(
+    (state: State) => state.register,
+  )
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI
+    ? WIFI_REGISTRATION.ADD_NEW_EMAIL_ADDRESS
+    : ADD_NEW_EMAIL_ADDRESS
   usePageLoadEvents({
     shouldTriggerDTMEvent: true,
     eventData: {
-      pageName: ADD_NEW_EMAIL_ADDRESS,
+      pageName: pageStr,
       eVar22: CUSTOMER,
       eVar49: SERVICEABLE,
       events: 'event68',
-      eVar68: ADD_NEW_EMAIL_ADDRESS,
+      eVar68: pageStr,
     },
   })
-
-  const classes = useStyles()
-  const { title, info, addEmailBtnText } = useAppData(
-    'AddNewEmailAddress',
-    true,
-  )
-  const alreadyRegisteredEmail = useAppData('alreadyRegisteredEmail', true)
-  const dispatch = useDispatch()
-  const { email, updateEmail } = useSelector((state: State) => state.register)
 
   // State management
   const [value, setValue] = useState(email ?? '')
@@ -59,8 +68,7 @@ const AddNewEmailAddress = () => {
   }
 
   const handleExitRegistration = () => {
-    window.location.href = '/login'
-    //setOpenDialog(false)
+    window.location.href = formatUrl('/login')
   }
 
   const isValidEmailAddress = isValidEmail(value)
@@ -88,11 +96,15 @@ const AddNewEmailAddress = () => {
         className={classes.title}
         data-tid="add-email-title"
       >
-        {title?.value}
+        {addEmailContent.title?.value}
       </Typography>
       <div className={classes.row}>
         <label>
-          <Typography>{info?.value}</Typography>
+          <Typography>
+            {isWIFI
+              ? addEmailContent.wifiInfo?.value
+              : addEmailContent.info?.value}
+          </Typography>
         </label>
         <Input
           value={value}
@@ -111,7 +123,11 @@ const AddNewEmailAddress = () => {
         hoverVariant="primary"
         className={classes.submitBtn}
         onClick={handleAddEmail}
-        text={addEmailBtnText?.value}
+        text={
+          isWIFI
+            ? addEmailContent.wifiAddEmailCTA?.value
+            : addEmailContent.addEmailBtnText?.value
+        }
         disabled={!isValidEmailAddress}
         isBusy={updateEmail?.isBusy}
         data-tid="add-email-submit-btn"
@@ -132,16 +148,14 @@ const AddNewEmailAddress = () => {
   )
 }
 
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(({}) => ({
   title: {
     textAlign: 'center',
   },
   row: {
     marginBottom: 16,
     marginTop: 32,
-    [breakpoints.down('sm')]: {
-      width: '100%',
-    },
+    width: '100%',
   },
   inputContainer: {
     '& .MuiFormHelperText-root': {
@@ -158,10 +172,9 @@ const useStyles = makeStyles(({ breakpoints }) => ({
       padding: '8px 16px',
       height: 40,
     },
-    [breakpoints.down('xs')]: {
-      margin: '10px 0px',
-      width: `100%`,
-    },
+
+    margin: '10px 0px',
+    width: '100%',
     fontWeight: 'bolder',
     fontFamily: 'PP Object Sans',
   },

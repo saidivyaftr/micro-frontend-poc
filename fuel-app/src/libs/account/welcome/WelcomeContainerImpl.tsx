@@ -7,17 +7,29 @@ import YourInformationCard from './components/YourInformationCard'
 import QuestionsAboutOrderCard from './components/QuestionsAboutOrderCard'
 import OrderDetailsCard from './components/OrderDetailsCard'
 import colors from '@/shared-ui/colors'
+import { pageSubTitle } from './helper'
 import WelcomePageModal from './components/WelcomePageModal'
 import WelcomeHero from 'src/libs/account/welcome/components/WelcomeHero'
+import useAppData from '@/shared-ui/hooks/useAppData'
 import BillingSummary from './components/BillingSummary'
 import FaqCard from './components/FaqCard'
+
 export const WelcomeContainerImpl = () => {
   const classes = useStyles()
-  const { isCancelledOrder, isNoInstallationOrder } =
+  const { unprovisionedServiceOrder, isCancelledOrder, isNoInstallationOrder } =
     useWelcomePageData()
+  const { title, selfInstallSubTitle, techInstallSubTitle } =
+    useAppData('WelcomeMessage', true) || {}
+
+  const subTitle = pageSubTitle(
+    selfInstallSubTitle?.value,
+    techInstallSubTitle?.value,
+    unprovisionedServiceOrder,
+  )
+
   return (
     <div className={classes.welcomePageContainer}>
-      <WelcomeHero />
+      <WelcomeHero title={title?.value} subTitle={subTitle} />
       <section className={classes.wrapper}>
         <div className={classes.root}>
           <div className={classes.layout}>

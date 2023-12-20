@@ -24,10 +24,10 @@ const AppointmentDetail = () => {
     return null
   }
 
-  const { appointment:  {isReschedulable = '', arrivalWindow} } = unprovisionedServiceOrder;
-  const isModifiable = isReschedulable === 'Yes'
+  const { isModifiable, appointment } = unprovisionedServiceOrder
   const { startTime, endTime, month, day, startDateTime, endDateTime } =
-    formatSchedule(arrivalWindow)
+    formatSchedule(appointment)
+
   const setModal = (value: WelcomePageModals) =>
     dispatch(welcomeSlice.actions.setModal(value))
 

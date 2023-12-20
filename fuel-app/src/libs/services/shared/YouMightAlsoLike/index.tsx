@@ -12,7 +12,7 @@ import APIClient from 'src/api-client'
 import { useRouter } from 'next/router'
 import { formatUrl } from 'src/utils/urlHelpers'
 import { useCartDataContext } from 'src/libs/services/CartContextProvider'
-import { getICase } from 'src/libs/account/welcome/helper'
+import { getICase } from 'src/libs/account/helper'
 
 type propsType = {
   pageCode?: string

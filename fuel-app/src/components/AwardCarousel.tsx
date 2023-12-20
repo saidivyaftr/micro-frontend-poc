@@ -13,11 +13,13 @@ const AwardCarousel = ({ data, styles }: any) => {
   }
   const formattedData = formatAwardCarouselData(finalData)
   return (
-    <AwardCarouselComponent
-      {...formattedData}
-      cardContentClassName={classes.cardContentClassName}
-      contentStyles={styles}
-    />
+    <div className={classes.container}>
+      <AwardCarouselComponent
+        {...formattedData}
+        cardContentClassName={classes.cardContentClassName}
+        contentStyles={styles}
+      />
+    </div>
   )
 }
 
@@ -25,6 +27,12 @@ const useStyles = makeStyles(() => ({
   cardContentClassName: {
     '& a:hover': {
       color: `${colors.main.brightRed} !important`,
+    },
+  },
+  container: {
+    '& .swiper-pagination': {
+      position: 'absolute',
+      bottom: 50,
     },
   },
 }))

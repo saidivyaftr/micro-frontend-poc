@@ -123,7 +123,11 @@ const UpdateAppointment = () => {
 
   const getAppointmentDetails = async () => {
     try {
-      const availableAppointmentDetails = await APIClient.getAppointmentDetails(unprovisionedServiceId)
+      const availableAppointmentDetails = await APIClient.getAppointmentDetails(
+        unprovisionedServiceId,
+        unprovisionedServiceOrder?.id,
+        moment().format('YYYY-MM-DD'),
+      )
       setAppointments(availableAppointmentDetails?.data || [])
       return availableAppointmentDetails?.data || []
     } catch (e) {
@@ -216,17 +220,18 @@ const UpdateAppointment = () => {
     try {
       const payload = {
         serviceId: unprovisionedServiceId,
+        id: unprovisionedServiceOrder.id,
         appointment: selectedAppointment,
       }
       setIsBusy(true)
-      const submitData = await APIClient.updateAppointment(unprovisionedServiceOrder.id, payload)
+      const submitData = await APIClient.editAppointmentDetails(payload)
       const updatedOrderDetailsData = {
         ...unprovisionedServiceOrder,
         appointment: { ...unprovisionedServiceOrder.appointment },
       }
-      updatedOrderDetailsData.appointment.arrivalWindow.start =
+      updatedOrderDetailsData.appointment.startDate =
         selectedAppointment.startDate
-      updatedOrderDetailsData.appointment.arrivalWindow.end = selectedAppointment.endDate
+      updatedOrderDetailsData.appointment.endDate = selectedAppointment.endDate
       dispatch(welcomeSlice.actions.updateServiceOrder(updatedOrderDetailsData))
       setIsBusy(false)
       DTMClient.triggerEvent(

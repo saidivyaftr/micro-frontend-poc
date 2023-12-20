@@ -44,7 +44,7 @@ import {
 import PayBillBanner from './shared/payment-form-fields/PayBillBanner'
 import ConfirmationModal from './Confirmation'
 import { PaymentMethod } from 'src/redux/types/payments'
-import { isAutoPayEnabled } from 'src/libs/account/welcome/helper'
+import { isAutoPayEnabled } from 'src/libs/account/helper'
 import AddPaymentMethod from 'src/components/AddPaymentMethod'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import {

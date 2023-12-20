@@ -7,28 +7,40 @@ import { isValidMobileNumber } from 'src/utils/validator'
 import { useDispatch, useSelector } from 'react-redux'
 import { addNewPhoneNumberAction } from 'src/redux/actions/register'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { ADD_NEW_MOBILE_NUMBER, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  ADD_NEW_MOBILE_NUMBER,
+  CUSTOMER,
+  SERVICEABLE,
+  WIFI,
+  WIFI_REGISTRATION,
+} from 'src/constants'
 import { setApiErrorModal } from 'src/redux/actions/register'
 import { State } from 'src/redux/types'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 
 const AddMobileNumber = () => {
+  const classes = useStyles()
+  const dispatch = useDispatch()
+  const addMobileContent = useAppData('AddMobileNumber', true) || {}
+
+  const { phone, updatePhone, flowType } = useSelector(
+    (state: State) => state.register,
+  )
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI
+    ? WIFI_REGISTRATION.ADD_NEW_MOBILE_NUMBER
+    : ADD_NEW_MOBILE_NUMBER
+
   usePageLoadEvents({
     shouldTriggerDTMEvent: true,
     eventData: {
-      pageName: ADD_NEW_MOBILE_NUMBER,
+      pageName: pageStr,
       eVar22: CUSTOMER,
       eVar49: SERVICEABLE,
       events: 'event68',
-      eVar68: ADD_NEW_MOBILE_NUMBER,
+      eVar68: pageStr,
     },
   })
-
-  const classes = useStyles()
-  const dispatch = useDispatch()
-
-  const { title, info, addMobileBtnText } = useAppData('AddMobileNumber', true)
-  const { phone, updatePhone } = useSelector((state: State) => state.register)
 
   // State management
   const [value, setValue] = useState(phone ?? '')
@@ -54,11 +66,15 @@ const AddMobileNumber = () => {
         className={classes.title}
         data-tid="add-mobile-title"
       >
-        {title?.value}
+        {addMobileContent.title?.value}
       </Typography>
       <div className={classes.row}>
         <label>
-          <Typography>{info?.value}</Typography>
+          <Typography>
+            {isWIFI
+              ? addMobileContent.wifiInfo?.value
+              : addMobileContent.info?.value}
+          </Typography>
         </label>
         <Input
           data-tid="add-mobile-input-container"
@@ -67,7 +83,7 @@ const AddMobileNumber = () => {
           fullWidth
           onChange={(e: any) => setValue(e.target.value)}
           className={classes.inputContainer}
-          mask={'(999) 999-9999'}
+          mask={!isWIFI ? '(999) 999-9999' : ''}
           isError={updatePhone?.errorMessage}
           helperText={updatePhone?.errorMessage}
         />
@@ -77,7 +93,11 @@ const AddMobileNumber = () => {
         variant="primary"
         hoverVariant="primary"
         className={classes.submitBtn}
-        text={addMobileBtnText?.value}
+        text={
+          isWIFI
+            ? addMobileContent.wifiAddMobileCTA?.value
+            : addMobileContent.addMobileBtnText?.value
+        }
         disabled={!isValidNumber}
         isBusy={updatePhone?.isBusy}
         data-tid="add-mobile-submit-btn"
@@ -87,16 +107,14 @@ const AddMobileNumber = () => {
   )
 }
 
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(() => ({
   title: {
     textAlign: 'center',
   },
   row: {
+    width: '100%',
     marginBottom: 16,
     marginTop: 32,
-    [breakpoints.down('sm')]: {
-      width: '100%',
-    },
   },
   inputContainer: {
     '& .MuiFormHelperText-root': {
@@ -113,10 +131,8 @@ const useStyles = makeStyles(({ breakpoints }) => ({
       padding: '8px 16px',
       height: 40,
     },
-    [breakpoints.down('xs')]: {
-      margin: '10px 0px',
-      width: `100%`,
-    },
+    margin: '10px 0px',
+    width: '100%',
     fontWeight: 'bolder',
     fontFamily: 'PP Object Sans',
   },

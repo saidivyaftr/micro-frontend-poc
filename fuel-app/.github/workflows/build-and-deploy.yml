@@ -51,6 +51,12 @@ jobs:
       legacy-fqdn: ${{ steps.check_comment.outputs.legacy-fqdn }}
       createDeployment: ${{ steps.check_comment.outputs.createDeployment }}
     steps:
+      - name: Wait for Fuel-ol Workflow
+        uses: frontier-devops/wait-for-workflows@main
+        with:
+          token: ${{ secrets.GH_PAT }}
+          other-workflow: "build-and-deploy.yml"
+          other-repo: "fuel-ol"
       - name: Consecutive Run Wait
         uses: frontier-devops/consecutive-workflow@main
         with:

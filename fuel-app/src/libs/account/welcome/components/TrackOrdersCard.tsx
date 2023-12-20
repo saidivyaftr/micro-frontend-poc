@@ -35,7 +35,7 @@ const TrackOrdersCard = () => {
     'TrackYourOrders',
     true,
   )
-  console.log(useWelcomePageData())
+
   const dataToRender = useMemo(() => {
     if (isTechInstallationOrder) return techInstall?.targetItem
     else if (isSelfInstallationOrder) return selfInstall?.targetItem

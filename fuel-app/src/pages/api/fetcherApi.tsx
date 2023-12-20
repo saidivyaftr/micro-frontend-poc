@@ -1,4 +1,5 @@
 import axios from 'axios'
+import logger from 'src/logger'
 import {
   generateToken,
   checkTokenExpired,
@@ -22,6 +23,7 @@ class fetcherApiToken {
   }
 
   updateToken = async () => {
+    logger.info(`generate token method is called`)
     const now = getCurrentTime()
 
     const isExpired = this.token.lastUpdated
@@ -70,6 +72,7 @@ class fetcherApiToken {
   ): Promise<any> => {
     await this.updateToken()
     try {
+      logger.info(`fetcher with post called ${baseUrl}${url}`)
       const response = await axios.post(`${baseUrl}${url}`, body, {
         headers: {
           Authorization: 'Bearer ' + this.token.value,
@@ -78,6 +81,9 @@ class fetcherApiToken {
           ...(headers || {}),
         },
       })
+      logger.info(
+        `fetcher with post response ${JSON.stringify(response?.data || {})}`,
+      )
       return response
     } catch (error: any) {
       throw error

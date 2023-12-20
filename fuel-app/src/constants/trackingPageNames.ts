@@ -109,6 +109,7 @@ export const MULTIFAMILY_FORM_START = 'ftr:multifamily form start'
 export const APP_LANDING_PAGE = 'ftr:resources/myfrontier-mobile-app'
 export const VERIFY = 'ftr:verify'
 export const SIGN_IN = 'ftr:login-new'
+export const SEARCH_BY_IPADDRESS = 'ftr:registration:search by wifi'
 export const REGISTER_WITH_EMAIL_OR_MOBILE = 'ftr:registration:start'
 export const REGISTER_WITH_NAME_AND_ADDRESS =
   'ftr:registration:name and address'
@@ -211,4 +212,17 @@ export const VACATION_SERVICES_PAGES = {
   PAUSED_LEARNMORE: 'service paused:learn more about vacation pause',
   SCHEDULED_LEARNMORE:
     'service pause scheduled :learn more about vacation pause',
+}
+
+export const WIFI_REGISTRATION = {
+  VERIFY_ACCOUNT_EMAIL: 'ftr:registration/wi-fi/verify account - email',
+  VERIFY_ACCOUNT_MOBILE: 'ftr:registration/wi-fi/verify account - mobile',
+  EMAIL_OR_MOBILE_FOUND: 'ftr:registration/wi-fi/Mobile or email found',
+  EMAIL_FOUND: 'ftr:registration/wi-fi/email found',
+  ADD_NEW_MOBILE_NUMBER: 'ftr:registration/wi-fi/add new mobile number',
+  ADD_NEW_EMAIL_ADDRESS: 'ftr:registration/wi-fi/add contact email',
+  CONFIRM_MOBILE: 'ftr:registration/wi-fi/confirm mobile',
+  CONFIRM_EMAIL: 'ftr:registration/wi-fi/confirm email',
+  CREATE_PASSWORD: 'ftr:registration/wi-fi/create password',
+  REGISTER_SUCCESS: 'ftr:registration/wi-fi/success',
 }

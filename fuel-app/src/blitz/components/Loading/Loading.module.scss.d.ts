@@ -5,6 +5,7 @@ declare const styles: {
   readonly dotSecondary: string
   readonly dotBlack: string
   readonly dotWhite: string
+  readonly largestDot: string
   readonly largeDot: string
   readonly mediumDot: string
   readonly smallDot: string

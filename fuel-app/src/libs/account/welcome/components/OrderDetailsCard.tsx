@@ -26,9 +26,12 @@ const OrderDetails = () => {
   if (!unprovisionedServiceOrder) {
     return null
   }
+
   const showAppointmentDetail =
     !isCancelledOrder && !isSelfInstallationOrder && !isNoInstallationOrder
-  const appointmentDetailsExist = hasAppointmentDetails(unprovisionedServiceOrder)
+  const appointmentDetailsExist = hasAppointmentDetails(
+    unprovisionedServiceOrder,
+  )
 
   return (
     <CardWithTitle

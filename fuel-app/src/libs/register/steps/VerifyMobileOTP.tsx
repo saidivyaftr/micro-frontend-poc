@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/indent */
 import { makeStyles } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
 import colors from '@/shared-ui/colors'
@@ -16,10 +17,8 @@ import TimeoutMessage from '../components/TimeoutMessage'
 import { State } from 'src/redux/types'
 import { maskEmail, maskPhoneNumber } from 'src/utils/register'
 import { RegisterStep } from 'src/redux/types/registerTypes'
-import { useAppData, usePageLoadEvents } from 'src/hooks'
+import { useAppData, usePageLoadEvents, useWindowDimensions } from 'src/hooks'
 import {
-  VERIFY_PRIMARY_OTP,
-  VERIFY_SECONDARY_OTP,
   CUSTOMER,
   SERVICEABLE,
   ACCOUNT_EXISTS_ALREADY,
@@ -27,28 +26,25 @@ import {
   REG_SUNVERIFIED_CONTINUE,
   REG_ACCOUNTEXISTSMODAL_LOGIN,
   REG_ACCOUNTEXISTSMODAL_FORGOTPWD,
+  WIFI,
+  WIFI_REGISTRATION,
+  VERIFY_SECONDARY_OTP,
 } from 'src/constants'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import { addBracketAndHypen } from 'src/utils/mobile-helpers'
+import {
+  authorizationType,
+  authorizationMethodsType,
+} from 'src/constants/register'
+import { getMethod } from '../util'
+import { formatUrl } from 'src/utils/urlHelpers'
 
 const VerifyMobileOTP = () => {
   const classes = useStyles()
-  const {
-    title,
-    incorrectCodeText,
-    info,
-    info2,
-    incorrectInfoText,
-    incorrectInfoText2,
-    confirmBtnText,
-    UpdateNumberLink,
-    supportUrl,
-    supportInfo,
-    supportLink,
-    invalidOTPMessage,
-  } = useAppData('OTPMobile', true)
-  const securityTimeout = useAppData('securityTimeout', true)
-  const unverifiedContactMethod = useAppData('unverifiedContactMethod', true)
+  const otpMobile = useAppData('OTPMobile', true) || {}
+  const securityTimeout = useAppData('securityTimeout', true) || {}
+  const unverifiedContactMethod =
+    useAppData('unverifiedContactMethod', true) || {}
   const nameAndAddressAccountExisting = useAppData(
     'nameAndAddressAccountExisting',
     true,
@@ -62,6 +58,8 @@ const VerifyMobileOTP = () => {
     confirmMFA,
     phone,
     isAddressVerified,
+    isIPAddressVerified,
+    isEmailVerified,
     accountInformation,
     authorizationMethods,
     email,
@@ -76,6 +74,13 @@ const VerifyMobileOTP = () => {
   } = confirmMFA || {}
   const isPrimaryVerificationDone = !!accountInformation
 
+  const mobileDevice = 768
+  const { width } = useWindowDimensions()
+  const isMobile = width <= mobileDevice
+  const hasEmailMethod = getMethod(
+    authorizationMethods,
+    authorizationMethodsType.MFA_EMAIL,
+  )
   // State management
   const [OTPvalue, setOTPValue] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
@@ -83,15 +88,18 @@ const VerifyMobileOTP = () => {
     useState(false)
   const [showNewCodeSentMessage, setShowNewCodeSentMessage] = useState(false)
   const dispatch = useDispatch()
-
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI
+    ? WIFI_REGISTRATION.VERIFY_ACCOUNT_MOBILE
+    : VERIFY_SECONDARY_OTP
   usePageLoadEvents({
     shouldTriggerDTMEvent: true,
     eventData: {
-      pageName: isAddressVerified ? VERIFY_SECONDARY_OTP : VERIFY_PRIMARY_OTP,
+      pageName: pageStr,
       eVar22: CUSTOMER,
       eVar49: SERVICEABLE,
       events: 'event68',
-      eVar68: isAddressVerified ? VERIFY_SECONDARY_OTP : VERIFY_PRIMARY_OTP,
+      eVar68: pageStr,
     },
   })
   const handleSignIn = () => {
@@ -103,7 +111,7 @@ const VerifyMobileOTP = () => {
       'tl_o',
     )
     setOpenDialog(false)
-    window.location.href = '/login'
+    window.location.href = formatUrl('/login')
   }
 
   const handleResetPassword = () => {
@@ -115,7 +123,7 @@ const VerifyMobileOTP = () => {
       'tl_o',
     )
     setOpenDialog(false)
-    window.location.href = '/forgot-password'
+    window.location.href = formatUrl('/forgot-password')
   }
 
   const emailInfo = useMemo(() => {
@@ -160,6 +168,7 @@ const VerifyMobileOTP = () => {
       />
     )
   }
+
   useEffect(() => {
     if (isAccountLocked) {
       setOTPValue('')
@@ -170,12 +179,11 @@ const VerifyMobileOTP = () => {
   useEffect(() => {
     if (failedReason) {
       setOTPValue('')
-      if (failedReason === 'MOBILE_ALREADY_REGISTERED') {
+      if (failedReason === authorizationType.MOBILE_ALREADY_REGISTERED) {
         setOpenAlreadyRegisteredDialog(true)
       }
     }
   }, [failedReason])
-
   const onSubmit = async () => {
     DTMClient.triggerEvent(
       {
@@ -184,7 +192,7 @@ const VerifyMobileOTP = () => {
       },
       'tl_o',
     )
-    if (isAddressVerified) {
+    if (isAddressVerified || (isIPAddressVerified && isEmailVerified)) {
       dispatch(
         validateSecondaryMFACodeAction(
           OTPvalue,
@@ -204,18 +212,30 @@ const VerifyMobileOTP = () => {
   }
 
   const getStepPostOTPVerification = (): RegisterStep => {
-    if (isAddressVerified) {
-      if (flowType == 'EMAIL') {
-        return 'CREATE_PASSWORD'
+    if (isWIFI) {
+      return isEmailVerified
+        ? 'CREATE_PASSWORD'
+        : hasEmailMethod
+        ? 'CONFIRM_EMAIL'
+        : 'ADD_NEW_EMAIL_ADDRESS'
+    } else {
+      if (isAddressVerified) {
+        if (flowType == authorizationType.EMAIL) {
+          return 'CREATE_PASSWORD'
+        }
+        return email ? 'CONFIRM_EMAIL' : 'ADD_NEW_EMAIL_ADDRESS'
       }
-      return email ? 'CONFIRM_EMAIL' : 'ADD_NEW_EMAIL_ADDRESS'
+      return 'CONFIRM_ADDRESS'
     }
-    return 'CONFIRM_ADDRESS'
   }
 
   const dismissModal = () => {
-    openDialog ? setOpenDialog(false) : setOpenAlreadyRegisteredDialog(false)
-    dispatch(registerSlice.actions.resetRegistrationFlow())
+    if (isWIFI) {
+      window.location.href = formatUrl('/login')
+    } else {
+      openDialog ? setOpenDialog(false) : setOpenAlreadyRegisteredDialog(false)
+      dispatch(registerSlice.actions.resetRegistrationFlow())
+    }
   }
 
   const proceedToCreatePwd = () => {
@@ -227,7 +247,7 @@ const VerifyMobileOTP = () => {
       'tl_o',
     )
     setOpenDialog(false)
-    if (flowType == 'LAST_NAME_AND_ADDRESS') {
+    if (flowType == authorizationType.LAST_NAME_AND_ADDRESS) {
       dispatch(
         registerSlice.actions.setStep(
           email ? 'CONFIRM_EMAIL' : 'ADD_NEW_EMAIL_ADDRESS',
@@ -253,7 +273,7 @@ const VerifyMobileOTP = () => {
       },
       'tl_o',
     )
-    if (isAddressVerified) {
+    if (isAddressVerified || (isIPAddressVerified && isEmailVerified)) {
       dispatch(sendSecondaryMFAByPhoneAction(onHandleShowSentCodeMessage))
     } else {
       dispatch(sendPrimaryMFAByPhoneAction(onHandleShowSentCodeMessage))
@@ -262,22 +282,22 @@ const VerifyMobileOTP = () => {
   }
 
   const securityTimeoutModalData = {
-    title: securityTimeout?.title,
-    info: securityTimeout?.info,
+    title: securityTimeout.title,
+    info: securityTimeout.info,
     info1: { value: <TimeoutMessage timeout={accountLockedUntil || ''} /> },
     btn1: {
-      text: securityTimeout?.btn1,
+      text: securityTimeout.btn1,
     },
-    supportInfo,
-    supportLink,
-    supportUrl,
+    supportInfo: otpMobile.supportInfo?.value,
+    supportLink: otpMobile.supportLink?.value,
+    supportUrl: otpMobile.supportUrl?.value,
   }
 
   const unverifiedContactMethodModalData = {
-    title: unverifiedContactMethod?.title,
-    info: unverifiedContactMethod?.info,
+    title: unverifiedContactMethod.title,
+    info: unverifiedContactMethod.info,
     btn1: {
-      text: unverifiedContactMethod?.btn1,
+      text: unverifiedContactMethod.btn1,
     },
     hideChatWithUsMsg: true,
     trackingPageName: REG_SUNVERIFIED_MODAL,
@@ -307,7 +327,7 @@ const VerifyMobileOTP = () => {
       return addBracketAndHypen(`${phone ?? ''}`)
     }
     const filteredMethod = authorizationMethods?.find(
-      ({ method }) => method === 'mfaSms',
+      ({ method }) => method === authorizationMethodsType.MFA_SMS,
     )
     if (isPrimaryVerificationDone || !filteredMethod) {
       return maskPhoneNumber(phone ?? '') ?? ''
@@ -315,10 +335,20 @@ const VerifyMobileOTP = () => {
     return filteredMethod?.maskedDeliveryLocation
   }
 
+  const infoText = failedReason
+    ? otpMobile.incorrectInfoText2?.value
+    : otpMobile.info?.value
+
+  const displayPhone = getDisplayPhone()
+
+  const resentOTPStyle = isMobile ? 'p1' : 'p3'
+
   return (
     <div>
       <Typography styleType="h4" tagType="h3" className={classes.title}>
-        {failedReason ? incorrectCodeText?.value : title?.value}
+        {failedReason
+          ? otpMobile.incorrectCodeText?.value
+          : otpMobile.title?.value}
       </Typography>
       {remainingAttempts != null && (
         <Typography
@@ -328,7 +358,7 @@ const VerifyMobileOTP = () => {
           className={classes.info}
           data-tid="remaining-attempts"
         >
-          {incorrectInfoText?.value.replace(
+          {otpMobile.incorrectInfoText?.value.replace(
             '{{count}}',
             remainingAttempts.toString(),
           )}
@@ -340,32 +370,24 @@ const VerifyMobileOTP = () => {
           fontType={failedReason ? '' : 'boldFont'}
           data-tid="otp-title"
         >
-          {failedReason ? incorrectInfoText2?.value : info?.value}
-        </Typography>
-        &nbsp;
-        <Typography
-          styleType="p1"
-          fontType={failedReason ? '' : 'boldFont'}
-          data-tid="phone"
-        >
-          {getDisplayPhone()}
+          {`${infoText + ' ' + displayPhone}`}
         </Typography>
       </div>
       <OTPInput
         value={OTPvalue}
         onChange={setOTPValue}
         isInvalidOTP={!!failedReason}
-        invalidOTPMessage={`${invalidOTPMessage?.value}.`}
+        invalidOTPMessage={otpMobile.invalidOTPMessage?.value}
       />
       <Typography styleType="p1" tagType="p" className={classes.description}>
-        {info2?.value}
+        {otpMobile.info2?.value}
       </Typography>
       <Button
         type="button"
         variant="primary"
         hoverVariant="primary"
         className={classes.continueBtn}
-        text={confirmBtnText?.value}
+        text={otpMobile.confirmBtnText?.value}
         onClick={onSubmit}
         disabled={OTPvalue.length !== 6}
         isBusy={isBusy}
@@ -376,16 +398,23 @@ const VerifyMobileOTP = () => {
           New code sent!
         </Typography>
       ) : (
-        <Button
-          type="button"
-          variant="lite"
-          hoverVariant="primary"
-          className={classes.updateLinkBtn}
-          onClick={handleResendCode}
-          disabled={showNewCodeSentMessage}
-          text={UpdateNumberLink?.value}
-          data-tid="resend-code-btn"
-        />
+        <div className={classes.resendCodeContainer}>
+          {isWIFI && (
+            <Typography styleType={resentOTPStyle} tagType="span">
+              {otpMobile.codeNotRecieved?.value}
+            </Typography>
+          )}
+          <Button
+            type="button"
+            variant="lite"
+            hoverVariant="primary"
+            className={classes.updateLinkBtn}
+            onClick={handleResendCode}
+            disabled={showNewCodeSentMessage}
+            text={otpMobile.UpdateNumberLink?.value}
+            data-tid="resend-code-btn"
+          />
+        </div>
       )}
       <ModalWrapper
         isOpen={openDialog}
@@ -402,42 +431,36 @@ const VerifyMobileOTP = () => {
 }
 
 const useStyles = makeStyles(() => ({
+  resendCodeContainer: {
+    textAlign: 'center',
+  },
   title: {
     textAlign: 'center',
     margin: ' 0rem auto 2rem auto',
   },
   info: {
+    marginBottom: 16,
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: 16,
   },
   description: {
     margin: '32px 0',
   },
   error: {
     color: `${colors.main.error}`,
-    marginLeft: '8px',
+    marginLeft: 8,
   },
   continueBtn: {
     margin: '32px auto',
     maxWidth: 246,
     display: 'block',
-    fontWeight: 700,
-    fontSize: '0.875rem',
-  },
-  textCenter: {
-    textAlign: 'center',
-  },
-  textWrongNo: {
-    fontWeight: 500,
   },
   updateLinkBtn: {
+    marginLeft: 6,
+    minWidth: 100,
     textDecoration: 'underline',
     cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: 'inherit',
     textAlign: 'center',
-    display: 'block !important',
     margin: 'auto',
     '&:disabled': {
       opacity: 0.5,

@@ -214,7 +214,6 @@ const useStyles = makeStyles(({ breakpoints, typography }) => ({
     [breakpoints.down('sm')]: {
       marginTop: `${typography.pxToRem(48)}`,
       marginBottom: `${typography.pxToRem(32)}`,
-      maxWidth: `${typography.pxToRem(343)}`,
       paddingRight: `${typography.pxToRem(10)}`,
     },
   },

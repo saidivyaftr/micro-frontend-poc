@@ -2,6 +2,12 @@ import axios from 'axios'
 import { getBaseURL } from './index'
 
 export const registerAPI = {
+  searchAuthorizationMethods: (data: AuthorizationMethodsPayload) => {
+    return axios.post(
+      `${getBaseURL()}/api/register/authorization-methods`,
+      data,
+    )
+  },
   searchEmailOrMobile: (data: SearchEmailOrMobilePayload) => {
     return axios.post(
       `${getBaseURL()}/api/register/search-email-or-mobile`,
@@ -250,3 +256,14 @@ export type SearchPhonePayload = {
     primaryContactTelephoneOnly: boolean
   }
 }
+
+export type SearchIPaddressPayload = {
+  ipAddress: {
+    value: string
+  }
+}
+
+export type AuthorizationMethodsPayload =
+  | SearchIPaddressPayload
+  | SearchEmailPayload
+  | SearchPhonePayload

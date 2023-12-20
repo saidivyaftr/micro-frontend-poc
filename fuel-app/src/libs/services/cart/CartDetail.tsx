@@ -12,7 +12,6 @@ import { CartLineItem, offerData, offersData } from '../shared/types'
 import {
   formatAddress,
   priceFormatterWithoutDecimal,
-  getProductVASCode,
 } from '../shared/miscUtlis'
 import { setApiErrorCode } from 'src/redux/slicers/apiErrors'
 import { Loading } from '@/shared-ui/components'
@@ -24,7 +23,6 @@ import CartAdditionalExtenders from './CartAdditionalExtenders'
 import APIClient from 'src/api-client'
 import {
   siteInteractionAnalytics,
-  updateCartClickAnalytics,
 } from '../shared/AnalyticsUtlis'
 import CartDisclaimer from './CartDisclaimer'
 interface CartDetailPropTypes {

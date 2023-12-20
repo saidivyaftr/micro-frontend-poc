@@ -1,12 +1,17 @@
 import { makeStyles } from '@material-ui/core'
 import { Button, Typography } from 'src/blitz'
-import { Edit, ErrorCheckMark, InfoIconWhite } from 'src/blitz/assets/react-icons'
+import {
+  Edit,
+  ErrorCheckMark,
+  InfoIconWhite,
+} from 'src/blitz/assets/react-icons'
 import { Tooltip } from '@/shared-ui/components'
 import { useState } from 'react'
 import colors from '@/shared-ui/colors'
 import clx from 'classnames'
 import APIClient from 'src/api-client'
 import {
+  useSelectedUnprovisionedService,
   useWelcomePageData,
 } from 'src/selector-hooks'
 import { Input } from 'src/ui-kit'
@@ -36,9 +41,10 @@ const ContactNumber = () => {
     isSelfInstallationOrder,
     isCancelledOrder,
   } = useWelcomePageData()
+  const unprovisionedServiceId = useSelectedUnprovisionedService()?.id
 
   const contactNumber =
-    unprovisionedServiceOrder?.contactNumber
+    unprovisionedServiceOrder?.appointment?.canBeReachedTelephoneNumber
 
   const [editContact, setEditContact] = useState<boolean>(false)
   const [isBusy, setIsBusy] = useState<boolean>(false)
@@ -59,7 +65,8 @@ const ContactNumber = () => {
     inVaildMobileError,
   } = useAppData('OrderDetails', true) || {}
 
-  const isModifiable = unprovisionedServiceOrder?.appointment?.isReschedulable === 'Yes'
+  const isModifiable = unprovisionedServiceOrder?.isModifiable
+
   const toolTipText =
     isSelfInstallationOrder || isNoInstallationOrder
       ? changingThisNumber?.value
@@ -71,17 +78,23 @@ const ContactNumber = () => {
   const contactSubmitHandler = async () => {
     setIsBusy(true)
     try {
-      const uuid = unprovisionedServiceOrder?.id;
-      const payload = {
-        ticketNumber: unprovisionedServiceOrder?.OrderNumber,
-        contactNumber: number?.replace(/\D/g, ''),
+      const data = {
+        serviceId: unprovisionedServiceId,
+        id: unprovisionedServiceOrder?.id || '',
+        appointment: {
+          canBeReachedTelephoneNumber: number?.replace(/\D/g, ''),
+        },
       }
-      await APIClient.updateContactNumber(uuid ,payload)
+      await APIClient.updateServiceContactNumber(data)
       if (unprovisionedServiceOrder) {
         dispatch(
           welcomeSlice.actions.updateServiceOrder({
             ...unprovisionedServiceOrder,
-            contactNumber: number
+            appointment: {
+              ...unprovisionedServiceOrder.appointment,
+              canBeReachedTelephoneNumber:
+                data.appointment.canBeReachedTelephoneNumber,
+            },
           }),
         )
       }
@@ -134,7 +147,9 @@ const ContactNumber = () => {
       className={clx(classes.container, editContact && classes.editContactBg)}
     >
       <div className={classes.leftCol}>
-        <Typography fontType="boldFont" styleType="p2">{contactNo?.value}</Typography>
+        <Typography fontType="boldFont" styleType="p2">
+          {contactNo?.value}
+        </Typography>
         <div className={classes.toolTipWrapper}>
           <Tooltip
             tooltipIcon={<InfoIconWhite />}
@@ -216,7 +231,9 @@ const ContactNumber = () => {
             <button
               className={classes.editIcoButton}
               onClick={onEditContactHandler}
-            ><Edit /></button>
+            >
+              <Edit />
+            </button>
           )}
         </div>
       )}
@@ -254,8 +271,8 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   editIcoButton: {
     border: 'none',
     background: 'none',
-    padding:0,
-    cursor: 'pointer'
+    padding: 0,
+    cursor: 'pointer',
   },
   btnWrapper: {
     display: 'flex',

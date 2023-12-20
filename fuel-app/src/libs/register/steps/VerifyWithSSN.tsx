@@ -24,7 +24,7 @@ import ActionModal from '../components/ActionModal'
 import TimeoutMessage from '../components/TimeoutMessage'
 import { registerSlice, initialState } from 'src/redux/slicers/register'
 import { maskEmail } from 'src/utils/register'
-import ChatWithUs from '../components/ChatWithUs'
+//import ChatWithUs from '../components/ChatWithUs'
 
 export interface SSNForm {
   ssn: FormField
@@ -126,9 +126,9 @@ const VerifyWithSSN = () => {
     resetFields()
   }, [isAccountLocked, failedReason])
 
-  const showContactUs = useMemo(() => {
-    return isAccountLocked || (remainingAttempts && remainingAttempts <= 2)
-  }, [remainingAttempts, isAccountLocked])
+  // const showContactUs = useMemo(() => {
+  //   return isAccountLocked || (remainingAttempts && remainingAttempts <= 2)
+  // }, [remainingAttempts, isAccountLocked])
 
   const resetFields = () => {
     setForm(initialFormState)
@@ -364,7 +364,7 @@ const VerifyWithSSN = () => {
           data-tid="submit-btn"
         />
       </div>
-      {!!showContactUs && <ChatWithUs />}
+      {/* {!!showContactUs && <ChatWithUs />} */}
       <ModalWrapper
         isOpen={openDialog}
         handleClose={dismissModal}

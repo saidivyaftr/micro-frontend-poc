@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import moment from 'moment'
 import APIClient from 'src/api-client'
 import { TStore } from '../Store'
 import {
@@ -11,15 +12,14 @@ import {
 } from 'src/libs/account/welcome/helper'
 import {
   WelcomeState,
-  IServicesOrdered,
+  UnprovisionedList,
+  ServiceDetails,
   IBillingSummary,
-  IServiceOrder,
 } from '../types/welcomeTypes'
 import { WelcomePageModals } from 'src/libs/account/welcome/types'
-import { AccountList } from '../types/accountTypes'
+import { ServiceOrders } from 'src/api-client/types'
 
 const initialState: WelcomeState = {
-
   // services
   isLoading: false,
   unprovisionedServices: [],
@@ -131,16 +131,60 @@ export const welcomeSlice = createSlice({
   },
 })
 
-export const fetchServicesForWelcomePage = (forceFetch?: boolean, refreshJWT?: boolean) => {
+export const fetchServicesForWelcomePage = () => {
   return async (dispatch: any) => {
     try {
       dispatch(welcomeSlice.actions.setServices({ type: 'Loading' }))
-      const { data: unprovisionedServices } = await APIClient.getAccountsDigital(
-        { fetchNewToken: refreshJWT },
-        forceFetch,
-      )
+      const apiResponse = await APIClient.getServices(true)
+      const services = apiResponse?.data
+      let unprovisionedServices = filterAndSortUnprovisionedServices(services)
+
+      // If it has multiple records, fetch service address to show it in account dropdown
+      if (unprovisionedServices?.length > 1) {
+        unprovisionedServices = unprovisionedServices.sort((s1, s2) =>
+          moment(s1.createdDate).isAfter(moment(s2.createdDate)) ? -1 : 1,
+        )
+
+        const serviceDetailsAPIPromise = []
+        for (const service of services) {
+          const hasServiceAddress = Boolean(service?.details?.serviceAddress)
+          if (!hasServiceAddress) {
+            const envType = isBSSCusotmer(service.type) ? service.ref : ''
+            serviceDetailsAPIPromise.push(
+              APIClient.getServiceOrderDetails(
+                service.id,
+                envType,
+                service.type,
+              )
+                .then((response) => {
+                  const orderDetails = sortRecentOrder(
+                    response?.data || [],
+                  )?.[0]
+                  if (orderDetails && orderDetails.serviceAddress) {
+                    const referenceItem = unprovisionedServices.find(
+                      (x) => x.id === service.id,
+                    )
+                    if (referenceItem) {
+                      if (referenceItem.details) {
+                        referenceItem.details = {
+                          ...referenceItem.details,
+                          serviceAddress: orderDetails.serviceAddress as any,
+                        }
+                      }
+                    }
+                  }
+                })
+                .catch(() => undefined),
+            )
+          }
+        }
+
+        await Promise.all(serviceDetailsAPIPromise)
+      }
+
       if (unprovisionedServices) {
         const selectedService = unprovisionedServices[0]
+
         dispatch(
           welcomeSlice.actions.setServices({
             type: 'Success',
@@ -159,7 +203,7 @@ export const fetchServicesForWelcomePage = (forceFetch?: boolean, refreshJWT?: b
   }
 }
 
-export const fetchServiceOrderData = (accountUUid: string) => {
+export const fetchServiceOrderData = (service: ServiceDetails) => {
   return async (dispatch: any) => {
     try {
       dispatch(
@@ -167,39 +211,38 @@ export const fetchServiceOrderData = (accountUUid: string) => {
           type: 'Loading',
         }),
       )
-      const {
-        data: { Events },
-      } = await APIClient.getOrderInfo(accountUUid)
-      const { serviceOrder, customer } = Events?.[0]
-      const {
-        ServicesOrdered = [],
-        CreatedDate,
-        OrderDueDate,
-        VXEventCode,
+      const { type, ref, id } = service
+      const envType = isBSSCusotmer(type) ? ref : ''
+      const apiResponse = await APIClient.getServiceOrderDetails(
         id,
-      } = serviceOrder
-      const { contactNumber = '', serviceAddress, appointment } = customer
-      const servicesOrdered = ServicesOrdered?.map(
-        ({ Name }: IServicesOrdered) => Name,
+        envType,
+        type,
       )
+      const orderDetails: any = sortRecentOrder(apiResponse?.data)
+
+      let orderSelected = null
+      if (orderDetails?.length > 0) {
+        orderSelected = orderDetails?.[0]
+        orderSelected.productsAdded = orderSelected?.productsAdded?.filter(
+          (product: any) => product.filteredDescription,
+        )
+      }
+      dispatch(computeOrder(orderSelected))
       dispatch(
         welcomeSlice.actions.setServiceOrder({
           type: 'Success',
-          data: {
-            ServicesOrdered: servicesOrdered,
-            CreatedDate,
-            VXEventCode,
-            OrderDueDate,
-            OrderNumber: id.OrderNumber,
-            contactNumber,
-            ServiceAddress: serviceAddress,
-            appointment,
-          },
+          data: orderSelected,
         }),
       )
-      dispatch(computeOrder(Events[0]))
-      // if (orderSelected.status !== 'Cancelled')
-        // dispatch(fetchBillingSummary(orderSelected, service))
+      if (orderSelected.status !== 'Cancelled')
+        dispatch(
+          fetchBillingSummary({
+            environmentCode: envType,
+            orderNumber: orderSelected.id,
+            status: service.type,
+            uuid: orderSelected.uuid,
+          }),
+        )
     } catch (e) {
       dispatch(
         welcomeSlice.actions.setServiceOrder({
@@ -210,15 +253,14 @@ export const fetchServiceOrderData = (accountUUid: string) => {
   }
 }
 
-export const fetchBillingSummary = (
-  order: IBillingSummary,
-) => {
+const fetchBillingSummary = (billing: IBillingSummary) => {
   return async (dispatch: any) => {
     try {
-      const apiResponse = await APIClient.getBillingSummary(order?.uuid, {
-        environmentCode: order.environmentCode,
-        orderNumber: order.orderNumber,
-        status: order.status
+      const { uuid, environmentCode, orderNumber } = billing
+      const apiResponse = await APIClient.getBillingSummary(uuid, {
+        environmentCode,
+        orderNumber,
+        status: 'unprovisioned',
       })
       dispatch(
         welcomeSlice.actions.setOrderBillingSummary(
@@ -231,15 +273,12 @@ export const fetchBillingSummary = (
   }
 }
 
-
-const computeOrder = (order: IServiceOrder) => {
+const computeOrder = (order: ServiceOrders.ServiceOrderDetails) => {
   return (dispatch: any) => {
     const isCancelledOrder = isOrderCancelled(order)
-    const isSelfInstallationOrder = isSelfInstallOrder(order?.serviceOrder.VXEventCode)
+    const isSelfInstallationOrder = isSelfInstallOrder(order)
     const isNoInstallationOrder = isNoInstallOrder(order)
-    const isTechInstallationOrder = isTechInstallOrder(
-      order?.serviceOrder.VXEventCode
-    )
+    const isTechInstallationOrder = isTechInstallOrder(order)
     const hasNoAppointment = !hasAppointmentDetails(order)
     dispatch(
       welcomeSlice.actions.setOrderStatuses({
@@ -265,13 +304,22 @@ export const getSelectedUnprovisionedService = (state: TStore) =>
 
 export const selectWelcomePageData = (state: TStore) => state.welcome
 
-
 // Helper functions
-const filterUnprovisionedServices = (list: AccountList) => {
+const filterUnprovisionedServices = (list: UnprovisionedList) => {
   return list?.filter(
-    ({accountStatus}) =>
-    ['UNPROVISIONED', 'BSS_RESULT'].includes(accountStatus),
+    (service) =>
+      service.type === 'UNPROVISIONED' || service.type === 'BSS_RESULT',
   )
 }
 
+const filterAndSortUnprovisionedServices = (list: UnprovisionedList) => {
+  return filterUnprovisionedServices(list).sort((s1, s2) =>
+    moment(s1.createdDate).isAfter(moment(s2.createdDate)) ? -1 : 1,
+  )
+}
 
+const sortRecentOrder = (orders: any) => {
+  return orders.sort((a: any, b: any) =>
+    moment(b.createDate, 'DD-MM-YYYY').diff(moment(a.createDate, 'DD-MM-YYYY')),
+  )
+}

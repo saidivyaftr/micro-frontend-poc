@@ -8,38 +8,45 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { addBracketAndHypen } from 'src/utils/mobile-helpers'
 import { useAppData, usePageLoadEvents } from 'src/hooks'
-import { CONFIRM_MOBILE, CUSTOMER, SERVICEABLE } from 'src/constants'
+import {
+  CONFIRM_MOBILE,
+  CUSTOMER,
+  SERVICEABLE,
+  WIFI,
+  WIFI_REGISTRATION,
+} from 'src/constants'
+import { authorizationMethodsType } from 'src/constants/register'
 import DTMClient from 'src/utils/adobe/dynamicTagManagement/client'
 import { State } from 'src/redux/types'
 
 const ConfirmMobile = () => {
-  usePageLoadEvents({
-    shouldTriggerDTMEvent: true,
-    eventData: {
-      pageName: CONFIRM_MOBILE,
-      eVar22: CUSTOMER,
-      eVar49: SERVICEABLE,
-      events: 'event68',
-      eVar68: CONFIRM_MOBILE,
-    },
-  })
-
   const classes = useStyles()
-  const { title, info, info2, confirmBtnText, UpdateNumberLink } = useAppData(
-    'ConfirmMobileNumber',
-    true,
-  )
-
+  const ConfirmMobileNumber = useAppData('ConfirmMobileNumber', true) || {}
   const dispatch = useDispatch()
   const {
+    authorizationMethods,
     phone = '',
     isAddressVerified,
+    isIPAddressVerified,
     isPhoneVerified,
+    isEmailVerified,
     isBusySendingMFA,
     flowType,
     email,
   } = useSelector((state: State) => state.register)
 
+  const isWIFI = flowType === WIFI
+  const pageStr = isWIFI ? WIFI_REGISTRATION.CONFIRM_MOBILE : CONFIRM_MOBILE
+  usePageLoadEvents({
+    shouldTriggerDTMEvent: true,
+    eventData: {
+      pageName: pageStr,
+      eVar22: CUSTOMER,
+      eVar49: SERVICEABLE,
+      events: 'event68',
+      eVar68: pageStr,
+    },
+  })
   const handleAddNumber = () => {
     DTMClient.triggerEvent(
       {
@@ -71,27 +78,53 @@ const ConfirmMobile = () => {
       )
       return
     }
-    if (isAddressVerified) {
+    if (isAddressVerified || (isIPAddressVerified && isEmailVerified)) {
       dispatch(sendSecondaryMFAByPhoneAction())
     } else {
       dispatch(sendPrimaryMFAByPhoneAction())
     }
   }
 
-  const phoneNumberWithDashes: string = addBracketAndHypen(`${phone}`)
+  const getDisplayPhone = () => {
+    if (isAddressVerified) {
+      return addBracketAndHypen(`${phone ?? ''}`)
+    }
+    const filteredMethod = authorizationMethods?.find(
+      ({ method }) => method === authorizationMethodsType.MFA_SMS,
+    )
+    // if (isPrimaryVerificationDone || !filteredMethod) {
+    //   return maskPhoneNumber(phone ?? '') ?? ''
+    // }
+    return filteredMethod?.maskedDeliveryLocation || ''
+  }
 
+  const phoneNumberWithDashes: string = getDisplayPhone()
   return (
-    <div>
+    <div className={classes.textCenter}>
       <Typography styleType="h4" tagType="h3" data-tid="confirm-mobile-title">
-        {title?.value}
+        {ConfirmMobileNumber.title?.value}
       </Typography>
-      <Typography styleType="p1" className={classes.info}>
-        {info?.value}
-      </Typography>
+      {flowType === WIFI ? (
+        <>
+          <Typography styleType="p1" className={classes.info}>
+            {ConfirmMobileNumber.description?.value}
+          </Typography>
+          <Typography styleType="p1" className={classes.info}>
+            {ConfirmMobileNumber.subDescription?.value}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <Typography styleType="p1" className={classes.info}>
+            {ConfirmMobileNumber.info?.value}
+          </Typography>
+        </>
+      )}
+
       <Typography
-        styleType="h5"
+        fontType="boldFont"
+        styleType="p1"
         tagType="p"
-        className={classes.phoneNo}
         data-tid="confirm-mobile-number"
       >
         {phoneNumberWithDashes}
@@ -103,12 +136,12 @@ const ConfirmMobile = () => {
         hoverVariant="primary"
         data-tid="confirm-mobile-btn"
         className={classes.continueBtn}
-        text={confirmBtnText?.value}
+        text={ConfirmMobileNumber.confirmBtnText?.value}
         isBusy={isBusySendingMFA}
       />
-      <div className={classes.textCenter}>
-        <Typography styleType="p3" tagType="span">
-          {info2?.value}
+      <div>
+        <Typography fontType="mediumFont" styleType="p3" tagType="span">
+          {ConfirmMobileNumber.info2?.value}
         </Typography>
         <Button
           type="link"
@@ -117,7 +150,8 @@ const ConfirmMobile = () => {
           className={classes.updateLinkBtn}
           onClick={handleAddNumber}
           data-tid="update-mobile-btn"
-          text={UpdateNumberLink?.value}
+          buttonSize="small"
+          text={ConfirmMobileNumber.UpdateNumberLink?.value}
         />
       </div>
     </div>
@@ -128,29 +162,16 @@ const useStyles = makeStyles(() => ({
   info: {
     marginTop: 32,
   },
-  phoneNo: {
-    margin: '16px 0px',
-    fontWeight: 'bold',
-  },
   continueBtn: {
     margin: '32px auto',
-    maxWidth: 246,
-    display: 'block',
-    fontWeight: 700,
-    fontSize: '0.875rem',
   },
   textCenter: {
     textAlign: 'center',
   },
-  textWrongNo: {
-    fontWeight: 500,
-  },
   updateLinkBtn: {
-    marginLeft: '8px',
+    marginLeft: 8,
     textDecoration: 'underline',
     cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: 14,
   },
 }))
 
