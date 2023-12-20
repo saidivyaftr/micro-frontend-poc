@@ -1,0 +1,49 @@
+@import '../../theme/index.scss';
+
+.swiperQuotes {
+  background: $secondary;
+  padding: 34px 0 62px;
+  text-align: center;
+
+  .swiperContainer {
+    margin: 0 auto;
+    max-width: 1160px;
+    padding: 0 45px;
+    position: relative;
+    z-index: 1;
+  }
+
+  :global .swiper-button-disabled {
+    opacity: 0;
+  }
+
+  .heading {
+    margin-bottom: 64px;
+  }
+
+  .quote {
+    margin: auto;
+    margin-bottom: 32px;
+    max-width: 765px;
+  }
+
+  .previous {
+    cursor: pointer;
+    position: absolute;
+    left: 10px;
+    top: 10%;
+    z-index: 200;
+  }
+
+  .next {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10%;
+    z-index: 200;
+  }
+
+  .hide {
+    opacity: 0;
+  }
+}

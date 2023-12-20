@@ -1,0 +1,205 @@
+name: Create Integration Team Environment
+on:
+  pull_request:
+    branches:
+      - integration/*
+
+jobs:
+  docker:
+    name: "Build and store Docker image"
+    runs-on: ubuntu-latest
+    environment: sandbox
+    outputs:
+      tf_wsp_name: ${{ steps.set_vars.outputs.tf_wsp_name }}
+      image_tag: ${{ steps.set_vars.outputs.image_tag }}
+      environment: ${{ steps.set_vars.outputs.environment }}
+    steps:
+      - name: "Run build and store docker image for sandbox environment"
+        run: |
+          echo "Run build and store docker image for sandbox environment. Triggered by the action: ${{ github.event_name }}"
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Execute Continuous integration    
+        uses: ./.github/actions/Build-Publish-Docker
+        id: build
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: fuelhome.azurecr.io
+          registry_username: ${{ secrets.REGISTRY_USERNAME }}
+          registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+          environment: sandbox
+#      - name: Repository Dispatch
+#        if: ${{ steps.build.outcome == 'success' && github.event_name == 'pull_request' }}
+#        uses: peter-evans/repository-dispatch@v1
+#        with:
+#          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+#          event-type: CallingCreateWorkspace
+#          client-payload: '{ "repo_name": "${{ github.event.repository.name }}", "pr_number": "${{ github.event.number }}", "image_tag": "${{ steps.build.outputs.git-tag }}" }'
+      - name: Set Variables
+        id: set_vars
+        run: |
+          echo ::set-output name=tf_wsp_name::autoworkspace-${{ github.event.repository.name }}-${{ github.event.number }}        
+          echo ::set-output name=image_tag::${{ steps.build.outputs.git-tag }}        
+          echo ::set-output name=environment::${{ github.event.number }}        
+        shell: bash   
+      - name: Print set variables
+        run: |
+          echo "tf_wsp_name: '${{ steps.set_vars.outputs.tf_wsp_name }}'"
+          echo "image_tag: '${{ steps.set_vars.outputs.image_tag }}'"
+          echo "environment: '${{ steps.set_vars.outputs.environment }}'"
+        shell: bash 
+  createWorkspace:
+    name: "Create Terraform workspace"
+    runs-on: ubuntu-latest
+    needs: docker
+    outputs:
+      skip_flag: ${{ steps.tfNewWsp.outputs.skip_flag }}    
+    env:
+      organization: "frontier-devops"
+      repo: "fuel-homepage"
+      wrkdir: "terraform/develop"
+      oauth: "ot-S2aromu45TEtMXBn"
+      tf_wsp_name: ${{ needs.docker.outputs.tf_wsp_name }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Create new '${{ env.tf_wsp_name }}' workspace in Terraform
+        uses: ./.github/actions/NewTFWorkspace
+        id: tfNewWsp
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: "${{ env.tf_wsp_name }}"
+      - name: Output newly created Terraform workspace information
+        if: ${{ steps.tfNewWsp.outputs.skip_flag != 'yes' }}
+        run: |
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' was created with the id '${{ steps.tfNewWsp.outputs.wsp_id }}'"
+      - name: Does Terraform workspace already exist
+        if: ${{ steps.tfNewWsp.outputs.skip_flag == 'yes' }}
+        run: |
+          echo "Skip flag is set to '${{ steps.tfNewWsp.outputs.skip_flag }}'"
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' already exists'"
+  createTFWspVars:
+    name: "Create TF workspace var(s)"
+    needs: [createWorkspace, docker]
+    runs-on: ubuntu-latest
+    env:
+      tf_wsp_name: ${{ needs.docker.outputs.tf_wsp_name }}
+      organization: "frontier-devops"
+    steps:
+      - name: Code checkout
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/GetTFWorkspaceInfo
+        id: tfWspGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}   
+      - name: Add Terraform variable 'subscription_id'          
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-subscription_id
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "subscription_id"
+          tf_var_value: "1ba6b3f0-65f8-4c57-8eda-1eb9ceae550f"  
+      - name: Add Terraform variable 'environment'
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-environment
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "environment"
+          tf_var_value: ${{ needs.docker.outputs.environment }} 
+      - name: Add Terraform variable 'image_tag'          
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-image_tag
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "image_tag"
+          tf_var_value: ${{ needs.docker.outputs.image_tag }}
+      - name: Add Terraform variable 'ARM_SUBSCRIPTION_ID'          
+        if: ${{ needs.createWorkspace.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-ARM_SUBSCRIPTION_ID
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "ARM_SUBSCRIPTION_ID"
+          tf_var_value: "1ba6b3f0-65f8-4c57-8eda-1eb9ceae550f"   
+          tf_var_category: "env"       
+  updateTFWspVars:
+    name: "Update TF workspace var(s)"
+    needs: [createWorkspace, docker, createTFWspVars]
+    runs-on: ubuntu-latest
+    env:
+      organization: "frontier-devops"
+      workspace: ${{ needs.docker.outputs.tf_wsp_name }}
+      tf_var_name: "image_tag"            
+    steps:
+      - name: Code checkout
+        if: ${{ needs.createWorkspace.outputs.skip_flag == 'yes' }}
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_var_name }}' variable value
+        if: ${{ needs.createWorkspace.outputs.skip_flag == 'yes' }}
+        uses: ./.github/actions/GetTFVariableValue
+        id: tfGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_var_name: ${{ env.tf_var_name }}
+      - name: Output Terraform variable information
+        if: ${{ needs.createWorkspace.outputs.skip_flag == 'yes' }}
+        run: |
+          echo "Returned id '${{ steps.tfGet.outputs.var_id }}'"
+          echo "Returned value '${{ steps.tfGet.outputs.var_value }}'"
+      - name: Set Terraform variable
+        if: ${{ needs.createWorkspace.outputs.skip_flag == 'yes' }}
+        uses: ./.github/actions/SetTFVariableValue
+        id: tfSet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_var_id: ${{ steps.tfGet.outputs.var_id }}
+          tf_var_value: ${{ needs.docker.outputs.image_tag }}
+  createRunTF:
+    name: "Create Terraform run"
+    needs: [updateTFWspVars, docker]
+    runs-on: ubuntu-latest
+    environment:
+      name: createRunTF
+      url: "https://app.terraform.io/app/${{ env.organization }}/workspaces/${{ env.tf_wsp_name }}/runs/${{ steps.tfCreateRun.outputs.run_id }}" 
+    env:
+      organization: "frontier-devops"
+      tf_wsp_name: ${{ needs.docker.outputs.tf_wsp_name }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+        uses: ./.github/actions/GetTFWorkspaceInfo
+        id: tfWspGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}
+      - name: Create Terraform run
+        uses: ./.github/actions/CreateTFRun
+        id: tfCreateRun
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}        
+      - name: Output created Terraform run information
+        run: |
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' run was created with the id '${{ steps.tfCreateRun.outputs.run_id }}'"
+      - name: Get Terraform run information
+        uses: ./.github/actions/GetTFRunInfo
+        id: tfGetRunInfo
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_run_id: ${{ steps.tfCreateRun.outputs.run_id }}        
+      - name: Output Terraform run information
+        run: |
+          echo "Terraform Run '${{ steps.tfCreateRun.outputs.run_id }}' finished with the '${{ steps.tfGetRunInfo.outputs.state }}' status"  
+

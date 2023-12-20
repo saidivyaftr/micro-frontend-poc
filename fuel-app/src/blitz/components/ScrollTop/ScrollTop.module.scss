@@ -1,0 +1,26 @@
+@import '../../theme/index.scss';
+
+.root {
+    right: 80px;
+    position: fixed;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    bottom: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    cursor: pointer;
+    @include tabletAndMobile {
+        right: 10px;
+    }
+    .icon {
+        position: relative;
+        top: 2px;
+    }
+
+    svg path {
+        fill-opacity: 1;
+    }
+}

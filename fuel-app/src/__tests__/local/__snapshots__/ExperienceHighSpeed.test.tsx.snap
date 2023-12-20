@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExperienceHighSpeed should not render correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="makeStyles-root-10"
+    id="experience-high-speed"
+  >
+    <div
+      class="makeStyles-wrapper-11"
+    >
+      <div
+        id="two-column-layout"
+      >
+        <div
+          class="makeStyles-wrapper-13"
+        >
+          <div
+            class="makeStyles-rightContent-15 makeStyles-rightClass-12"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`ExperienceHighSpeed should render correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="makeStyles-root-1"
+    id="experience-high-speed"
+  >
+    <div
+      class="makeStyles-wrapper-2"
+    >
+      <div
+        id="two-column-layout"
+      >
+        <div
+          class="makeStyles-wrapper-4"
+        >
+          <h2
+            class="makeStyles-leftContent-5"
+          >
+            Experience high-speed internet
+          </h2>
+          <div
+            class="makeStyles-rightContent-6 makeStyles-rightClass-3"
+          >
+            <div
+              class="makeStyles-title-7"
+            >
+              Life moves fast in Los Angeles, so you need internet service that can keep up with you and your lifestyle. Count on Frontier® Internet for fast internet connections. You also don’t have to worry about data caps or usage limits, so you can enjoy the internet the way you want. Learn more about what we offer in your California neighborhood.
+            </div>
+            <div
+              class="makeStyles-tooltip-8"
+            >
+              <svg
+                fill="none"
+                height="14"
+                viewBox="0 0 14 14"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6.33334 3.29092C5.96515 3.29092 5.66668 3.58932 5.66668 3.95742L5.66668 4.62392C5.66668 4.99202 5.96515 5.29042 6.33334 5.29042L7.00001 5.29042C7.3682 5.29042 7.66668 4.99202 7.66668 4.62392L7.66668 3.95742C7.66668 3.58932 7.3682 3.29092 7.00001 3.29092L6.33334 3.29092Z"
+                  fill="currentColor"
+                />
+                <path
+                  clip-rule="evenodd"
+                  d="M13.3333 7.33158C13.3333 10.6445 10.6471 13.3301 7.33334 13.3301L6.00001 13.3301C2.6863 13.3301 1.11924e-05 10.6445 1.0882e-05 7.33158L1.07571e-05 5.99858C1.04466e-05 2.6857 2.6863 7.90697e-05 6.00001 7.87994e-05L7.33334 7.86906e-05C10.6471 7.84204e-05 13.3333 2.6857 13.3333 5.99858L13.3333 7.33158ZM7.33334 11.9971L6.00001 11.9971C3.42268 11.9971 1.33334 9.90826 1.33334 7.33158L1.33334 5.99858C1.33334 3.42189 3.42268 1.33308 6.00001 1.33308L7.33334 1.33308C9.91067 1.33308 12 3.42189 12 5.99858L12 7.33158C12 9.90826 9.91067 11.9971 7.33334 11.9971Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                />
+                <path
+                  d="M7.54168 10.2892L5.8073 10.2892L5.8073 6.29017L7.54168 6.29017L7.54168 10.2892Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="makeStyles-legalText-9"
+              data-testid="caption"
+            >
+              legal text
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

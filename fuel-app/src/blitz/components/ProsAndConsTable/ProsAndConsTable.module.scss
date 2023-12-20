@@ -1,0 +1,162 @@
+@import '../../theme/index.scss';
+
+.tableWrapper {
+  .table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    @include font-regular;
+    word-break: break-word;
+    padding: 8px 24px;
+    @include mobile {
+      padding: 1rem 0;
+    }
+  }
+
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 8px;
+  }
+
+  .firstColumn {
+    width: 25%;
+
+    @include mobile {
+      display: none;
+    }
+
+    span {
+      display: flex;
+      align-items: center;
+
+      @include mobile {
+        justify-content: center;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .tableHeader {
+    display: flex;
+    border-bottom: 1px solid $light-gray;
+    padding: 1rem;
+
+    @include mobile {
+      padding: 0 0 1rem;
+      border-bottom: none;
+    }
+  }
+
+  .headerName {
+    box-sizing: border-box;
+
+    @include mobile {
+      padding: 0;
+      font-size: 1.125rem;
+      line-height: 1.625rem;
+    }
+  }
+
+  .tableRow {
+    @extend .tableHeader;
+    border-bottom: 1px solid $light-gray;
+    padding: 1rem 0px;
+
+    @include mobile {
+      border-bottom: none;
+    }
+  }
+
+  .rowLabel {
+    font-style: normal;
+    color: $dark;
+    @include mobile {
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+
+  .rowValue {
+    font-style: normal;
+    color: $dark;
+    padding-bottom: 8px;
+
+    @include mobile {
+      li div {
+        font-size: 14px;
+        line-height: 22px;
+      }
+    }
+  }
+
+  .tableRow:last-child {
+    border-bottom: none;
+  }
+  .tableBody {
+    @include mobile {
+      padding-right: 1rem;
+    }
+  }
+  .rowValueTypo {
+    @include mobile {
+      font-size: 14px;
+      line-height: 22px;
+    }
+  }
+  .rowHeader {
+    display: none;
+    text-align: center;
+    @include mobile {
+      display: block;
+      text-align: left;
+      font-size: 16px;
+      line-height: 24px;
+      padding-left: 16px;
+      padding-top: 16px;
+      border-top: 1px solid $light-gray;
+      br {
+        display: none;
+      }
+    }
+  }
+  .headerColumn {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    width: 37.5rem;
+    padding: 0px 16px;
+    @include mobile {
+      padding: 0;
+      gap: 0.3rem;
+    }
+  }
+  .prosIcon {
+    padding-left: 0;
+    @include mobile {
+      padding-left: 0.75rem;
+    }
+  }
+  .listColumn {
+    width: 37.5rem;
+    margin: 0;
+    @include mobile {
+      padding-bottom: 16px;
+    }
+    li::marker {
+      text-indent: 0.0625rem !important;
+    }
+    li:last-child {
+      padding-bottom: 0;
+    }
+  }
+  .lightGrey {
+    background-color: $light-bg-gray;
+  }
+  .white {
+    background-color: $white;
+  }
+}

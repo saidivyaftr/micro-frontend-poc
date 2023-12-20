@@ -1,0 +1,70 @@
+@import '../../theme/index.scss';
+
+.modal {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.9);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  overflow: auto;
+}
+
+.modalContent {
+  width: 70%;
+  min-width: 375px;
+  max-width: 750px;
+  margin: auto;
+  margin-top: 25vh;
+  padding: 100px 80px;
+  background-color: $white;
+  border-radius: 32px;
+  position: relative;
+  @include mobile {
+    width: 90%;
+    min-width: unset;
+    padding: 48px 32px;
+  }
+}
+
+.title {
+  margin-bottom: 32px;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  & svg {
+    height: 24px;
+    width: 24px;
+    @include mobile {
+      height: 16px;
+      width: 16px;
+    }
+  }
+  @include mobile {
+    top: 20px;
+    right: 20px;
+  }
+}
+.footerBtn {
+  display: inline-flex;
+  max-width: fit-content;
+  margin-top: 32px;
+  @include mobile {
+    max-width: none;
+    display: unset;
+  }
+}
+

@@ -1,0 +1,430 @@
+@import '../statements/current/current.module.scss';
+@import '../../../blitz/theme/index.scss';
+
+$disableFieldColor: rgba(128, 128, 128, 0.41);
+$paymentFormTncColor: #3a676f;
+
+.paymentsFlex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 16px;
+  p {
+    font-style: italic;
+    .accountInfo {
+      font-size: large;
+    }
+    .paymentText {
+      font-size: 12px;
+    }
+  }
+  border-bottom: $currentBorder;
+}
+
+.alertMessage {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+.paymentTitle {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.radio-wrapper:has(input:checked){
+  background-color: $dark;
+}
+
+.formFields {
+  margin: 2rem auto;
+  label {
+    display: flex;
+    gap: 8px;
+    margin: 4px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    color: $dark;
+    input {
+      margin: 0px 4px;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    input:disabled {
+      cursor: not-allowed;
+    }
+    @include mobile {
+      font-size: 14px;
+      line-height: 18px;
+      flex-basis: 0;
+    }
+  }
+  .disableField {
+    color: $disableFieldColor !important;
+  }
+  .otherPaymentInput {
+    margin: 8px;
+  }
+  .MuiFormHelperText-root.Mui-error {
+    font-size: 16px;
+  }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.paymentOption {
+  display: flex;
+  flex-wrap: wrap;
+  @include mobile {
+    flex-direction: column;
+  }
+  label {
+    margin: 0px 8px 16px 8px;
+    font-size: 1.1rem;
+    color:$dark;
+    flex-basis: 300px;
+    @include mobile {
+      flex-basis: 0;
+    }
+    input {
+      margin: 0px 4px;
+    }
+    input:disabled {
+      cursor: not-allowed;
+    }
+  }
+  .disableField {
+    color: $disableFieldColor !important;
+  }
+}
+
+.paymentFormActions {
+  margin: 16px 0;
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+  @include tabletAndMobile {
+    flex-direction: column;
+  }
+  button {
+    margin-left: 8px;
+    padding: 15px 30px;
+    font-weight: 600;
+    @include tabletAndMobile {
+      margin: 1rem 0;
+    }
+  }
+}
+
+.paymentFormFooter {
+  margin: 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  button {
+    padding: 15px 30px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+}
+
+.bankAccountForm {
+  display: flex;
+  align-items: center;
+  @include mobile {
+    flex-direction: column;
+  }
+  div {
+    margin-right: 16px;
+    img {
+      max-width: 280px;
+      width: auto;
+      height: auto;
+    }
+  }
+}
+
+.newPaymentFormFields {
+  display: flex;
+  align-items: center;
+  * {
+    margin: 0px 8px;
+  }
+}
+
+.cardDisplay {
+  display: none;
+}
+
+.linkText {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.acceptedCardsModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .acceptedCardsModalContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: $white;
+  }
+  .acceptedCardsModalClose {
+    align-self: flex-end;
+  }
+}
+
+.autoPayformFields {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  h4 {
+    width: 50%;
+  }
+}
+.paymentFormFooterWrapper {
+  border-bottom: 1px solid $grey-40;
+  padding-bottom: 30px;
+  margin-bottom: 2rem;
+  @include mobile {
+    margin-top: 4rem;
+  }
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: $primary;
+    border-width: 1px;
+  }
+}
+.emailgroup {
+  h4 {
+    margin-bottom: 5px;
+  }
+  .inputContainer {
+    width: 43%;
+    margin-bottom: 10px;
+    p {
+      color: $primary !important;
+    }
+    @include mobile {
+      width: 100%;
+    }
+
+    input {
+      padding: 10px;
+    }
+  }
+}
+.creditCardid {
+  display: flex;
+  align-items: center;
+  div {
+    margin-right: 16px;
+    img {
+      max-width: 280px;
+
+      width: auto;
+      height: auto;
+    }
+  }
+}
+
+.paymentErrorModel {
+  .header {
+    display: flex;
+    align-items: center;
+    p {
+      margin-left: 10px;
+    }
+  }
+  .content {
+    margin: 5px 0 10px 0;
+  }
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    h3 {
+      margin: 0 0 2rem 0;
+    }
+  }
+}
+
+.paymentConfirmationContainer {
+  padding: 1rem;
+  border: 1px solid #dedede;
+  background: $white;
+  max-width: 63rem;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  .confirmationHeading {
+    text-align: center;
+    align-items: center;
+    display: flex;
+    margin-bottom: 1rem;
+    h4 {
+      font-size: 1.6rem;
+      margin: 0;
+    }
+
+    svg {
+      height: 2rem;
+      width: 2em;
+      color: green;
+    }
+  }
+  .confirmationDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 1rem;
+    p {
+      margin: 0.3rem;
+      width: 100%;
+      display: flex;
+    }
+    span:nth-child(1) {
+      text-align: left;
+      flex: 1;
+    }
+
+    span:nth-child(2) {
+      text-align: left;
+      flex: 1;
+    }
+    .note {
+      width: 100%;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+  }
+}
+.printContainer {
+  margin: 1rem 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.formFieldsContent {
+  padding-bottom: 2rem;
+  input[type=radio]{
+    accent-color: $dark;
+  }
+}
+.radioContainer {
+  padding-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+.radioContent {
+  display: grid;
+  grid-template-columns: 15rem 3.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  @include mobile {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    .radioWithAmount {
+      margin-left: 3rem;
+    }
+  }
+}
+.radioWithInput {
+  display: grid;
+  align-items: flex-start;
+  justify-content: flex-start;
+  grid-template-columns: 14rem 10rem;
+  position: relative;
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    display: flex;
+    justify-content: center;
+    & > :nth-child(2) {
+      margin-left: 2.5rem;
+      width: 70%;
+    }
+  }
+}
+.formSubTitle {
+  font-size: 1rem;
+  line-height: 1.125rem;
+  margin-bottom: 0.25rem;
+  @include mobile {
+    font-size: 0.875rem;
+  }
+}
+.formFieldLegal {
+  font-size: 12px;
+  line-height: 14px;
+  margin: 0;
+  display: initial;
+}
+.tooltipWithText {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  @include mobile {
+    align-items: flex-start;
+    justify-content: center;
+  }
+}
+.paymentDateOptions {
+  margin-bottom: 2rem;
+  .sectionHeader {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-family: 'PP OBJECT SANS';
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
+}
+.radioWithInputError {
+  fieldset {
+    border-color: $primary2;
+  }
+  p {
+    color: $primary2;
+  }
+  @include mobile {
+    align-items: flex-start;
+  }
+}
+
+.footerFormActionClass {
+  margin: 0;
+  display: block;
+  text-align: left;
+  button {
+    margin: 0;
+  }
+}
+
+.footerWrapperClass {
+  border: none;
+  padding: 0;
+  margin: 0;
+}

@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "jsxFactory": "h",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@/shared-ui/layouts/main": ["src/layouts/MainLayout.tsx"],     
+      "@/shared-ui/components/*": ["src/blitz/components/*"],
+      "@/shared-ui/components": ["src/blitz/index.ts"],
+      "@/shared-ui/react-icons/*": ["src/blitz/assets/react-icons/*"],
+      "@/shared-ui/react-icons": ["src/blitz/assets/react-icons/index"],
+      "@/shared-ui/hooks/*":["src/hooks/*"],
+      "@/shared-ui/theme/colors.types":["src/blitz/theme/colors/colors.types"],
+      "@/shared-ui/theme/colors.helper":["src/blitz/theme/colors/colors.helper"],
+      "@/shared-ui/colors":["src/styles/theme/colors.ts"],
+      "@/shared-ui/hooks":["src/hooks/index"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "*.ts",
+    "*.tsx",
+    "*.js",
+    "next.config.js",
+    "jest.setup.js",
+    "src/utils/yext.jsx", 
+    "src/middleware.ts", "src/logger.js"],
+  "exclude": [
+    "node_modules"
+  ]
+}

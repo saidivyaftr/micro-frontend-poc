@@ -1,0 +1,163 @@
+@import '../../theme/index.scss';
+
+.wrappers {
+  margin: auto;
+}
+
+.flexWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 4rem;
+  gap: 4px;
+  &:hover {
+    .supportArticle {
+      opacity: 0.85;
+      transform: scale(0.95);
+    }
+  }
+  @include mobile {
+    display: block;
+    margin-top: 2rem;
+  }
+}
+
+.cardIcon {
+  height: 35px;
+  width: 35px;
+  margin-bottom: 12px;
+  path {
+    fill: $dark;
+  }
+}
+
+.subText {
+  font-size: 18px;
+  @include mobile {
+    font-size: 16px;
+  }
+}
+
+.supportArticle {
+  border-radius: 16px;
+  flex: 0 1 32%;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: 0.3s all;
+  min-height: 240px;
+  background-color: $dark;
+  &:hover {
+    opacity: 1 !important;
+    box-shadow: rgb(0 0 0 / 25%) 0px 0px 11px 5px;
+    transform: scale(1.05) !important;
+    .iconWrapper:before {
+      opacity: 1;
+    }
+  }
+  @include tabletAndMobile {
+    flex: -0 1 48%;
+  }
+  @include mobile {
+    margin-right: 0;
+    display: block;
+    min-height: auto;
+  }
+
+  .articleContent {
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    .h5 {
+      margin-bottom: auto;
+      color: $white;
+      line-height: 1.4;
+    }
+    @include mobile {
+      min-height: auto;
+    }
+  }
+
+  .articleCategory {
+    color: $secondary;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .articleTitle {
+    color: $white;
+    @include mobile {
+      font-size: 18px;
+    }
+  }
+
+  .searchArticleTitle {
+    color: $dark !important;
+  }
+
+  .iconWrapper {
+    align-self: flex-end;
+    transition: 0.3s all;
+    position: relative;
+    line-height: 1;
+    color: $white;
+    margin-top: auto;
+    &:before {
+      content: 'Read now';
+      font-family: 'PP Object Sans Bold';
+      color: $dark;
+      font-weight: 700;
+      font-size: 18px;
+      font-style: normal;
+      vertical-align: top;
+      display: inline-block;
+      margin-right: 10px;
+      opacity: 0;
+      color: $white;
+      @include mobile {
+        display: none;
+      }
+    }
+    @include mobile {
+      margin-top: 16px;
+      &:before {
+        opacity: 1;
+      }
+    }
+  }
+
+  .searchIconWrapper {
+    color: $dark;
+    &:before {
+      content: 'Search now';
+      color: $dark;
+    }
+    path {
+      fill: $dark;
+    }
+  }
+}
+
+.twoCardsPerRow {
+  flex: 0 1 48%;
+}
+
+.searchBackground {
+  background-color: $secondaryLight;
+}
+
+.showMoreButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.showMoreButton {
+  margin-top: 32px;
+  width: auto;
+  @include mobile {
+    width: 100%;
+  }
+}
+

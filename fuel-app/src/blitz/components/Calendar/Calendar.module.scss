@@ -1,0 +1,55 @@
+@import '../../theme/index.scss';
+
+.selectDateWrapper {
+  margin: 0rem 0 1rem;
+}
+
+.box {
+  min-width: 5rem;
+  height: 5rem;
+  border-radius: 0.5rem;
+  padding: 10px;
+  border: 1px solid $light-gray;
+  cursor: pointer;
+  margin-right: 1rem;
+  @include mobile {
+    height: 4.5rem;
+    min-width: 4rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .boxMonth {
+    font-weight: 900;
+    font-size: 0.75rem;
+    line-height: 14px;
+  }
+
+  .boxDate {
+    font-weight: 900;
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+.boxSelected {
+  background: $midnightExpress;
+  color: $white;
+  .boxMonth {
+    color: $secondary;
+  }
+  .boxDate {
+    color: $secondary;
+  }
+}
+.boxDisabled {
+  cursor: not-allowed;
+  background: $light-bg-gray;
+  .boxMonth {
+    color: $light-gray;
+  }
+  .boxDate {
+    color: $light-gray;
+  }
+}

@@ -1,0 +1,81 @@
+@import '../../theme/index.scss';
+
+.tooltipContainer {
+  position: absolute;
+  max-width: 100%;
+  z-index: 999;
+  font-family: 'PP Object Sans';
+}
+.tooltipContent {
+  background-color: $white;
+  border: 1px solid $light-gray;
+  padding: 16px;
+  & a {
+   &:hover {
+     color: $primary;
+   }
+  }
+}
+.tooltipText {
+  font-size: 0.88rem;
+  @include mobile {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  & a {
+    text-decoration: underline;
+    font-family: 'PP OBJECT SANS MEDIUM',
+  }
+}
+.tooltipCarrot {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: -8px;
+  left: 10px;
+  transform: rotate(45deg);
+  background: $white;
+}
+.tooltipIcon {
+  padding: 0 4px;
+  cursor: pointer;
+  & > svg {
+    position: relative;
+    top: 2px;
+  }
+}
+.primary {
+  &:hover {
+    & > svg path {
+      fill: $primary;
+    }
+  }
+}
+.opened {
+  & > svg path {
+    fill: $primary;
+  }
+}
+.roundedCorner {
+  border-radius: 12px;
+}
+.dropShadow {
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.231);
+}
+.carrotDropShadow {
+  box-shadow: 2px 3px 2px rgba(0, 0, 0, 0.131);
+  border-right: 1px solid $light-gray;
+  border-bottom: 1px solid $light-gray;
+  border-top: none;
+  border-left: none;
+  &.bottomTooltipCarrot {
+    box-shadow: -1px -1px 3px rgba(0, 0, 0, 0.131);
+    border-top: 1px solid $light-gray;
+    border-left: 1px solid $light-gray;
+    border-right: none;
+    border-bottom: none;
+  }
+}
+.hideBorder {
+  border: 0;
+}

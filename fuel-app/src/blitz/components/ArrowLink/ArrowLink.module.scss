@@ -1,0 +1,33 @@
+@import '../../theme/index.scss';
+
+.wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.text {
+  flex: 1;
+}
+
+.primary-hover {
+  &:hover * {
+    color: $primary;
+  }
+}
+.secondary-hover {
+  &:hover * {
+    color: $secondary;
+  }
+}
+.tertiary-hover {
+  &:hover * {
+    color: $white;
+  }
+}

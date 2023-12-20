@@ -1,0 +1,146 @@
+@import '../../theme/index.scss';
+
+.root {
+  overflow: hidden;
+}
+
+.cardsContainer {
+  display: block;
+  margin: auto;
+  max-width: 1200px;
+}
+
+.card {
+  display: flex;
+  padding: 3rem 8rem;
+  gap: 80px;
+  @include mobile {
+    flex-direction: column;
+    padding: 2rem 1rem;
+    padding-bottom: 2rem;
+    gap: 1rem;
+  }
+}
+.swiperCardsContainer {
+  padding-bottom: 6rem;
+  @include mobile {
+    margin-bottom: 5rem;
+  }
+}
+
+.cardImage {
+  display: block;
+  width: 100%;
+  height: 220px;
+  max-height: 220px;
+  max-width: 220px;
+  object-fit: contain;
+  margin: auto;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cardContentText {
+  margin-block-end: 1rem;
+}
+
+.swiperContainer {
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.swiper {
+  height: 100%;
+  display: block;
+  margin: auto;
+}
+
+.swiper :global(.swiper-wrapper) {
+  display: flex;
+}
+
+.swiper :global(.swiper-horizontal) {
+  display: flex;
+}
+
+.swiperContainer :global(.swiper-button-disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.swiper :global(.swiper-pagination-bullets) {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  position: absolute;
+  bottom: 3.5rem;
+  left: 0;
+  right: 0;
+  @include mobile {
+    bottom: 60px;
+  }
+}
+
+.swiper :global(.swiper-pagination-bullet) {
+  width: 10px;
+  height: 10px;
+  z-index: 9;
+  border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid var(--pagination-color);
+  margin-right: 16px;
+  display: block;
+  cursor: pointer;
+  &:hover {
+    border: 1px solid $primary;
+    background-color: $primary;
+  }
+}
+
+.swiper :global(.swiper-pagination-bullet-active) {
+  background-color: var(--pagination-color);
+}
+
+.navigationContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  position: absolute;
+  bottom: calc(50% - 16px);
+  left: 3rem;
+  right: 3rem;
+  @include mobile {
+    bottom: 3rem;
+  }
+}
+
+.arrow {
+  cursor: pointer;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & svg {
+    & path {
+      stroke: var(--pagination-color);
+    }
+  }
+  &:hover {
+    & svg {
+      & path {
+        stroke: $primary;
+      }
+    }
+  }
+}
+
+.hide {
+  opacity: 0;
+}

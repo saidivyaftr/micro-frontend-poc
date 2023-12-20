@@ -1,0 +1,16 @@
+name: Shortcut
+
+on:
+  push:
+    branches:
+      - "shortcut"
+
+jobs:
+  trigger-prod-build:
+    name: "Trigger prod build"
+    runs-on: ubuntu-latest
+    environment:
+      image_signing_approvers
+    steps:
+      - name: Shortcut Message
+        run: echo "This run will trigger a prod release without going through nonprod."

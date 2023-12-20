@@ -1,0 +1,215 @@
+@import '../../theme/index.scss';
+
+.table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  padding-bottom: 10px;
+  width: 100%;
+  @include font-regular;
+  word-break: break-word;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.tableHeaderDif {
+  .addBorder {
+    border-bottom: 1px solid $grey-40;
+  }
+}
+
+.tableName {
+  margin: 1rem 0;
+  padding: 0.5rem 0;
+}
+
+.firstColumn {
+  width: 20%;
+  @include font-bold;
+  @include mobile {
+    width: 100%;
+  }
+  > div {
+    padding: 24px 0;
+    align-items: center;
+    @include mobile {
+      justify-content: center;
+      font-size: 14px;
+      padding: 0;
+    }
+  }
+  & :global(.light-text) {
+    @include font-regular;
+    font-weight: normal;
+  }
+}
+.headerNameTitle {
+  padding: 10px;
+  text-align: left;
+  margin-left: 2.5rem;
+  @include mobile {
+    font-size: 1rem;
+    line-height: 1.5rem
+  }
+}
+.valuesColumn {
+  width: auto;
+  flex-grow: 1;
+  padding: 8px;
+  box-sizing: border-box;
+  @include mobile {
+    padding-bottom: 16px;
+    padding: 8px 6px;
+  }
+}
+
+.oneColumnLayout {
+  .firstColumn {
+    width: 50%;
+    @include mobile {
+      width: 100%;
+    }
+  }
+
+  .valuesColumn {
+    width: 50%;
+    flex-grow: initial;
+    @include mobile {
+      width: 100%;
+    }
+  }
+}
+
+
+.rowLabel {
+  font-style: normal;
+  color: $dark;
+  box-sizing: border-box;
+  display: inline;
+  font-weight: bold;
+  span {
+    @include font-regular;
+  }
+  @include mobile {
+    br {
+      display: none;
+    }
+  }
+}
+
+.rowValue {
+  font-style: normal;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: $dark;
+}
+
+.tableHeader {
+  display: flex;
+  align-items: center;
+}
+
+.tableHeader > .tableHeaderDif:nth-of-type(2) {
+  .headerLogo {
+    max-width: 213px;
+  }
+}
+
+.tableRow {
+  @extend .tableHeader;
+  background: $white;
+  @include mobile {
+    border-bottom: none;
+  }
+}
+
+.tableRow:last-child td {
+  border-bottom: 1px solid $grey-40;
+}
+
+.preferredRowValue svg {
+  stroke: $primary;
+  stroke-width: 1;
+}
+
+.rowValue svg {
+  stroke-width: 2;
+}
+
+.headerDesc {
+  @include font-regular;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 23px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  text-decoration-line: underline;
+  margin: 24px 0px;
+  &:hover {
+    color: $primary;
+  }
+}
+
+.headerLink {
+  &:hover {
+    text-decoration-line: underline;
+    text-decoration-color: $primary;
+  }
+}
+
+.textValueLink {
+  &:hover {
+    text-decoration-line: underline;
+  }
+}
+
+.headerLogo {
+  height: 55px;
+  width: 90%;
+  max-width: 185px;
+  object-fit: contain;
+  @include mobile {
+    height: 35px;
+    max-width: 100px;
+  }
+}
+
+.headerBorder {
+  border-bottom: 1px solid $grey-90;
+  margin-bottom: 12px;
+}
+
+.backgroundEvenRow:nth-child(odd) {
+  background: $light-border-grey;
+}
+
+.backgroundEvenRow:nth-child(even) {
+  background: $white !important;
+}
+
+.backgroundOddRow:nth-child(odd) {
+  background: $white !important;
+}
+.roundedBorders {
+  border-radius: 1rem;
+  background: $primary;
+}
+.headerName {
+  box-sizing: border-box;
+  @include mobile {
+    padding: 0;
+  }
+}
+
+.textAlignCenter {
+  text-align: center;
+}

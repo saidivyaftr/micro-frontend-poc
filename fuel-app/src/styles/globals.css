@@ -1,0 +1,88 @@
+html,
+body {
+  padding: 0 !important;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #141928;
+  font-size: 16px !important;
+  font-weight: normal;
+  font-display: optional;
+  background-color: #fefefe;
+  font-size: 16px !important;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grecaptcha-badge {
+
+  bottom: 120px !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+sup {
+  line-height: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.group:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.preampjs [data-preamp],
+.fusejs [data-fuse] {
+  opacity: 0 !important;
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 150rem;
+  width: calc(100vw - 320px);
+  box-sizing: border-box;
+}
+
+input::-ms-clear, input::-ms-reveal {
+  display: none;
+}
+
+@media (max-width: 1440px) {
+  .content {
+    width: calc(100vw - 160px);
+  }
+}
+
+.brand-color {
+  color: #d7282f;
+}
+
+.frontierRow {
+  max-width: 117rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 20.625em) {
+  .frontierRow {
+    width: 330px;
+  }
+}
+
+@media (min-width: 45em) {
+  .frontierRow {
+    width: 720px;
+  }
+}
+
+@media (min-width: 71.25em) {
+  .frontierRow {
+    width: 1140px;
+  }
+}

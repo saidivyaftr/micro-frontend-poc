@@ -1,0 +1,58 @@
+name: "WebApp Deploy"
+description: "Deploy WebApp from the newly created Docker Image in Azure Container Registry"
+
+inputs:
+  azure_credentials:
+    description: "Credentials object for azure cli"
+    required: true
+  registry_server:
+    description: "Server for image registry"
+    required: true
+  app-name:
+    description: "Azure WebApp name to update"
+    required: true
+  app_settings:
+    description: "Azure WebApp app settings"
+    required: true
+  environment:
+    description: "The environment the build is for"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Git tag
+      id: git-tag
+      run: |
+        echo "::set-output name=git_tag::$(echo ${GITHUB_REF#refs/heads/} | sed -r 's,/,-,g')"
+        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      shell: bash
+    - name: Formatted tag name
+      run: |
+        echo "Brach name: '${{ steps.git-tag.outputs.git_tag }}'"
+        echo "Short sha: '${{ steps.git-tag.outputs.sha_short }}'"
+        echo "Tag that is used: '${{inputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }}'"
+      shell: bash
+
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{ inputs.azure_credentials }}
+
+    - uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ inputs.app-name }}
+        app-settings-json: ${{ inputs.app_settings }}
+      id: settings
+
+    - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
+      shell: bash
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ inputs.app-name }}
+        images: ${{ inputs.registry_server }}/${{ github.repository }}:${{inputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }}
+
+    - run: az logout
+      shell: bash
+      if: always()

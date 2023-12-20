@@ -1,0 +1,6 @@
+export { default as Hero } from './Hero'
+export { default as EeroComparision } from './TechSpecComparision'
+export { default as WhatMakesEero } from './WhatMakesEero'
+export { default as SwiperContent } from './SwiperContent'
+export { default as FrontierEero } from './FrontierEero'
+export { default as EeroSecure } from './EeroSecure'

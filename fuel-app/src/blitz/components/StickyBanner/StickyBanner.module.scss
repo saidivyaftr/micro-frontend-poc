@@ -1,0 +1,106 @@
+@import '../../theme/index.scss';
+
+.root {
+  margin: -30px auto 40px auto;
+  z-index: 1;
+  position: relative;
+  max-width: 1200px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s;
+  border-radius: 16px;
+  @include tabletAndMobile {
+    padding: 0;
+    margin-bottom: 1.25rem;
+  }
+  @include mobile {
+    border-radius: 0px;
+  }
+}
+
+.fixedWrapper {
+  margin-bottom: 0;
+  position: sticky;
+  top: 3.875rem;
+  z-index: 10;
+  @include tabletAndMobile {
+    top: 45;
+  }
+}
+.mobFixedWrapper {
+  position: fixed;
+  top: auto;
+  width: 100%;
+  bottom: -20px;
+  margin-top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  box-shadow: 0px -7px 14px rgba(0, 0, 0, 0.1);
+}
+.buttonsWrapper {
+  display: flex;
+  @include tabletAndMobile {
+    width: 100%;
+    justify-content: center;
+  }
+  @include mobile {
+    display: block;
+  }
+}
+
+.contentMainWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include tabletAndMobile {
+    flex-wrap: wrap;
+    display: block;
+    text-align: center;
+  }
+}
+.container {
+  padding: 21px 16px;
+  margin: 0px auto;
+  background-color: $white;
+  border-radius: 16px;
+  @include mobile {
+    margin: 0;
+    border-radius: 0;
+    padding: 16;
+  }
+}
+.messageBtnText {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.messageBtn {
+  display: block;
+  padding: 10px 52.5px;
+  &:hover {
+    border-color: $primary !important;
+  }
+}
+.description {
+  display: inline-block;
+  padding: 5px;
+  margin-right: 16px;
+  @include mobile {
+    margin: 0px 0px 10px 0px;
+    padding: 0;
+  }
+}
+.button {
+  padding: 11px 42px;
+  border: 1px solid;
+  display: flex;
+  margin-left: 18;
+  @include mobile {
+    display: block;
+    width: 100%;
+    padding: 11px 30px;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 18;
+  }
+}

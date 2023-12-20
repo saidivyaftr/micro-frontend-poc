@@ -1,0 +1,70 @@
+@import '../../theme/index.scss';
+
+.cardAndImage {
+  @include tablet {
+    display: flex;
+    justify-content: center;
+  }
+
+  .contentLeft {
+    background: $background-gray;
+    padding: 3rem 1rem;
+    flex: 1;
+    border-top-left-radius: 32px;
+    border-bottom-left-radius: 32px;
+    @include tablet {
+      padding: 2.5rem 3.3125rem;
+      max-width: 520px;
+    }
+    @include mobile {
+      border-top-right-radius: 32px;
+      border-bottom-left-radius: 0;
+    }
+    .toolTipContent {
+      text-align: left;
+      margin-top: -21px;
+      margin-left: 80px;
+    }
+    .heading {
+      @include tablet {
+        max-width: 360px;
+      }
+    }
+
+    .copy {
+      @include tablet {
+        margin-right: 60px;
+      }
+      @include mobile {
+        font-size: 16px;
+        line-height: 24px;
+      }
+    }
+  }
+
+  .legalDisclaimer {
+    margin-top: 10px;
+  }
+
+  .contentRight {
+    background-image: var(--bg-mobile);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100%;
+    min-height: 345px;
+    border-top-right-radius: 32px;
+    border-bottom-right-radius: 32px;
+    flex: 1;
+    @include tablet {
+      background-image: var(--bg-tablet);
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    @include mobile {
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 32px;
+    }
+  }
+}

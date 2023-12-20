@@ -1,0 +1,81 @@
+@import '../../theme/index.scss';
+
+.speedCard {
+  padding: 3rem 2rem;
+  @include mobile {
+    padding: 2rem 1rem;
+  }
+  h5 {
+    margin-bottom: 32px;
+  }
+
+  .iconWrapper {
+    width: 18px;
+  }
+  .flexWrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    @include tabletAndMobile {
+      flex-direction: column;
+    }
+  }
+
+  .descriptionContainer {
+    background-color: $white;
+    display: inline-flex;
+    width: 33%;
+    flex-direction: row;
+
+    @include tabletAndMobile {
+      width: 100%;
+    }
+  }
+
+  .descriptionWrapper {
+    padding: 16px;
+    width: 100%;
+
+    > ul {
+      padding-left: 0;
+      list-style-type: none;
+      margin: 0;
+
+      > li {
+        display: flex;
+      }
+    }
+
+    @include mobile {
+      width: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .perkTitle {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .perkSubTitle {
+    margin-bottom: 8px;
+  }
+
+  .perkDesc {
+    margin-left: 8px;
+    margin-bottom: 8px;
+  }
+
+  .darkBlue {
+    color: $secondary;
+  }
+  .innerWrapper h5{
+    @include font-regular;
+  }
+  .white {
+    background-color: $white;
+  }
+}

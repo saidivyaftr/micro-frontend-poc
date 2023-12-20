@@ -1,0 +1,94 @@
+name: "Parse application settings json file"
+description: "Parse application settings json file"
+
+inputs:
+  file_path:
+    description: "Path to the settings json file"
+    required: true   
+  env:
+    description: "Environment to use"
+    required: true
+
+outputs:
+  settings:
+    description: "Returned settings string"
+    value: ${{ steps.parseJSON.outputs.settings }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Parse application settings json file"
+    id: parseJSON
+    shell: pwsh
+    run: |
+      try {
+        Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+        Install-Module Newtonsoft.Json
+        Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
+        Import-Module Newtonsoft.Json
+
+        [String]$env = "${{ inputs.env }}"
+        [String]$jsonFile = "${{ inputs.file_path }}"
+        [String]$settings = ""
+
+        if (Test-Path $jsonFile) {
+          try {
+            # JSON file with settings should be at the same location where scripts are
+            Write-Output "Reading input setting from '$jsonFile'."
+            $jsonFile = Get-Content -Path $jsonFile -Raw | Out-String
+        
+            # Validate input JSON
+            try {
+                ConvertFrom-Json $jsonFile -ErrorAction Stop | out-null
+                Write-Output "Converting JSON."
+            }
+            catch {
+                $msg = "[ERR] Invalid JSON format in '$jsonFile' file." 
+                Write-Output $msg
+                $Error.Clear()
+                throw $msg
+            }
+          
+            $inJSON = [Newtonsoft.Json.Linq.JObject]::Parse($jsonFile)
+          }
+          catch
+          {
+            $msg = "[ERR] Unable to parse '$jsonFile' file. Details: $_" 
+            Write-Output $msg
+            $Error.Clear()
+            throw $msg
+          }
+        }
+        else
+        {
+            $msg = "[ERR] Unable to detect file with input settings '$jsonFile'." 
+            Write-Output $msg
+            $Error.Clear()
+            throw $msg
+        }
+
+        try {
+          $inJSON.Item($env).GetEnumerator() | ForEach-Object {
+            $key = ($_.key).toString()
+            $value = ($inJSON.Item($env).$key.Value).toString()
+            #Write-Output "Key: $key Value: $value"        
+            # there is a problem with Bash handling powershell '`n' character
+            # [System.Environment]::NewLine doesn't work also
+            # downstream when using data do str.replace("<new_line>", "`n")
+            $settings += "$($key) = $($value)<new_line>"
+          }
+        } catch {
+          $msg = "[ERR] Inconsistency in '$jsonFile' file." 
+          Write-Output $msg
+          $Error.Clear()
+          throw $msg
+        }
+        
+        Write-Output "Action execution completed successfully"
+        echo "settings=$settings" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append            
+        Exit 0
+      } catch {
+        Write-Output "[ERR]: $($_.Exception)"
+        Write-Output "Execution failed"
+        Exit 1
+      }      

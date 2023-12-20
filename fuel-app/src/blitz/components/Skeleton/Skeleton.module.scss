@@ -1,0 +1,30 @@
+@import '../../theme/index.scss';
+
+@keyframes placeload {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.root {
+  display: block;
+  background-color: $grey-90;
+  min-height: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  animation: placeload 1.5s ease-in-out 0.5s infinite;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.circular {
+  border-radius: 50%;
+}

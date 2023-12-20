@@ -1,0 +1,169 @@
+name: "Static & Ephemeral Environments"
+on:
+  issue_comment:
+    types:
+      - created
+      - edited
+  push:
+    branches:
+      - qat01
+      - qat02
+      - qat03
+      - qat04
+      - qat05
+      - qat06
+      - ctest
+      - pprd
+  #    branches-ignore:
+  #      - main
+  #      paths-ignore:
+  #        - .github/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment Name to deploy to or destroy'
+        required: true
+        type: string
+        default: ''
+      environment_type:
+        description: 'Type of Environment'
+        type: choice
+        options:
+          - static
+          - ephem
+      image_tag:
+        description: 'Pass already available image tag'
+        type: string
+        required: false
+        default: 'z_qat01.z_qat01.2a73d44'
+
+jobs:
+  action:
+    name: Determine Terraform Action
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.action.outputs.action }}
+      image_tag: ${{ steps.action.outputs.image_tag }}
+      environment: ${{ steps.action.outputs.environment }}
+      run_workflow: ${{ steps.action.outputs.run_workflow }}
+      ephemeral: ${{ steps.action.outputs.ephemeral }}
+      prNumber: ${{ steps.check_comment.outputs.prNumber }}
+      legacy-fqdn: ${{ steps.check_comment.outputs.legacy-fqdn }}
+      createDeployment: ${{ steps.check_comment.outputs.createDeployment }}
+    steps:
+      - name: Consecutive Run Wait
+        uses: frontier-devops/consecutive-workflow@main
+        with:
+          token: ${{ secrets.GH_PAT }}
+      - name: Check if PR has specific comment
+        uses: actions/github-script@v6
+        if: (github.event.issue.pull_request)
+        id: check_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log(context);
+            const prNumber = context.issue.number;
+            core.setOutput('prNumber', prNumber.toString());
+            const specificComment = 'create-deployment';
+            const legacySpecificCommentPattern = /create-deployment-legacy:(\w+)/;
+            const labelToAdd = 'Deployed';
+            const comment = context.payload.comment.body
+            const commentExists = comment.includes(specificComment);
+            const patternMatch = comment.match(legacySpecificCommentPattern);
+
+            if (commentExists) {
+              console.log('Checking for comment');
+              if ( legacySpecificCommentPattern && legacySpecificCommentPattern[1]) {
+                core.setOutput('legacy-fqdn', legacySpecificCommentPattern[1]);
+              }
+              core.setOutput('legacy-fqdn', "");
+              labels = context.payload.issue.labels
+              console.log('Checking for label');
+              const labelExists = labels.some(label => label.name === labelToAdd);
+              if (!labelExists) {
+                console.log('Label does not exists')
+                core.setOutput('createDeployment', true);
+              }
+            }
+
+      - name: Set Variables
+        id: action
+        run: |
+          echo "ephemeral=false" >> $GITHUB_OUTPUT
+          echo "run_workflow=true" >> $GITHUB_OUTPUT
+          if [[ '${{ steps.check_comment.outputs.createDeployment }}' == 'true' ]]; then
+            echo "action=apply" >> $GITHUB_OUTPUT
+            echo "image_tag=no-tag" >> $GITHUB_OUTPUT
+            echo "environment=ephem${{ steps.check_comment.outputs.prNumber }}" >> $GITHUB_OUTPUT
+            echo "ephemeral=true" >> $GITHUB_OUTPUT
+          elif [[ '${{ github.event_name }}' == 'push' ]]; then
+            echo "action=apply" >> $GITHUB_OUTPUT
+            echo "image_tag=no-tag" >> $GITHUB_OUTPUT
+            echo "environment=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
+            echo "action=apply" >> $GITHUB_OUTPUT
+            echo "image_tag=${{ inputs.image_tag }}" >> $GITHUB_OUTPUT
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            if [[ '${{ inputs.environment_type }}' == 'ephem' ]]; then
+              echo "ephemeral=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "run_workflow=false" >> $GITHUB_OUTPUT
+          fi
+
+  get_env_variables:
+    needs: action
+    name: Get Environment
+    runs-on: ubuntu-latest
+    environment: ${{ needs.action.outputs.environment }}
+    outputs:
+      env_vars: ${{ steps.env_vars.outputs.env_vars }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set tfvars file content
+        id: env_vars
+        run: |
+          env_vars='TF_VAR_test_var=${{ vars.TF_VAR_TEST_VAR}}'
+          delimiter="$(openssl rand -hex 8)"
+          echo "env_vars<<${delimiter}" >> "${GITHUB_OUTPUT}"
+          echo "$env_vars" >> "${GITHUB_OUTPUT}"
+          echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+
+
+
+  call_workflow:
+    name: "${{ needs.action.outputs.environment }} Environment"
+    needs: [action, get_env_variables]
+    if: ${{ needs.action.outputs.run_workflow == 'true' }}
+    uses: frontier-devops/dig-dotcom-orchestrator/.github/workflows/deploy.yml@main
+    with:
+      environment: ${{ needs.action.outputs.environment }}
+      app: 'homepage'
+      frontend_path: '/pages*'
+      probe_path: '/pages'
+      image_tag: ${{ needs.action.outputs.image_tag }}
+      ephemeral: ${{ needs.action.outputs.ephemeral }}
+      legacy-fqdn: ${{ needs.action.outputs.legacy-fqdn }}
+      env_vars: ${{ needs.get_env_variables.outputs.env_vars }}
+    secrets: inherit
+
+  label_pr:
+    name: Label PR
+    if: (github.event.issue.pull_request)
+    needs: call_workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label the PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const labelToAdd = 'Deployed';
+            const prNumber = context.issue.number;
+            await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  labels: [labelToAdd]
+                });

@@ -1,0 +1,6 @@
+export { default as QuickAccess } from './QuickAccess'
+export { default as DownloadApp } from './DownloadApp'
+export { default as DownloadAppQR } from './DownloadAppQR'
+export { default as HeroSection } from './HeroSection'
+export { default as MobileApp } from './MobileApp'
+export { default as TrackYourOrders } from './TrackYourOrders'

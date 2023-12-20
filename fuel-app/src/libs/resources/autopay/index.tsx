@@ -1,0 +1,5 @@
+export { default as AutoPlayVideo } from './AutoPlayVideo'
+export { default as HeroSection } from './HeroSection'
+export { default as PageEndBanner } from './PageendBanner'
+export { default as TwoWays } from './TwoWays'
+export { default as BillPayment } from './BillPayment'

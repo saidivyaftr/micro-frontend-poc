@@ -1,0 +1,114 @@
+@import '../../theme/index.scss';
+
+.tooltipContainer {
+  cursor: pointer;
+  position: relative;
+  margin-left: 0.25rem !important;
+  & > svg {
+    position: relative;
+    top: 2px;
+  }
+}
+
+.tooltipCloud {
+  position: absolute;
+  bottom: 45px;
+  min-width: 300px;
+  @media (max-width: 330px) {
+    min-width: 290px;
+  }
+  border: 1px solid $dark-bg-grey;
+  background-color: $white;
+  z-index: 99;
+  text-align: left;
+}
+
+.tooltipCarrot {
+  position: absolute;
+  bottom: 37px;
+  transform: rotate(45deg);
+  left: calc(50% - 8px);
+  width: 16px;
+  height: 16px;
+  background: $white;
+  border: 1px solid $dark-bg-grey;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  z-index: 100;
+}
+
+.tooltipText {
+  margin: 16px;
+  span {
+    margin: 0 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.13rem !important;
+  }
+  span[styleType*='underline'] {
+    font-size: unset !important;
+    line-height: unset !important;
+    text-decoration: underline;
+  }
+}
+
+.cloudBorder {
+  border-radius: 16px;
+}
+
+.bottomCloud {
+  bottom: unset;
+  top: 45px;
+}
+
+.bottomTooltipCarrot {
+  transform: rotate(225deg);
+  bottom: unset;
+  top: 37px;
+}
+
+.hideBorder {
+  border: 0;
+}
+
+.darkModeHover {
+  &:hover {
+    & > svg path {
+      fill: $primary;
+    }
+  }
+}
+
+.dropShadow {
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.231);
+}
+
+.carrotDropShadow {
+  box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.131);
+}
+
+.tooltipCloudNew {
+  border: 1px solid $light-gray;
+  border-radius: 0.5rem;
+  min-width: 225px;
+  bottom: 35px;
+
+  &.bottomCloud {
+    top: 35px;
+  }
+
+  .tooltipText {
+    margin: 0.5rem;
+    font-size: 0.75rem !important;
+    line-height: 0.88rem !important;
+  }
+
+  + .tooltipCarrot {
+    bottom: 27px;
+    border: 1px solid $light-gray;
+    border-top-color: transparent;
+    border-left-color: transparent;
+    &.bottomTooltipCarrot {
+      top: 27px;
+    }
+  }
+}

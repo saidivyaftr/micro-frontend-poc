@@ -1,0 +1,60 @@
+@import '../../theme/index.scss';
+
+.stripe {
+  position: absolute;
+  z-index: 0;
+  height: 30px;
+  width: 100vw;
+  background-color: $secondary;
+  left: 40%;
+  @include tabletAndMobile {
+    left: 0;
+  }
+  @include mobile {
+     height: 25px;
+   }
+}
+
+.stripeOne {
+  bottom: 40%;
+  @include tabletAndMobile {
+      bottom: 25%;
+  }
+  @include mobile {
+    bottom: 15%;
+  }
+}
+.stripeTwo {
+  bottom: calc(40% + 45px);
+  @include tabletAndMobile {
+    bottom: calc(25% + 45px);
+  }
+  @include mobile {
+    bottom: calc(15% + 38px);
+  }
+}
+.stripeThree {
+  bottom: calc(40% + 90px);
+  @include tabletAndMobile {
+    bottom: calc(25% + 90px);
+  }
+  @include mobile {
+    bottom: calc(15% + 78px);
+  }
+}
+
+.stripePrimary .stripe {
+  background-color: $primary;
+}
+.stripeSecondary .stripe {
+  background-color: $secondary;
+}
+.stripeBlack .stripe{
+  background-color: $dark;
+}
+.stripeWhite .stripe{
+  background-color: $white;
+}
+.stripeNone .stripe{
+  display: none;
+}

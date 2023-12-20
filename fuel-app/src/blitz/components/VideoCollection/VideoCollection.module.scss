@@ -1,0 +1,43 @@
+@import '../../theme/index.scss';
+
+.wrappers {
+  margin: auto;
+}
+
+.flexWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 4rem;
+  gap: 2rem;
+  @include mobile {
+    display: block;
+    margin-top: 2rem;
+  }
+}
+
+.videoItem {
+  flex: 0 1 calc(50% - 1rem);
+  margin-bottom: 2rem;
+  @include mobile {
+    margin-bottom: 1rem;
+  }
+}
+
+.showMoreButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.showMoreButton {
+  margin-top: 32px;
+  width: auto;
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.videoCardClassName {
+  margin: 0 !important;
+  height: 100%;
+}
+

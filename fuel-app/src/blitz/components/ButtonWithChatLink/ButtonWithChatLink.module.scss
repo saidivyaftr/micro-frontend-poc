@@ -1,0 +1,81 @@
+@import '../../theme/index.scss';
+
+.root {
+  .dark {
+    background-color: $midnightExpress;
+  }
+
+  a {
+    width: unset;
+    display: inline-block;
+    max-width: fit-content;
+  }
+
+  .white {
+    background-color: $white;
+  }
+
+  .lightGray {
+    background-color: $light-border-grey;
+  }
+
+  .alreadyACustomerContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  .chatNowLink {
+    background: transparent;
+    border: 0px;
+    cursor: pointer;
+
+    div {
+      margin: 0px;
+      text-decoration: underline;
+
+      :hover {
+        color: $midnightExpress;
+      }
+    }
+  }
+
+  .chatNowButton {
+    background: transparent;
+    height: 24px;
+    border: 0;
+    color: $white;
+  }
+
+  .isReturningUser {
+    display: none !important;
+  }
+
+  .chatNowButtonText {
+    color: $white;
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  .customChatContainer {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 1rem;
+  }
+
+  .blackFont {
+    color: $dark;
+  }
+
+  .whiteFont {
+    color: $white;
+  }
+
+  .redFont {
+    color: $primary;
+  }
+}

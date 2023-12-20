@@ -1,0 +1,41 @@
+.autopayModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .autopayModalContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 2rem;
+  }
+}
+.autopayCancelModalActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  padding-bottom: 32px;
+  button {
+    margin: 0px 8px;
+  }
+}
+
+.autopayCancelModalContent {
+  padding: 32px;
+  max-width: 500px;
+  width: '90%';
+  font-family: 'PP OBJECT SANS';
+  .autopayModalTitle {
+    width: 400px;
+    text-align: center;
+    font-size: 22px;
+  }
+}
+
+.autopayokButton {
+  display: flex;
+  justify-content: flex-end;
+}

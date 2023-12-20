@@ -1,0 +1,6 @@
+export { default as HeroSection } from './HeroSection'
+export { default as NeedMoreHelp } from './NeedMoreHelp'
+export { default as Understanding } from './Understanding'
+export { default as HowToGetPerformance } from './HowToGetPerformance'
+export { default as GetSupport } from './GetSupport'
+export { default as TwoColumnLayoutWithImage } from './TwoColumnLayoutWithImage'

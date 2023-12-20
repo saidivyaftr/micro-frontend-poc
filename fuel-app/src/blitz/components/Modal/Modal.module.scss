@@ -1,0 +1,91 @@
+@import '../../theme/index.scss';
+
+.modal {
+  background: rgba(0, 0, 0, 0.8);
+  top: 0;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  height: 100vh;
+  width: 100vw;
+
+  .modalCloseButton {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+    position: absolute;
+    right: 5%;
+    top: 3%;
+    z-index: 200;
+    transform: translate(-50%, -50%);
+    transition: 0.3s all;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    @include tablet {
+      right: 5%;
+    }
+
+    @include mobile {
+      right: -8%;
+      top: 0;
+    }
+
+  }
+
+  .modalCloseButton:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .modalCloseButton:hover svg * {
+    fill: $primary;
+    stroke: $primary;
+    color: $primary;
+  }
+
+  .modalContentContainer {
+    position: relative;
+    @include mobile {
+      width: 100% !important;
+      min-height: 200px !important;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  }
+
+  .article {
+    width: 85%;
+    margin: auto;
+    padding: 32px;
+    background: $dark;
+    border-radius: 0 0 32px 32px;
+    margin-top: -4px;
+    p {
+      margin-top: 8px;
+    }
+    @include mobile {
+      width: 100%;
+      padding: 16px;
+      border-radius: 0 0 16px 16px;
+    }
+  }
+
+  .videoArticleContainer {
+    max-width: 900px;
+    padding: 25px;
+    margin: auto;
+    position: fixed;
+    @include mobile {
+      width: 95%;
+      padding: 4px;
+      max-height: 90vh;
+    }
+  }
+}

@@ -1,0 +1,31 @@
+@import '../../theme/index.scss';
+
+.root {
+  padding: 48px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  @include mobile {
+    padding: 1rem;
+  }
+  .button {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    width: auto;
+    align-self: flex-start;
+    sup {
+      line-height: 0;
+    }
+    @include mobile {
+      font-size: 1.125rem;
+      margin: 1rem auto;
+      padding: .625rem .875rem;
+      width: 100%;
+    }
+
+    .whiteBtn {
+      color: $white;
+      border-color: $white;
+    }
+  }
+}

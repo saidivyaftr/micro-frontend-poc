@@ -1,0 +1,81 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+
+trigger:
+  - master
+
+pool:
+  name: DIGITAL26
+  demands: npm
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+  - task: Npm@1
+    displayName: Install NPM Packages
+    inputs:
+      command: 'install'
+
+  - task: Npm@1
+    displayName: Build the Application
+    inputs:
+      command: 'custom'
+      customcommand: 'run build'
+
+  - task: Npm@1
+    displayName: Run Unit Tests
+    inputs:
+      command: 'custom'
+      customcommand: 'run test:ci'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Azure IIS Configs to: $(Build.ArtifactStagingDirectory)'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      #     CleanTargetFolder: true
+      flattenFolders: true
+      Contents: |
+        .azure-release\Server.js
+        .azure-release\web.config
+        .azure-release\iisnode.yml
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Application Files to: $(Build.ArtifactStagingDirectory)'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: |
+        .next\**
+        public\**
+        package.json
+        package-lock.json
+        next.config.js
+        .env
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish $(Build.ArtifactStagingDirectory): DSM'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'DSM'
+      publishLocation: 'Container'
+
+  - task: fortifyvsts.hpe-security-fortify-vsts.build-task-fortify-on-demand-static.FortifyOnDemandStatic@7
+    displayName: 'Run Fortify on Demand static assessment on $(build.sourcesDirectory)'
+    inputs:
+      FortifyProjects: '$(build.sourcesDirectory)'
+      ReleaseId: 320666
+      BSIToken: 'eyJ0ZW5hbnRJZCI6MTk2NSwidGVuYW50Q29kZSI6ImZyb250aWVyIiwicmVsZWFzZUlkIjoyNTA2NjQsInBheWxvYWRUeXBlIjoiQU5BTFlTSVNfUEFZTE9BRCIsImFzc2Vzc21lbnRUeXBlSWQiOjI3MywidGVjaG5vbG9neVR5cGUiOiJKUy9UUy9IVE1MIiwidGVjaG5vbG9neVR5cGVJZCI6MTYsInRlY2hub2xvZ3lWZXJzaW9uIjpudWxsLCJ0ZWNobm9sb2d5VmVyc2lvbklkIjpudWxsLCJhdWRpdFByZWZlcmVuY2UiOiJNYW51YWwiLCJhdWRpdFByZWZlcmVuY2VJZCI6MSwiaW5jbHVkZVRoaXJkUGFydHkiOmZhbHNlLCJpbmNsdWRlT3BlblNvdXJjZUFuYWx5c2lzIjpmYWxzZSwicG9ydGFsVXJpIjoiaHR0cHM6Ly9hbXMuZm9ydGlmeS5jb20iLCJhcGlVcmkiOiJodHRwczovL2FwaS5hbXMuZm9ydGlmeS5jb20iLCJzY2FuUHJlZmVyZW5jZSI6IlN0YW5kYXJkIiwic2NhblByZWZlcmVuY2VJZCI6MX0='
+      FodConnection: FortifyOnDemand
+      EntitlementPreference: 1
+      InProgressScanActionType: 2
+      RemediationScanPreference: 0
+      PollingInterval: 0
+      PolicyFailAction: 0
+    continueOnError: true

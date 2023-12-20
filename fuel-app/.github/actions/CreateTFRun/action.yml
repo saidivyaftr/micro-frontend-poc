@@ -1,0 +1,86 @@
+name: "Create Terraform Run"
+description: "Create Terraform Run"
+
+inputs:
+  tf_token:
+    description: "Terraform token"
+    required: true
+  tf_wsp_id:
+    description: "Terraform Workspace id"
+    required: true
+  tf_destroy_flag:
+    description: "Terraform Workspace destroy flag"
+    required: false    
+
+outputs:
+  run_id:
+    description: "Created Run Url"
+    value: ${{ steps.createRun.outputs.run_id }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Create Terraform run"
+    id: createRun
+    shell: pwsh
+    run: |
+      try {
+        [String]$token = "${{ inputs.tf_token }}"
+        [String]$wsp_id = "${{ inputs.tf_wsp_id }}"
+        [String]$uri = "https://app.terraform.io/api/v2/runs"
+        [String]$run_id = ""
+        [String]$isDestroy = "false"
+        $flag = "${{ inputs.tf_destroy_flag }}"
+
+        if ($flag -eq "true") { $isDestroy = "true" }
+
+        $headers = @{
+          'Authorization' = "Bearer ${{ inputs.tf_token }}"
+          'Content-Type' = 'application/vnd.api+json'
+        }
+
+        $body = @"
+          {
+            "data": {
+              "attributes": {
+                "message": "Run created from GitHub",
+                "is-destroy": $isDestroy
+              },
+              "type":"runs",
+              "relationships": {
+                "workspace": {
+                  "data": {
+                    "type": "workspaces",
+                    "id": "$wsp_id"
+                  }
+                }
+              }
+            }
+          }
+      "@
+        Write-Host "Create new Terraform run"
+        try {
+          $response = Invoke-WebRequest -Uri $uri -Method Post -Headers $headers -Body $body
+        } catch {
+          $msg = "Unexpected response received. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+          Throw "$msg Details:`r`n`t$($_)"
+        }
+
+        if ($response.statuscode -eq '201') {
+          $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+          $myObj = $json | Out-String | ConvertFrom-Json
+          $run_id = $myObj.data.id
+          Write-Host "Terraform Run with the id '$run_id' successfully created"
+        } else {
+          $msg = "Unexpected response code '$($response.statuscode)' received"
+          Throw "$msg"
+        }
+
+        Write-Host "Completed successfully"
+        echo "::set-output name=run_id::$run_id" 
+        Exit 0
+      } catch {
+        Write-Host "[ERR]: $($_.Exception)"
+        Write-Host "Execution failed"
+        Exit 1
+      }     

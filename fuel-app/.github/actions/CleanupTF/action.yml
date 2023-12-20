@@ -1,0 +1,240 @@
+name: "Maintenance for Terraform Workspaces"
+description: "Maintenance for Terraform Workspaces"
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Cleanup Terraform workspace"
+    id: deleteTFWspc
+    shell: pwsh
+    run: |
+      try {
+        [String]$token = "${{ env.tf_token }}"
+        [String]$organization = "${{ env.organization }}"
+        $uri = "https://app.terraform.io/api/v2/organizations/$organization/workspaces"
+        [String]$strToMatch = "autoworkspace-"
+        [Int]$age = -2
+        [Bool]$bErr = $false
+        
+        Write-Host "Maintenance for Terraform Workspaces"
+        
+        $headers = @{
+          'Authorization' = "Bearer $token"
+          'Content-Type' = 'application/vnd.api+json'
+        }
+
+        Write-Host "Querying Terraform workspaces"
+        try {
+          $response = Invoke-WebRequest -UseBasicParsing -Uri $uri -Method Get -Headers $headers
+        } catch {
+          $msg = "[ERR] Unexpected response received while querying Terraform workspaces. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+          Write-Host "$msg Details:`r`n`t$($_)"
+          Exit 1
+        }
+
+        if ($response.statuscode -ne '200') {
+          $msg = "Unexpected response received while querying Terraform workspaces. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+          Throw "$msg Details:`r`n`t$($_)"
+        } else {
+          $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+          $myObj = $json | Out-String | ConvertFrom-Json
+
+          foreach ($item in $myObj.data) {
+            $doDelete = $false
+            $workspaceId = ""
+            $run_id = ""
+            $body = $null
+
+            $GetDT = ([DateTime]::Now.AddDays($age)).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss")
+            if ($item.attributes.name -match $strToMatch ) {
+              $created = $item.attributes."created-at"
+              $name = $item.attributes.name
+              $workspaceId = $item.id
+              
+              if ($created -lt $GetDT) {
+                Write-Host "Removing Terraform workspace '$name' that was created on '$created'"
+                $doDelete = $true
+              }
+            }
+
+            if ($doDelete) {
+              try {
+                # Create Terraform workspace destroy run
+                [String]$uri = "https://app.terraform.io/api/v2/runs"
+
+                $body = @"
+                  {
+                    "data": {
+                      "attributes": {
+                        "message": "Run created from GitHub",
+                        "is-destroy": true
+                      },
+                      "type":"runs",
+                      "relationships": {
+                        "workspace": {
+                          "data": {
+                            "type": "workspaces",
+                            "id": "$workspaceId"
+                          }
+                        }
+                      }
+                    }
+                  }
+      "@
+                
+                Write-Host "Create Terraform workspace destroy run"
+                try {
+                  $response = Invoke-WebRequest -Uri $uri -Method Post -Headers $headers -Body $body
+                } catch {
+                  $msg = "[ERR] Unexpected response received while creating Terraform workspace destroy run. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+                  Write-Host "$msg Details:`r`n`t$($_)"
+                  $doDelete = $false
+                  $bErr = $true                  
+                }
+                
+                if ($response.statuscode -eq '201') {
+                  $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+                  $myObj = $json | Out-String | ConvertFrom-Json
+                  $run_id = $myObj.data.id
+                  Write-Host "Terraform workspace destroy run with the id '$run_id' successfully created"
+                } else {
+                    $msg = "Unexpected response code '$($response.statuscode)' received while creating Terraform workspace destroy run."
+                    Write-Host $msg
+                    $doDelete = $false
+                    $bErr = $true
+                }
+              } catch {
+                Write-Host "[ERR] While creating Terraform workspace destroy run: $($_.Exception)"
+                $doDelete = $false
+                $bErr = $true
+              } 
+            }
+
+            if ($doDelete) {
+              try {
+                # Monitor created Terraform workspace destroy run status
+                [String]$uri = " https://app.terraform.io/api/v2/runs/$run_id"
+                [String]$status = "initiated"
+                [Int32]$Retries = 60
+                [Int32]$SecondsDelay = 10
+                [Int32]$retrycount = 0
+                [Bool]$completed = $false
+                [Int32]$myErr = 0
+
+                Write-Host "Monitor created Terraform workspace destroy run status"
+                while (-not $completed) {
+                  try {
+                    $response = Invoke-WebRequest -UseBasicParsing -Uri $uri -Method Get -Headers $headers
+                  } catch {
+                    if ($myErr -lt 500) {
+                      $msg = "Unexpected response received. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+                      Throw "$msg Details:`r`n`t$($_)"
+                    }
+
+                    Write-Warning "Retrying in $SecondsDelay seconds"
+                    Start-Sleep $SecondsDelay
+                    if ($myErr -eq $_.Exception.Response.StatusCode.Value__) {
+                      $msg = "[ERR] Unexpected response received while monitoring Terraform destroy run status. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+                      Write-Host "$msg Details:`r`n`t$($_)"
+                      $doDelete = $false
+                      $bErr = $true
+                    } else {
+                      $myErr = $_.Exception.Response.StatusCode.Value__
+                      Continue
+                    }
+                  } 
+
+                  if ($response.statuscode -eq '200') {
+                      $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+                      $myObj = $json | Out-String | ConvertFrom-Json
+                      $currentState = $myObj.data.attributes.status
+                      Write-Host "Terraform Run with the id '$run_id' has status '$currentState'"
+                  } else {
+                    $msg = "Unexpected response code '$($response.statuscode)' received while monitoring created Terraform workspace destroy run status"
+                    Write-Host $msg
+                    $doDelete = $false
+                    $bErr = $true
+                  }
+                  
+                  if (($status -ne $currentState) -and (![string]::IsNullOrEmpty($currentState))) {
+                    Write-Host "Workspace Run status changed from '$status' to '$currentState'"
+                    $status = $currentState
+                    $retrycount = 0
+                  }    
+                  
+                  if (($status -eq "planned_and_finished") -or ($status -eq "applied")) {
+                    $completed = $true
+                  } elseif ($status -eq "policy_soft_failed") {
+                    $msg = "A sentinel policy has soft failed for a plan-only run. This is a final state"
+                    Throw "$msg"
+                  } elseif ($status -eq "discarded") {
+                    $msg = "The run has been discarded. This is a final state"
+                    Throw "$msg"
+                  } elseif ($status -eq "errored") {
+                    $msg = "The run has errored. This is a final state"
+                    Throw "$msg"
+                  } elseif ($status -eq "canceled") {
+                    $msg = "The run has been canceled. This is a final state"
+                    Throw "$msg"
+                  } else {
+                    if ($retrycount -ge $Retries) {
+                      $msg = "Request to $uri failed the maximum number of $retryCount times"
+                      Throw "$msg"
+                    } else {
+                      Write-Warning "Retrying in $SecondsDelay seconds"
+                      Start-Sleep $SecondsDelay
+                      $retrycount++
+                    }
+                  }
+                }
+              } catch {
+                Write-Host "[ERR] While monitoring created Terraform workspace destroy run status: $($_.Exception)"
+                $doDelete = $false
+                $bErr = $true
+              }           
+            }
+
+            if ($doDelete) {
+              try {
+                # Remove Terraform workspace
+                $uri = "https://app.terraform.io/api/v2/organizations/$organization/workspaces/$name"
+
+                Write-Host "Remove Terraform workspace"
+                try {
+                  $response = Invoke-WebRequest -Uri $uri -Method DELETE -Headers $headers
+                } catch {
+                  $msg = "[ERR] Unexpected response received while removing Terraform workspace. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+                  Write-Host "$msg Details:`r`n`t$($_)"
+                  $doDelete = $false
+                  $bErr = $true
+                } 
+                
+                if ($response.statuscode -eq '204') {   
+                  Write-Host "Workspace with the name '$name' was successfully deleted from Terraform"
+                } else {
+                  $msg = "Unexpected response code '$($response.statuscode)' received while removing Terraform workspace."
+                  Write-Host $msg
+                  $doDelete = $false
+                  $bErr = $true
+                }
+              } catch {
+                Write-Host "[ERR] While removing Terraform workspace: $($_.Exception)"  
+                $doDelete = $false
+                $bErr = $true
+              }          
+            }
+          }
+        }
+        
+        if ($bErr) {
+          $msg = "Errors were detected. Please scroll and search throught the log for more details."
+          Throw "$msg Details:`r`n`t$_"
+        } else {
+          Write-Host "Completed successfully"
+          Exit 0
+        }
+      } catch {
+        Write-Host "[ERR] During the Terraform maintenance execution: $($_.Exception)"
+        Write-Host "Execution failed"
+        Exit 1
+      }     

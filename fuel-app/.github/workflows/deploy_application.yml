@@ -1,0 +1,198 @@
+name: Deploy Application
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Release version'
+        required: true
+        type: string
+        default: 'latest'
+  repository_dispatch:
+    types: [CallingCreateWorkspace]
+
+jobs:
+  setVariables:
+    name: "Set Variables"
+    runs-on: ubuntu-latest
+    outputs:
+      tf_wsp_name: ${{ steps.set_vars.outputs.tf_wsp_name }}
+      image_tag: ${{ steps.set_vars.outputs.image_tag }}
+      environment: ${{ steps.set_vars.outputs.environment }}
+    steps:
+      - name: Set variables
+        id: set_vars
+        run: |
+          Manualvalue1=autoworkspace-${{ github.event.repository.name }}-${{ github.actor }}-${{ github.run_number }}
+          Autovalue1=autoworkspace-${{ github.event.client_payload.repo_name }}-${{ github.event.client_payload.pr_number }}          
+          echo ::set-output name=tf_wsp_name::${{ github.event_name == 'workflow_dispatch' && '$Manualvalue1' || '$Autovalue1' }}        
+          Manualvalue2=${{ github.event.inputs.image_tag }}
+          Autovalue2=${{ github.event.client_payload.image_tag }}
+          echo ::set-output name=image_tag::${{ github.event_name == 'workflow_dispatch' && '$Manualvalue2' || '$Autovalue2' }}        
+          Manualvalue3=${{ github.actor }}-${{ github.run_id }}
+          Autovalue3=pr${{ github.event.client_payload.pr_number }}
+          echo ::set-output name=environment::${{ github.event_name == 'workflow_dispatch' && '$Manualvalue3' || '$Autovalue3' }}        
+        shell: bash   
+      - name: Print set variables
+        run: |
+          echo "tf_wsp_name: '${{ steps.set_vars.outputs.tf_wsp_name }}'"
+          echo "image_tag: '${{ steps.set_vars.outputs.image_tag }}'"
+          echo "environment: '${{ steps.set_vars.outputs.environment }}'"
+        shell: bash                 
+  createWorkspace:
+    name: "Create Terraform workspace"
+    runs-on: ubuntu-latest
+    needs: setVariables
+    env:
+      organization: "frontier-devops"
+      repo: "fuel-homepage"
+      wrkdir: "terraform/develop"
+      oauth: "ot-S2aromu45TEtMXBn"
+      tf_wsp_name: ${{ needs.setVariables.outputs.tf_wsp_name }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Create new '${{ env.tf_wsp_name }}' workspace in Terraform
+        uses: ./.github/actions/NewTFWorkspace
+        id: tfNewWsp
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: "${{ env.tf_wsp_name }}"
+      - name: Output newly created Terraform workspace information
+        run: |
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' was created with the id '${{ steps.tfNewWsp.outputs.wsp_id }}'"
+  updateTFWsp:
+    name: "Update Terraform workspace"
+    needs: [createWorkspace, setVariables]
+    runs-on: ubuntu-latest
+    env:
+      tf_wsp_name: ${{ needs.setVariables.outputs.tf_wsp_name }}
+      organization: "frontier-devops"
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+        uses: ./.github/actions/GetTFWorkspaceInfo
+        id: tfWspGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}   
+      - name: Add Terraform variable 'environment'
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-environment
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "environment"
+          tf_var_value: ${{ needs.setVariables.outputs.environment }}
+      - name: Add Terraform variable 'subscription_id'          
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-subscription_id
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "subscription_id"
+          tf_var_value: "1ba6b3f0-65f8-4c57-8eda-1eb9ceae550f"   
+      - name: Add Terraform variable 'image_tag'          
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-image_tag
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "image_tag"
+          tf_var_value: ${{ needs.setVariables.outputs.image_tag }}
+      - name: Add Terraform variable 'ARM_SUBSCRIPTION_ID'          
+        uses: ./.github/actions/NewTFVariable
+        id: tfAddVar-ARM_SUBSCRIPTION_ID
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}
+          tf_var_name: "ARM_SUBSCRIPTION_ID"
+          tf_var_value: "1ba6b3f0-65f8-4c57-8eda-1eb9ceae550f"   
+          tf_var_category: "env"       
+  createRunTF:
+    name: "Create Terraform run"
+    needs: [updateTFWsp, setVariables]
+    runs-on: ubuntu-latest
+    environment:
+      name: createRunTF
+      url: "https://app.terraform.io/app/${{ env.organization }}/workspaces/${{ env.tf_wsp_name }}/runs/${{ steps.tfCreateRun.outputs.run_id }}" 
+    env:
+      organization: "frontier-devops"
+      tf_wsp_name: ${{ needs.setVariables.outputs.tf_wsp_name }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+        uses: ./.github/actions/GetTFWorkspaceInfo
+        id: tfWspGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}
+      - name: Create Terraform run
+        uses: ./.github/actions/CreateTFRun
+        id: tfCreateRun
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}        
+      - name: Output created Terraform run information
+        run: |
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' run was created with the id '${{ steps.tfCreateRun.outputs.run_id }}'"
+      - name: Get Terraform run information
+        uses: ./.github/actions/GetTFRunInfo
+        id: tfGetRunInfo
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_run_id: ${{ steps.tfCreateRun.outputs.run_id }}        
+      - name: Output Terraform run information
+        run: |
+          echo "Terraform Run '${{ steps.tfCreateRun.outputs.run_id }}' finished with the '${{ steps.tfGetRunInfo.outputs.state }}' status"  
+#  cleanupTF:
+#    name: "Cleanup Terraform workspaces"
+#    runs-on: ubuntu-latest
+#    needs: [createRunTF, setVariables]
+#    environment:
+#      name: cleanupTF
+#    env:
+#      organization: "frontier-devops"
+#      tf_wsp_name: ${{ needs.setVariables.outputs.tf_wsp_name }}
+#    steps:
+#      - name: Code checkout
+#        uses: actions/checkout@v2
+#      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+#        uses: ./.github/actions/GetTFWorkspaceInfo
+#        id: tfWspGet
+#        with:
+#          tf_token: ${{ secrets.TF_API_CALLS }}
+#          tf_wsp_name: ${{ env.tf_wsp_name }}
+#      - name: Output Terraform workspace information
+#        run: |
+#          echo "Returned '${{ env.tf_wsp_name }}' workspace id '${{ steps.tfWspGet.outputs.wsp_id }}'"      
+#      - name: Create Terraform run
+#        uses: ./.github/actions/CreateTFRun
+#        id: tfCreateRun
+#        with:
+#          tf_token: ${{ secrets.TF_API_CALLS }}
+#          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}   
+#          tf_destroy_flag: "true"     
+#      - name: Output created Terraform run information
+#        run: |
+#          echo "Terraform Workspace '${{ env.tf_wsp_name }}' run was created with the id '${{ steps.tfCreateRun.outputs.run_id }}'"
+#      - name: Get Terraform run information
+#        uses: ./.github/actions/GetTFRunInfo
+#        id: tfGetRunInfo
+#        with:
+#          tf_token: ${{ secrets.TF_API_CALLS }}
+#          tf_run_id: ${{ steps.tfCreateRun.outputs.run_id }}        
+#      - name: Output Terraform run information
+#        run: |
+#          echo "Terraform Run '${{ steps.tfCreateRun.outputs.run_id }}' finished with the '${{ steps.tfGetRunInfo.outputs.state }}' status"   
+#      - name: Remove Terraform workspace
+#        if: ${{ steps.tfGetRunInfo.outputs.state == 'applied' || steps.tfGetRunInfo.outputs.state == 'planned_and_finished' }}
+#        uses: ./.github/actions/CleanupTF
+#        id: tfWspRemove
+#        with:
+#          tf_token: ${{ secrets.TF_API_CALLS }}
+#          tf_wsp_name: ${{ env.tf_wsp_name }}  
+#      - name: Skip Terraform workspace removal 
+#        if: ${{ steps.tfGetRunInfo.outputs.state != 'applied' && steps.tfGetRunInfo.outputs.state != 'planned_and_finished' }}
+#        run: echo "[ERR] Terraform Plan failed with the status '${{ steps.tfGetRunInfo.outputs.state }}'. Unable to cleanup '${{ env.tf_wsp_name }}' Workspace"             

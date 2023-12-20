@@ -1,0 +1,60 @@
+@import '../../theme/index.scss';
+
+.container {
+  box-sizing: border-box;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  @include mobile {
+    padding: 2rem 1rem;
+  }
+}
+
+.padding-rectangle {
+  padding: 0.5rem 1rem;
+}
+.padding-big-rectangle {
+  padding: 2rem 1rem;
+}
+.padding-square {
+  padding: 1rem;
+}
+.padding-big-square {
+  padding: 2rem;
+
+  @include mobile {
+    padding: 2rem 1rem;
+  }
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.link {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.background-primary {
+  background-color: $primary;
+}
+.background-secondary {
+  background-color: $secondary;
+}
+.background-dark {
+  background-color: $dark;
+}
+.background-default {
+  background-color: $white;
+}
+.background-light-gray {
+  background-color: $light-bg-gray;
+}

@@ -1,0 +1,20 @@
+export const LOCAL_STORAGE_KEYS = {
+  CLOSED_ALERTS: 'closedAlerts',
+}
+
+export const COOKIES = {
+  GEO_LOCATION_DATA: 'GeoLocationData',
+}
+
+export const SESSION_STORAGE = {
+  CHAT_MOUNTED: 'CHAT_MOUNTED',
+  SHOW_CHAT: 'SHOW_CHAT',
+  PDP_PAGEVIEW: 'PDP_PAGEVIEW',
+  CART_DATA: 'CART_DATA',
+  ORDER_DATA: 'ORDER_DATA',
+  VALID: 'VALID',
+  TOKEN: 'TOKEN',
+  ICID: 'ICID',
+  SID: 'SID',
+  BTN: 'BTN',
+}

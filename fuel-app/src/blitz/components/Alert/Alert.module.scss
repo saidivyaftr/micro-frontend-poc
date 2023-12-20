@@ -1,0 +1,38 @@
+@import '../../theme/index.scss';
+
+.alertContainer {
+  padding: 16px 32px;
+  background-color: $light-bg-gray;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.alertWrapper {
+  display: flex;
+  align-items: center;
+  max-width: 75rem;
+  margin: auto;
+}
+
+.closeBtn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.message {
+  flex: 1;
+  color: inherit;
+  a {
+    @include font-medium;
+    text-decoration: underline;
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+.alertIcon {
+  margin-right: 16px;
+}
+

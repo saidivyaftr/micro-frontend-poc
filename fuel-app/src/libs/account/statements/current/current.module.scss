@@ -1,0 +1,118 @@
+@import 'src/blitz/theme/index.scss';
+$currentBorder: 1px solid #ddd;
+
+.currentBillFlex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px 4px 0;
+  h2 {
+    margin: 0;
+    font-weight: normal;
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+  }
+}
+
+.italicText {
+  font-style: italic !important;
+}
+
+.linkText {
+  text-decoration: underline;
+  cursor: pointer;
+
+  :hover > & {
+    color: $primary;
+  }
+}
+
+.compareBtn {
+  height: 34px;
+}
+
+.currentBillDataTable {
+  border-collapse: collapse;
+  width: 100%;
+  border: $currentBorder;
+  margin-bottom: 16px;
+
+  thead {
+    tr {
+      th {
+        padding: 16px;
+      }
+    }
+  }
+
+  th,
+  td {
+    border-right: $currentBorder;
+  }
+
+  tbody {
+    tr:last-child {
+      border-bottom: $currentBorder;
+    }
+
+    tr {
+      td {
+        padding: 4px;
+        padding-left: 40px;
+      }
+    }
+  }
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.leftAlign {
+  text-align: left;
+}
+
+.accordion {
+  margin: 0px;
+  margin-right: 10px;
+}
+
+.allBorder {
+  border: $currentBorder;
+}
+
+.addonTable {
+  td {
+    padding: 8px;
+  }
+}
+
+.boldText {
+  font-weight: bold;
+}
+.billDetailsTableWrapper {
+  border-top: 8px solid #96fff5;
+}
+
+.headerContainer {
+  min-height: 6rem;
+  .select {
+    min-width: 300px;
+    max-width: 300px;
+    padding: 5px 20px;
+    border-radius: 20px;
+  }
+  .statementDownload {
+    padding: 5px 2rem;
+    border: 1px solid grey;
+    border-radius: 20px;
+    align-items: center;
+    cursor: pointer;
+    .downloadText {
+      text-transform: uppercase;
+      margin-left: 0.5rem;
+    }
+  }
+}

@@ -1,0 +1,55 @@
+name: Build Test Publish for nonProd and Prod
+on:
+  push:
+    branches:
+      - releases/**
+
+jobs:
+  docker:
+    name: "Build and store Docker image"
+    runs-on: ubuntu-latest
+    environment: nonprod
+    steps:
+      - name: 'Checkout GitHub Actions'
+        uses: actions/checkout@v2
+      - uses: ./.github/actions/Build-Publish-Docker
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: ftrContainerRepo.azurecr.io
+          registry_username: ${{ secrets.REGISTRY_USERNAME }}
+          registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  deploy_nonprod:
+    name: "Deploy WebApp to nonProd"
+    needs: docker
+    runs-on: ubuntu-latest
+    environment:
+      name: nonprod
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/Deploy-WebApp
+        env:
+          Sitecore_Url: 'https://vsgstoqarg-539670-cd.azurewebsites.net'
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: ftrContainerRepo.azurecr.io
+          app-name: "ftr-homepage-nonprod"
+          app_settings: '[{ "name": "SITECORE_API_KEY", "value": "${{ secrets.SITECORE_API_KEY }}", "slotSetting": false }, { "name": "SITECORE_API_URL", "value": "${{ env.Sitecore_Url }}", "slotSetting": false }]'
+
+  deploy_prod:
+    name: "Deploy WebApp to Prod"
+    needs: deploy_nonprod
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/Deploy-WebApp
+        env:
+          Sitecore_Url: 'https://vsgprdstopaasrg-151210-cd.azurewebsites.net'
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: ftrContainerRepo.azurecr.io
+          app-name: "ftr-homepage-prod"
+          app_settings: '[{ "name": "SITECORE_API_KEY", "value": "${{ secrets.SITECORE_API_KEY }}", "slotSetting": false }, { "name": "SITECORE_API_URL", "value": "${{ env.Sitecore_Url }}", "slotSetting": false }]'
+

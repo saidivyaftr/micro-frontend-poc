@@ -1,0 +1,7 @@
+export { default as Hero } from './Hero'
+export { default as HowToOrder } from './HowToOrder'
+export { default as AdditionalCost } from './Additionalcost'
+export { default as AllHBOMax } from './AllHBOMax'
+export { default as Discovers } from './Discovers'
+export { default as GreatestCollection } from './GreatestCollection'
+export { default as Faq } from './Faq'

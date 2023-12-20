@@ -1,0 +1,12 @@
+@import '../../theme/index.scss';
+
+.dynamicText {
+  a {
+    @include font-medium;
+    text-decoration: underline;
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+

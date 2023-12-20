@@ -1,0 +1,109 @@
+name: "Get Terraform Run Information"
+description: "Get Terraform Run Information"
+
+inputs:
+  tf_token:
+    description: "Terraform token"
+    required: true
+  tf_run_id:
+    description: "Terraform Run id to search for"
+    required: true
+
+outputs:
+  state:
+    description: "Returned Terraform run state"
+    value: ${{ steps.getRunState.outputs.state }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Get Terraform run state"
+    id: getRunState
+    shell: pwsh
+    run: |
+      try {
+        [String]$token = "${{ inputs.tf_token }}"
+        [String]$runID = "${{ inputs.tf_run_id }}"
+        [String]$uri = " https://app.terraform.io/api/v2/runs/$runID"
+        [String]$status = "initiated"
+        [Int32]$Retries = 60
+        [Int32]$SecondsDelay = 10
+        [Int32]$retrycount = 0
+        [Bool]$completed = $false
+        [Int32]$myErr = 0
+        
+        $headers = @{
+            'Authorization' = "Bearer $token"
+            'Content-Type' = 'application/vnd.api+json'
+        }
+
+        while (-not $completed) {
+          try {
+            $response = Invoke-WebRequest -UseBasicParsing -Uri $uri -Method Get -Headers $headers
+          } catch {
+            if ($myErr -lt 500) {
+              $msg = "Unexpected response received. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+              Throw "$msg Details:`r`n`t$($_)"
+            }
+
+            Write-Warning "Retrying in $SecondsDelay seconds"
+            Start-Sleep $SecondsDelay
+            if ($myErr -eq $_.Exception.Response.StatusCode.Value__) {
+              $msg = "Unexpected response received. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Description : '$($_.Exception.Response.StatusDescription)'."
+              Throw "$msg Details:`r`n`t$($_)"
+            } else {
+              $myErr = $_.Exception.Response.StatusCode.Value__
+              Continue
+            }
+          }
+
+          if ($response.statuscode -eq '200') {
+            $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+            $myObj = $json | Out-String | ConvertFrom-Json
+            $currentState = $myObj.data.attributes.status
+            Write-Host "Terraform Run with the id '$runID' has status '$currentState'"
+          } else {
+            $msg = "Unexpected response code '$($response.statuscode)' received"
+            Throw "$msg"
+          }
+
+          if (($status -ne $currentState) -and (![string]::IsNullOrEmpty($currentState))) {
+            Write-Host "Workspace Run status changed from '$status' to '$currentState'"
+            $status = $currentState
+            $retrycount = 0
+          }    
+          
+          if (($status -eq "planned_and_finished") -or ($status -eq "applied")) {
+            $completed = $true
+          } elseif ($status -eq "policy_soft_failed") {
+            $msg = "A sentinel policy has soft failed for a plan-only run. This is a final state"
+            Throw "$msg"
+          } elseif ($status -eq "discarded") {
+            $msg = "The run has been discarded. This is a final state"
+            Throw "$msg"
+          } elseif ($status -eq "errored") {
+            $msg = "The run has errored. This is a final state"
+            Throw "$msg"
+          } elseif ($status -eq "canceled") {
+            $msg = "The run has been canceled. This is a final state"
+            Throw "$msg"
+          } else {
+            if ($retrycount -ge $Retries) {
+              $msg = "Request to $uri failed the maximum number of $retryCount times"
+              Throw "$msg"
+            } else {
+              Write-Warning "Retrying in $SecondsDelay seconds"
+              Start-Sleep $SecondsDelay
+              $retrycount++
+            }
+          }
+        }
+
+        Write-Host "Action execution completed successfully"
+        echo "::set-output name=state::$status" 
+        Exit 0
+      } catch {
+        Write-Host "[ERR]: $($_.Exception)"
+        Write-Host "Action execution failed"
+        Exit 1
+      }

@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Bread Crumb should render breadcrumb correctly with store 1`] = `ReactWrapper {}`;
+
+exports[`Bread Crumb should render correctly without store 1`] = `ReactWrapper {}`;

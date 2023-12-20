@@ -1,0 +1,91 @@
+name: Destroy Integration team environment
+on:
+  workflow_dispatch:
+    inputs:
+      workspace_name:
+        description: 'Terraform workspace name'
+        required: true
+        type: string
+  pull_request:
+    branches: [integration/*]
+    types: [closed]
+
+jobs:
+  setVariables:
+    name: "Set Variables"
+    runs-on: ubuntu-latest
+    outputs:
+      tf_wsp_name: ${{ steps.set_vars.outputs.tf_wsp_name }}
+    steps:
+      - name: Set variable
+        id: set_vars
+        run: |
+          Manualvalue1=${{ github.event.inputs.workspace_name }}
+          Autovalue1=autoworkspace-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}          
+          echo ::set-output name=tf_wsp_name::${{ github.event_name == 'workflow_dispatch' && '$Manualvalue1' || '$Autovalue1' }}        
+        shell: bash   
+      - name: Print set variable
+        run: |
+          echo "Terraform workspace name: '${{ steps.set_vars.outputs.tf_wsp_name }}'"
+        shell: bash 
+  cleanupTF:
+    name: "Cleanup Terraform workspaces"
+    runs-on: ubuntu-latest
+    needs: [setVariables]
+    environment:
+      name: cleanupTF
+    env:
+      organization: "frontier-devops"
+      tf_wsp_name: ${{ needs.setVariables.outputs.tf_wsp_name }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Get Terraform '${{ env.tf_wsp_name }}' workspace information
+        uses: ./.github/actions/GetTFWorkspaceInfo
+        id: tfWspGet
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}
+      - name: Output Terraform workspace information
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' }}
+        run: |
+          echo "Returned '${{ env.tf_wsp_name }}' workspace id '${{ steps.tfWspGet.outputs.wsp_id }}'"      
+      - name: Terraform workspace doesn't exist
+        if: ${{ steps.tfWspGet.outputs.skip_flag == 'yes' }}
+        run: |
+          echo "Skip flag is set to '${{ steps.tfWspGet.outputs.skip_flag }}'"
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' doesn't exist'"
+      - name: Create Terraform run
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/CreateTFRun
+        id: tfCreateRun
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_id: ${{ steps.tfWspGet.outputs.wsp_id }}   
+          tf_destroy_flag: "true"     
+      - name: Output created Terraform run information
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' }}
+        run: |
+          echo "Terraform Workspace '${{ env.tf_wsp_name }}' run was created with the id '${{ steps.tfCreateRun.outputs.run_id }}'"
+      - name: Get Terraform run information
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' }}      
+        uses: ./.github/actions/GetTFRunInfo
+        id: tfGetRunInfo
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_run_id: ${{ steps.tfCreateRun.outputs.run_id }}        
+      - name: Output Terraform run information
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' }}      
+        run: |
+          echo "Terraform Run '${{ steps.tfCreateRun.outputs.run_id }}' finished with the '${{ steps.tfGetRunInfo.outputs.state }}' status"   
+      - name: Remove Terraform workspace
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' && (steps.tfGetRunInfo.outputs.state == 'applied' || steps.tfGetRunInfo.outputs.state == 'planned_and_finished') }}
+        uses: ./.github/actions/RemoveTFWorkspace
+        id: tfWspRemove
+        with:
+          tf_token: ${{ secrets.TF_API_CALLS }}
+          tf_wsp_name: ${{ env.tf_wsp_name }}  
+      - name: Skip Terraform workspace removal 
+        if: ${{ steps.tfWspGet.outputs.skip_flag != 'yes' && (steps.tfGetRunInfo.outputs.state != 'applied' && steps.tfGetRunInfo.outputs.state != 'planned_and_finished') }}
+        run: echo "[ERR] Terraform Plan failed with the status '${{ steps.tfGetRunInfo.outputs.state }}'. Unable to cleanup '${{ env.tf_wsp_name }}' Workspace"            
+        

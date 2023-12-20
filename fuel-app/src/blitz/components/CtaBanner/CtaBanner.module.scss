@@ -1,0 +1,154 @@
+@import '../../theme/index.scss';
+
+.root {
+  text-align: center;
+  &.bkgGravity {
+    background-color: $dark;
+  }
+  &.bkgElectricity {
+    background-color: $secondary;
+    .heading, .description {
+      color: $dark;
+    }
+    .secondaryButton {
+      border-color: $dark;
+      color: $dark;
+      &:hover {
+        border-color: $primary;
+        color: $primary;
+      }
+    }
+  }
+  &.bkgWhite {
+    background-color: $white;
+    .heading, .description {
+      color: $dark;
+    }
+    .primaryButton{
+      &:hover {
+        background-color: $dark;
+        color: $white;
+      }
+    }
+    .secondaryButton {
+      border-color: $dark;
+      color: $dark;
+      &:hover {
+        border-color: $primary;
+        color: $primary;
+      }
+    }
+  }
+  &.bkgGravity5 {
+    background-color: $light-bg-gray;
+    .heading, .description {
+      color: $dark;
+    }
+    .primaryButton{
+      &:hover {
+        background-color: $dark;
+        color: $white;
+      }
+    }
+    .secondaryButton {
+      border-color: $dark;
+      color: $dark;
+      &:hover {
+        border-color: $primary;
+        color: $primary;
+      }
+    }
+  }
+  @include tablet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .buttonWrapper {
+    flex-shrink: 0;
+    margin-left: 16px;
+    @include tabletAndMobile {
+      margin-left: 0px;
+    }
+    @include mobile {
+      width: 100%;
+    }
+  }
+
+  .link {
+    &:hover {
+      color: $primary;
+    }
+    .description {
+      text-decoration: underline;
+      &:hover {
+        color: $primary;
+      }
+      @include tabletAndMobile {
+        margin-left: 20px !important;
+        font-size: 1rem !important;
+      }
+      @include mobile {
+        margin-left: 0 !important;
+      }
+    }
+  }
+
+  .buttonsContainer {
+    display: flex;
+    gap: 1.25rem;
+    @include mobile {
+      margin-top: 0rem;
+      gap: 1rem;
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+  .primaryButton {
+    max-width: 280px;
+    @include mobile {
+      max-width: unset;
+      width: 100%;
+      margin: auto;
+      padding: 0.625rem 0;
+    }
+  }
+  .description {
+    display: inline-block;
+    padding: 5px;
+    font-size: 1rem;
+    margin: 15px 0 !important;
+    font-weight: 500;
+  }
+  .innerWrapper {
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    @include mobile {
+      flex-direction: column;
+    }
+  }
+  .heading {
+    margin: 0 1.25rem 1rem 1.25rem;
+    @include tablet {
+      margin-bottom: 0;
+    }
+  }
+
+  .ctaButton {
+    display: inline-block;
+    padding: 0.625rem 1.875rem;
+    // width: 343px;
+    max-width: 100%;
+    @include tablet {
+      padding: 1.0625rem 1.875rem;
+      width: fit-content;
+    }
+    @include mobile {
+      font-size: 1.125rem;
+      width: auto;
+    }
+  }
+}

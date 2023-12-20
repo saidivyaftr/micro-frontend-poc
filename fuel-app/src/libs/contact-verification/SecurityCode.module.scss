@@ -1,0 +1,52 @@
+@import '../../blitz/theme/index.scss';
+
+.codeWrapper {
+  display: flex;
+  width: 100%;
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+}
+
+.otpInput {
+  margin: 5px;
+  height: 50px;
+  width: inherit;
+  border-radius: 32px;
+  @include font-bold;
+  border: 1px solid $light-gray;
+  text-align: center;
+  font-size: 18px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  &:focus-visible {
+    border: 1px solid $secondary;
+    outline: $secondary 2px solid;
+  }
+  @include mobile {
+    border-radius: 20px;
+  }
+}
+
+.errorInput {
+  border: 1px solid $error;
+  &:focus-visible {
+    border: 1px solid $error;
+    outline: $secondary 2px solid;
+  }
+}
+
+.invalidOTPError {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.invalidOTPErrorMsg {
+  color: $error !important;
+  font-size: 12px;
+}

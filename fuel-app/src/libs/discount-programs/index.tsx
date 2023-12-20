@@ -1,0 +1,6 @@
+export { default as CardClicks } from './CardClicks'
+export { default as HeroSection } from './HeroSection'
+export { default as AffordableConnectivityProgram } from './AffordableConnectivityProgram'
+export { default as LifeLineServices } from './LifeLineServices'
+export { default as DiscountProgramFAQ } from './discountProgramFAQ'
+export { default as Funding } from './funding'

@@ -1,0 +1,194 @@
+@import '../../theme/index.scss';
+
+.trophyCaseRoot {
+  padding: 80px 120px;
+  overflow: hidden;
+  @include tabletAndMobile {
+    padding: 64px 16px;
+  }
+}
+
+.trophyCaseInnerRoot {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.title {
+  text-align: center;
+  margin-block-end: 3rem;
+  @include mobile {
+    margin-block-end: 2rem;
+  }
+}
+
+.cardsDesktopContainer {
+  display: flex;
+  gap: 1rem;
+  margin-block-end: 3rem;
+  @include mobile {
+    display: none;
+  }
+}
+
+.cardsMobileContainer {
+  display: none;
+  margin: auto;
+  @include mobile {
+    display: block;
+    margin-bottom: 2rem !important;
+  }
+}
+
+.card {
+  background-color: $light-bg-gray;
+  padding: 2rem 1rem;
+  border-radius: 1rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  @include mobile {
+    padding: 2rem;
+    display: block;
+  }
+  svg {
+    color: var(--pagination-color);
+  }
+}
+
+.mobileCard {
+  background-color: $light-bg-gray;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  display: block;
+  padding: 2rem;
+  text-align: center;
+  svg {
+    color: var(--pagination-color);
+  }
+}
+
+.cardImage {
+  display: block;
+  width: 100%;
+  height: 150px;
+  max-height: 150px;
+  max-width: 150px;
+  object-fit: contain;
+  margin: auto;
+  margin-block-end: 1rem;
+}
+
+.cardTitle {
+  flex: 1;
+  display: inline;
+}
+
+.swiperContainer {
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.swiper {
+  height: 100%;
+  display: block;
+  margin: auto;
+  padding-bottom: 55px;
+}
+
+.swiper :global(.swiper-wrapper) {
+  display: flex;
+}
+
+.swiper :global(.swiper-horizontal) {
+  display: flex;
+}
+
+.swiperContainer :global(.swiper-button-disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.swiper :global(.swiper-pagination-bullets) {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.swiper :global(.swiper-pagination-bullet) {
+  width: 12px;
+  height: 12px;
+  z-index: 9;
+  border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid var(--pagination-color);
+  margin-right: 16px;
+  display: block;
+  cursor: pointer;
+  &:hover {
+    border: 1px solid $primary;
+    background-color: $primary;
+  }
+}
+
+.swiper :global(.swiper-pagination-bullet-active) {
+  background-color: var(--pagination-color);
+}
+
+.navigationContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+}
+
+.arrow {
+  cursor: pointer;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & svg {
+    & path {
+      stroke: var(--pagination-color);
+    }
+  }
+  &:hover {
+    & svg {
+      & path {
+        stroke: $primary;
+      }
+    }
+  }
+}
+
+.hide {
+  opacity: 0;
+}
+
+.legalText {
+  & p {
+    margin: 0;
+  }
+}
+
+.tooltipClassName {
+  margin-left: 4px;
+  & svg {
+    & path {
+      fill: var(--pagination-color);
+    }
+  }
+}

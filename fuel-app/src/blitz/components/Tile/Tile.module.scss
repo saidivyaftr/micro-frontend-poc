@@ -1,0 +1,25 @@
+@import '../../theme/index.scss';
+
+.tile {
+  padding: 2.5rem;
+  display: grid;
+}
+.ctas {
+  align-self: end;
+  margin-top: 3rem;
+  a:hover {
+    color: $primary !important;
+  }
+  button {
+    display: block;
+    min-height: auto;
+    box-sizing: border-box;
+  }
+}
+.link {
+  align-self: end;
+  text-decoration: underline;
+  display: inline-block;
+  color: $dark;
+  font-size: 1.125rem;
+}

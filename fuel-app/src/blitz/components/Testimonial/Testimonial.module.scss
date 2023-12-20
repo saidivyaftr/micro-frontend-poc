@@ -1,0 +1,131 @@
+@import '../../theme/index.scss';
+
+.testimonials {
+  padding: 5rem 7.5rem;
+  text-align: center;
+  @include tabletAndMobile {
+    padding: 4rem 1rem;
+  }
+  &.bkgGravity {
+    background-color: $dark;
+  }
+  &.bkgElectricity {
+    background-color: $secondary;
+  }
+
+  .swiperContainer {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 45px;
+    position: relative;
+    z-index: 1;
+    @include mobile {
+      padding: 0 1rem;
+    }
+  }
+
+  :global .swiper-button-disabled {
+    opacity: 0;
+  }
+  :global .swiper-container-horizontal {
+    padding-bottom: 4rem;
+  }
+
+  .bulletClass {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    transition: width 0.5s;
+    border-radius: 5px;
+    margin-right: 1rem;
+    cursor: pointer;
+  }
+  .gravityBulletClass {
+    @extend .bulletClass;
+    background: $dark;
+    border: 1px solid $white;
+  }
+  .gravityBulletClassActive {
+    @extend .bulletClass;
+    background: $white;
+  }
+  .electricityBulletClass {
+    @extend .bulletClass;
+    background: $secondary;
+    border: 1px solid $dark;
+  }
+  .electricityBulletClassActive {
+    @extend .bulletClass;
+    background: $dark;
+  }
+  .bulletClassActive {
+    background: $white;
+  }
+  .eyebrow {
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+  }
+
+  .quote {
+    margin: auto;
+    margin-bottom: 2rem;
+    max-width: 1020px;
+  }
+  .credit {
+    margin: 0;
+  }
+  .previous {
+    left: 10px;
+    @include mobile {
+      left: 0;
+    }
+  }
+  .next {
+    right: 10px;
+    @include mobile {
+      right: 0;
+    }
+  }
+  .hide {
+    opacity: 0;
+  }
+  .arrowGravity {
+    & svg {
+      color: $dark;
+      & path {
+        stroke: $dark;
+      }
+    }
+  }
+  .arrowWhite {
+    & svg {
+      color: $white;
+      & path {
+        stroke: $white;
+      }
+    }
+  }
+  .arrow {
+    top: 10%;
+    z-index: 200;
+    cursor: pointer;
+    position: absolute;
+    & svg {
+      width: 32px;
+      height: 32px;
+    }
+    @include mobile {
+      & svg {
+        width: 24px;
+        height: 24px;
+      }
+      top: 35% !important;
+    }
+  }
+}
+
+.hidePadding {
+  :global .swiper-container-horizontal {
+    padding-bottom: 0rem;
+  }
+}

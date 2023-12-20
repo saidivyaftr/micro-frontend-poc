@@ -1,0 +1,17 @@
+export const stateConstant = {
+  SENT_EMAIL_REMINDER: 'SENT_EMAIL_REMINDER',
+  EMAIL_FORGOT_FORM: 'EMAIL_FORGOT_FORM',
+  NAME_ADDRESS_NOT_AVAILABLE: 'NAME_ADDRESS_NOT_AVAILABLE',
+  EMAIL_NOT_AVAILABLE: 'EMAIL_NOT_AVAILABLE',
+  MULTIPLE_EMAILS_PAGE: 'MULTIPLE_EMAILS_PAGE',
+}
+
+export const siteInteractionConstant = {
+  EMAIL_NOT_FOUND: 'Emal Not Found',
+  TRY_AGAIN: 'Try Again',
+  CHAT_WITH_US: 'Chat With Us',
+  EMAIL_SENT: 'Email Sent',
+  FIND_YOUR_ACCOUNT_SUBMIT: 'Find Your Account - Submit',
+  EMAIL_NOT_FOUND_REGISTER: 'Email Not Found - Register',
+  FORGOT_ID: 'Forgot Id',
+}

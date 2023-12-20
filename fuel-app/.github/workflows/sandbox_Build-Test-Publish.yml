@@ -1,0 +1,54 @@
+name: Build Test Publish for Dev
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker:
+    name: "Build and store Docker image"
+    runs-on: ubuntu-latest
+    environment: sandbox
+    steps:
+      - name: "Run build and store docker image for sandbox environment"
+        run: |
+          echo "Run build and store docker image for sandbox environment. Triggered by the action: ${{ github.event_name }}"
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Execute Continuous integration    
+        uses: ./.github/actions/Build-Publish-Docker
+        id: build
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: fuelhome.azurecr.io
+          registry_username: ${{ secrets.REGISTRY_USERNAME }}
+          registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+          environment: sandbox
+#      - name: Repository Dispatch
+#        if: ${{ steps.build.outcome == 'success' && github.event_name == 'pull_request' }}
+#        uses: peter-evans/repository-dispatch@v1
+#        with:
+#          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+#          event-type: CallingCreateWorkspace
+#          client-payload: '{ "repo_name": "${{ github.event.repository.name }}", "pr_number": "${{ github.event.number }}", "image_tag": "${{ steps.build.outputs.git-tag }}" }'
+  deploy:
+    name: "Deploy WebApp to Dev"
+    needs: docker
+    runs-on: ubuntu-latest
+    environment:
+      name: sandbox
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+      - name: Execute Continuous delivery
+        uses: ./.github/actions/Deploy-WebApp
+        env:
+          Sitecore_Url: 'https://vsgstoqarg-539670-cd.azurewebsites.net'
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          registry_server: fuelhome.azurecr.io
+          app-name: "ftr-homepage-dev"
+          app_settings: '[{ "name": "SITECORE_API_KEY", "value": "${{ secrets.SITECORE_API_KEY }}", "slotSetting": false }, { "name": "SITECORE_API_URL", "value": "${{ env.Sitecore_Url }}", "slotSetting": false }]'
+          environment: sandbox
+

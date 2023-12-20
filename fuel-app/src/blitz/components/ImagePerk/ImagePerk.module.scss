@@ -1,0 +1,90 @@
+@import '../../theme/index.scss';
+
+.imagePerk {
+  overflow: hidden;
+  position: relative;
+  &.textBoxRight {
+    @include desktop {
+      .textBox {
+        order: 1;
+        padding: 3.4375rem 1.875rem 3.5rem 3.125rem;
+      }
+    }
+    [class*='stripes'] {
+      left: auto;
+      right: 40%;
+      @include tabletAndMobile {
+        right: 0;
+      }
+    }
+  }
+}
+.imagePerkFlex {
+  position: relative;
+  padding: 0;
+  min-height: auto;
+  max-width: 1440px;
+  margin: auto;
+  @include desktop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .imageBox {
+    position: relative;
+    z-index: 2;
+    flex: 0 1 50%;
+    img {
+      max-width: 100%;
+      margin: auto;
+      display: table;
+      position: relative;
+      z-index: 1;
+    }
+  }
+}
+.textBox {
+  position: relative;
+  z-index: 3;
+  padding: 1.875rem;
+  width: auto;
+  box-sizing: border-box;
+  margin: 1.5rem 1rem;
+  @include desktop {
+    margin: 0;
+    width: 45%;
+    max-width: 35.375rem;
+    min-height: 31.25rem;
+    padding: 3.4375rem 5rem;
+    margin: 4rem 3rem;
+  }
+  h2 {
+    letter-spacing: -0.02em;
+  }
+  h3 {
+    margin: 1.5rem 0;
+  }
+  a,
+  button {
+    min-width: 250px;
+  }
+  ul {
+    display: block;
+    padding: 0;
+    margin: 1.25rem 0;
+    li {
+      display: flex;
+      gap: 0.625rem;
+      align-items: center;
+      svg {
+        display: block;
+        min-width: 20px;
+      }
+    }
+  }
+}
+.borderRadius {
+  border-radius: 2rem;
+}

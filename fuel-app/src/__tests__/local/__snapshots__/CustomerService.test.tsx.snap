@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CustomerService should not render correctly 1`] = `<DocumentFragment />`;
+
+exports[`CustomerService should render correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="makeStyles-root-1"
+    id="customer-service"
+  >
+    <div
+      class="makeStyles-wrapper-2"
+    >
+      <div
+        id="two-column-layout"
+      >
+        <div
+          class="makeStyles-wrapper-6 makeStyles-wrapperClass-5"
+        >
+          <h2
+            class="makeStyles-leftContent-7 makeStyles-leftClass-3"
+          >
+            left content
+          </h2>
+          <div
+            class="makeStyles-rightContent-8 makeStyles-rightClass-4"
+          >
+            <div
+              class="makeStyles-title-9"
+            >
+              right content
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

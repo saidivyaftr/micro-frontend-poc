@@ -1,0 +1,85 @@
+
+@import '../../theme/index.scss';
+
+.bottomDescription {
+    text-align: center;
+    margin: 30px;
+}
+
+.borderTop {
+    background-color: $dark;
+    height: 5px;
+    width: 100%;
+    margin-bottom: 27px;
+}
+
+
+.card {
+    max-width: 255px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    border: 1px solid #cccccc;
+    top: 0;
+    transition: top ease 0.5s;
+    &:hover {
+        top: -15px;
+        box-shadow: 0px 15px 21px -3px rgba(0, 0, 0, 0.36);
+    }
+    @include mobile {
+        max-width: unset;
+    }
+}
+
+.subText {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.price {
+    text-align: center;
+    sup {
+        font-size: 50%;
+    }
+    span {
+        font-size: 12px;
+        position: relative;
+        top: -20px;
+    }
+}
+
+.title {
+    text-align: center;
+    margin: 20px;
+}
+
+.btn {
+    margin-top: 2rem;
+    max-width: 220px;
+    border-radius: .25rem;
+    width: 100%;
+    @include mobile {
+        width: fit-content;
+    }
+}
+
+.mostPopular {
+    width: 100%;
+    background-color:$dark;
+    color: $white;
+    text-align: center;
+    padding: 5px 0;
+    display: flex;
+    gap:0.5rem;
+    justify-content: center;
+    svg {
+        path {
+            fill: $white
+        }
+    }
+}
+.popular {
+    color: $white;
+}

@@ -1,0 +1,135 @@
+@import '../../theme/index.scss';
+
+.buttonWrapper {
+  flex-shrink: 0;
+  margin-left: 16px;
+  @include tabletAndMobile {
+    margin-left: 0px;
+  }
+  @include mobile {
+    width: 100%;
+  }
+}
+.root {
+  max-width: 1200px;
+  margin: -30px auto -48px auto;
+  position: relative;
+  z-index: 2;
+  transition: all 0.2s;
+  @include tabletAndMobile {
+    padding: 0;
+    margin-bottom: 1.25rem;
+  }
+}
+.fixedWrapper {
+  position: sticky;
+  top: 3.875rem;
+  z-index: 10;
+  margin-bottom: -48px;
+  @include tabletAndMobile {
+    top: 45;
+  }
+}
+.mobFixedWrapper {
+  position: fixed;
+  top: auto;
+  width: 100%;
+  bottom: -20px;
+  margin-top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1040;
+}
+.contentStyles {
+  display: flex;
+  align-items: center;
+  @include tabletAndMobile {
+    flex-shrink: initial;
+  }
+}
+.icon {
+  svg {
+    width: 24;
+    height: 29;
+  }
+  display: inline-block;
+  padding-right: 0.625rem;
+  vertical-align: top;
+}
+.contentMainWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include mobile {
+    display: block;
+    text-align: center;
+  }
+}
+.container {
+  padding: 3px 13px;
+  margin: 0px;
+  box-shadow: 0px 4px 14px rgb(0 0 0 / 25%);
+  border-radius: 1rem;
+  background-color: $white;
+  @include tabletAndMobile {
+    box-shadow: 0px -7px 14px rgb(0 0 0 / 25%);
+    padding: 20px 10px;
+    border-radius: 0;
+  }
+  @include mobile {
+    padding-bottom: 0px;
+  }
+}
+.description {
+  display: inline-block;
+  padding: 5px;
+  font-size: 1rem;
+  margin: 15px 0 !important;
+  font-weight: 500;
+}
+.button {
+  border: none;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding-left: 32.6px;
+  padding-right: 32.6px;
+  min-width: 235px;
+  @include tabletAndMobile {
+    width: 100%;
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 2.04rem 0.75rem 2.04rem;
+  }
+}
+.link {
+  &:hover {
+    color: $primary;
+  }
+  .description {
+    text-decoration: underline;
+    &:hover {
+      color: $primary;
+    }
+    @include tabletAndMobile {
+      margin-left: 20px !important;
+      font-size: 1rem !important;
+    }
+    @include mobile {
+      margin-left: 0 !important;
+    }
+  }
+}
+.buttonsList {
+  min-width: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  @include tabletAndMobile {
+    min-width: auto;
+  }
+  @include mobile {
+    flex-direction: column;
+  }
+}

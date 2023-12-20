@@ -1,0 +1,229 @@
+name: Build and Deploy Static Assets
+on:
+  schedule:
+    # use a site like https://crontab.guru/ to help develop this schedule if it needs changing
+    - cron: '0 */1 * * *'
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The branch, tag or SHA to checkout'
+        required: true
+        default: main
+      environment:
+        type: environment
+        required: true
+        description: 'environment to run'
+        default: nonprod
+
+env:
+  build_path: public/pp_fonts
+
+jobs:
+  strategy:
+    runs-on: ubuntu-latest
+    outputs:
+      run_env: ${{ steps.setenv.outputs.run_env }}
+    strategy:
+      matrix:
+        environment:
+          - name: 'nonprod'
+            condition: ${{ github.event.schedule == '0 */2 * * *' }}
+          - name: 'prod'
+            condition: ${{ github.event.schedule == '0 */1 * * *' }}            
+          - name: ${{ github.event.inputs.environment }}
+            condition: ${{ github.event_name == 'workflow_dispatch' }}      
+    steps:
+      - name: Set Environment Name
+        id: setenv
+        run: |
+          if ${{ matrix.environment.condition }}; then
+            echo "run_env=${{ matrix.environment.name }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Print Environment Name
+        run: |
+          echo "Executing in the environment '${{ steps.setenv.outputs.run_env }}'"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: strategy
+    environment: ${{ needs.strategy.outputs.run_env }}
+    steps:
+      - name: Print Environment Name
+        run: |
+          echo "Executing against '${{ needs.strategy.outputs.run_env }}' SITECORE environment"
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Download JSON files asynchronously
+        shell: bash
+        run: |
+          SITECORE_URL=${{vars.SITECORE_URL}}
+          SITECORE_API_KEY=${{secrets.SITECORE_API_KEY}}
+          url="https://$SITECORE_URL/sitecore/api/layout/render/jss?item=/"
+          suffix="&sc_lang=en&sc_apikey=%7B$SITECORE_API_KEY%7D"
+          rootDir="jss"
+          
+          uris=(
+            'california-privacy-law'
+            'resources/accessibility'
+            'resources/bill-redesign'
+            'resources/emergency-preparation'
+            'resources/movers'
+          )
+
+          jobs=()
+          for uri in "${uris[@]}"; do
+            (
+              request_uri="$url$uri$suffix"
+              response=$(curl -s -w "\n%{http_code}" $request_uri -H "Cache-Control: no-cache, no-store")
+              response=(${response[@]}) # convert to array
+              code=${response[-1]} # get last element (last line)
+              body=${response[@]::${#response[@]}-1} # get all elements except last
+              name=$(echo $body | jq '.name')
+
+              if [ $? -eq 0 ] && [ $code == "200" ]; then
+                inputString="$uri"
+                elements=($inputString)
+                folderPath="$rootDir"
+
+                # Loop through the elements and create folders
+                for i in "${!elements[@]}"; do
+                  folderPath="$folderPath/${elements[i]}"
+                  mkdir -p "$folderPath"
+                done
+
+                filename="${elements[-1]}.json"
+                echo "$body" | jq '.' > "$rootDir/$filename"
+              else
+                echo "ERROR: Unexpected response status code: '$code'."
+                exit 1
+              fi
+            ) &
+            jobs+=("$!")
+          done
+
+          # Wait for all jobs to complete
+          for job in "${jobs[@]}"; do
+            wait "$job"
+          done
+      - name: Download Images
+        shell: bash
+        run: |
+          SITECORE_URL=${{vars.SITECORE_CDN}}
+          url="https://$SITECORE_URL/-/jssmedia/Project/Frontier/Dotcom/Images/"
+          rootDir="cdn_images"
+          
+          uris=(
+            '5-gig/updated/fiber-5-gig-q4-refresh-desktop.png'
+            '5-gig/updated/fiber-5-gig-q4-refresh-mobile.png'
+          )
+
+          jobs=()
+          for uri in "${uris[@]}"; do
+            (
+              request_uri="$url$uri"
+              # Extract the directory and filename from the URL
+              directory=$(dirname "${uri}")
+              filename=$(basename "${uri}" | awk -F '?' '{print $1}')
+          
+              # Create the directory structure if it doesn't exist
+              mkdir -p "${rootDir}/${directory}"
+              curl -o "${rootDir}/${directory}/${filename}" "${request_uri}" -H "Cache-Control: no-cache, no-store"
+            ) &
+            jobs+=("$!")
+          done
+
+          # Wait for all jobs to complete
+          for job in "${jobs[@]}"; do
+            wait "$job"
+          done
+      - name: Copy public files
+        run: |
+          cp jss public/pp_fonts/ -r
+          cp cdn_images public/pp_fonts/ -r
+          cp public/css/font-loader.css public/pp_fonts/
+          cp public/css/font-lazy.css public/pp_fonts/
+          cp public/js/at.js public/pp_fonts/
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: fuel-homepage-build
+          path: |
+            ${{ env.build_path }}
+  manage_infrastructure:
+    runs-on: ubuntu-latest
+    needs: strategy
+    environment: ${{ needs.strategy.outputs.run_env }}
+    defaults:
+      run:
+        working-directory: ./terraform/assets
+    env:
+      TF_WORKSPACE: "fuel-homepage-assets-${{ needs.strategy.outputs.run_env }}"
+      TF_IN_AUTOMATION: true
+    steps:
+    - uses: actions/checkout@v3
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      # TODO Add variables for environment and anything to be output
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Terraform Init
+      id: init
+      run: terraform init
+    
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -var environment=${{ needs.strategy.outputs.run_env }} -input=false -auto-approve
+
+    - run: az logout
+      shell: bash
+      if: always()
+  deploy_build:
+    runs-on: ubuntu-latest
+    env:
+      azure_bucket: fuelpageassets${{ needs.strategy.outputs.run_env }}
+    environment: ${{ needs.strategy.outputs.run_env }}
+    needs: [strategy, build, manage_infrastructure]
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: fuel-homepage-build
+        path: ./${{ env.build_path }}
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - id: ip
+      run: |
+        ip=`dig +short myip.opendns.com @resolver1.opendns.com`
+        echo "address=$ip" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - run: |
+        az storage account network-rule add --account-name "${{ env.azure_bucket }}" --ip-address "${{ steps.ip.outputs.address }}"
+        sleep 20
+      shell: bash
+
+      #TODO: use outputs from previous steps to deploy build artifacts
+    - name: deploy
+      id: deploy
+      run: |
+        date=`date -u '+%Y-%m-%dT%H:%MZ'`
+        az storage blob upload-batch --account-name "${{ env.azure_bucket }}" --destination "\$web" --source "./${{ env.build_path }}" --auth-mode key --overwrite=True
+        az storage blob delete-batch --account-name "${{ env.azure_bucket }}" --source "\$web" --if-unmodified-since "$date" --pattern "${{ env.build_path }}/*" --auth-mode key
+        baseUrl=`az storage account show --name ${{ env.azure_bucket }} --query "primaryEndpoints.web" | tr -d \"`
+        url=${baseUrl}${{ env.build_path }}
+        echo "::notice title=site url::$url"
+      shell: bash
+
+    - run: |
+        az storage account network-rule remove --account-name "${{ env.azure_bucket }}" --ip-address "${{ steps.ip.outputs.address }}"
+      shell: bash
+      if: always()
+    - run: az logout
+      shell: bash
+      if: always()

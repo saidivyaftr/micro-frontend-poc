@@ -1,0 +1,25 @@
+@import '../../theme/index.scss';
+
+.root {
+  padding: 48px;
+  text-align: left;
+  width: 100%;
+  @include mobile {
+    padding: 2rem 1rem;
+  }
+  .caption,
+  .caption {
+    text-align: left;
+    margin-top: 16px;
+    color: inherit;
+    a {
+      text-decoration: underline;
+      &:hover {
+        color: $primary;
+      }
+    }
+    @include mobile {
+      font-size: 1rem;
+    }
+  }
+}

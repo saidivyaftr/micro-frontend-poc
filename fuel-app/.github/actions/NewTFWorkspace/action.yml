@@ -1,0 +1,96 @@
+name: "New Terraform Workspace"
+description: "Create new Terraform Workspace"
+
+inputs:
+  tf_token:
+    description: "Terraform token"
+    required: true
+  tf_wsp_name:
+    description: "Terraform Workspace name suffix to append to the workspace name"
+    required: true
+
+outputs:
+  wsp_id:
+    description: "Internal Terraform Workspace id"
+    value: ${{ steps.newWsp.outputs.wsp_id }}
+  skip_flag:
+    description: "Flag to skip other steps or jobs"
+    value: ${{ steps.newWsp.outputs.skip_flag }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Create new Terraform Workspace"
+    id: newWsp
+    shell: pwsh
+    run: |
+      try {
+        [String]$token = "${{ inputs.tf_token }}"
+        [String]$wspName = "${{ inputs.tf_wsp_name }}"
+        [String]$uri = "https://app.terraform.io/api/v2/organizations/${{env.organization}}/workspaces"
+        [String]$wspId = ""
+        [String]$description = "Auto generated workspace by GitHub action"
+        [String]$skip_flag = ""
+
+        $headers = @{
+          'Authorization' = "Bearer ${{ inputs.tf_token }}"
+          'Content-Type' = 'application/vnd.api+json'
+        }
+
+        $body = @"
+          {
+            "data": {
+            "attributes": {
+                "name": "$wspName",
+                "description": "$description",
+                "resource-count": 0,
+                "auto-apply": "true",
+                "updated-at": "2017-11-29T19:18:09.976Z",
+                "working-directory": "${{env.wrkdir}}",
+                "vcs-repo": {
+                "identifier": "${{env.organization}}/${{env.repo}}",
+                "oauth-token-id": "${{env.oauth}}",
+                "branch": ""
+                }
+            },
+            "type": "workspaces"
+            }
+          }
+      "@     
+
+        Write-Host "Create new Terraform Workspace '$wspName'"
+        try {
+          $response = Invoke-WebRequest -Uri $uri -Method Post -Headers $headers -Body $body
+        } catch {
+          $tmp = $_.ErrorDetails.Message | ConvertFrom-Json
+          $detail = $tmp.errors[0].detail
+          if ($detail -eq "Name has already been taken") {
+            $skip_flag = "yes"
+            Write-Host "There is no need to create Terraform workspace. $detail"
+            Write-Host "Action execution completed successfully"
+            echo "::set-output name=skip_flag::$skip_flag"
+            Exit 0            
+          } else {
+            $msg = "Unexpected response received. Status Code : '$($_.Exception.Response.StatusCode.Value__)'. Detail : '$detail'."
+            Throw "$msg Details:`r`n`t$($_)"
+          }
+        }
+
+        if ($response.statuscode -eq '201') {
+          $json = $response.ToString() | ConvertTo-Json | ConvertFrom-Json
+          $myObj = $json | Out-String | ConvertFrom-Json
+          $wspId = $myObj.data.id
+          Write-Host "New Terraform Workspace '$wspName' with the id '$wspId' successfully created"
+        } else {
+          $msg = "Unexpected response code '$($response.statuscode)' received."
+          Throw $msg  
+        }
+        
+        Write-Host "Action execution completed successfully"
+        echo "::set-output name=wsp_id::$wspId"
+        Exit 0
+      } catch {
+        Write-Host "[ERR]: $($_.Exception)"
+        Write-Host "Action execution failed"
+        Exit 1
+      }

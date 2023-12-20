@@ -1,0 +1,83 @@
+@import '../../theme/index.scss';
+
+.toggleButton {
+  .buttonSwitch {
+    position: relative;
+    display: inline-block;
+
+    input[type='checkbox'] {
+      &:checked + .switch {
+        background-color: none;
+      }
+    }
+
+    &.large {
+      width: 56px;
+      height: 32px;
+
+      input[type='checkbox'] {
+        &:checked + .switch {
+          &::before {
+            transform: translateX(25px);
+          }
+        }
+      }
+    }
+
+    &.small {
+      width: 30px;
+      height: 15px;
+
+      input[type='checkbox'] {
+        &:checked + .switch {
+          &::before {
+            transform: translateX(15px);
+          }
+        }
+      }
+    }
+
+    .switch {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 25px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      transition: background-color 0.2s ease;
+
+      &::before {
+        position: absolute;
+        content: '';
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+      }
+
+      &.large {
+        &::before {
+          left: 2px;
+          top: 2px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      &.small {
+        &::before {
+          left: 0px;
+          top: 0px;
+          width: 15px;
+          height: 15px;
+        }
+      }
+    }
+    .onSwitch {
+      background-color: black;
+    }
+    .offSwitch {
+      background-color: grey;
+    }
+  }
+}

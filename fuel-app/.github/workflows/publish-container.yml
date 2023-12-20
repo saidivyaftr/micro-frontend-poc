@@ -1,0 +1,51 @@
+name: Publish Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "git hash to deploy"
+        required: true
+
+# jobs:
+#   publish-container:
+#     runs-on: ubuntu-latest
+#     environment: QA
+#     steps:
+#       - run: env
+
+#       - name: "Login via Azure CLI"
+#         uses: azure/login@v1
+#         with:
+#           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+#       - uses: azure/webapps-deploy@v2
+#         with:
+#           app-name: "ftr-homepage-qa"
+#           images: "fuelhome.azurecr.io/${{ github.repository }}:${{ github.event.inputs.version }}"
+
+#       - name: Azure logout
+#         run: |
+#           az logout
+
+
+jobs:
+  publish-container:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - run: env
+
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: "fuel-homepage-ghaction"
+          images: "fuelhome.azurecr.io/${{ github.repository }}:${{ github.event.inputs.version }}"
+
+      - name: Azure logout
+        run: |
+          az logout

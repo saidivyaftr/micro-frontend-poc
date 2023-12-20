@@ -1,0 +1,118 @@
+@import '../../theme/index.scss';
+
+.container {
+  max-width: 1232px;
+  padding: 0px 16px;
+  margin: 40px auto;
+  cursor: pointer;
+  position: relative;
+  transition: 0.4s all;
+  &:hover {
+    margin-bottom: 160px;
+    .slideContainer {
+      opacity: 1;
+      display: flex;
+      max-width: 1232px;
+    }
+    .titleContainer {
+      opacity: 0;
+    }
+  }
+  @include tabletAndMobile {
+    &:hover {
+      margin-bottom: 40px;
+      .titleContainer {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.titleContainer {
+  display: flex;
+  background-color: $secondary;
+  transition: all 0.2s;
+}
+
+.title {
+  display: inline-block;
+  padding: 0px 1rem;
+  @include tabletAndMobile {
+    font-size: 9vw;
+    line-height: 1.1;
+  }
+}
+
+.titleWrapper {
+  display: inline-block;
+}
+
+.alignLeft {
+  margin: 0;
+}
+
+.alignCenter {
+  margin: auto;
+}
+
+.alignRight {
+  margin-left: auto;
+}
+
+.primaryBackground {
+  background-color: $primary;
+}
+
+.secondaryBackground {
+  background-color: $secondary;
+}
+
+.tertiaryBackground {
+  background-color: $white;
+}
+
+.slideContainer {
+  display: flex;
+  opacity: 0;
+  transition: all 0.4s;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0 16px;
+  @include tabletAndMobile {
+    position: relative;
+    opacity: 1;
+    margin: 0;
+    img {
+      display: none;
+    }
+  }
+}
+
+.descriptionContainer {
+  display: flex;
+  @include tabletAndMobile {
+    display: block;
+  }
+}
+
+.slideTitle {
+  font-size: 2rem;
+  @include tabletAndMobile {
+    display: none;
+  }
+}
+
+.slideContent {
+  padding: 48px 32px;
+}
+
+.mainIntro {
+  margin-right: 32px;
+  @include tabletAndMobile {
+    margin-bottom: 12px;
+  }
+}
+

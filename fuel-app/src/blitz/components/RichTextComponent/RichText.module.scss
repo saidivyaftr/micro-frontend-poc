@@ -1,0 +1,295 @@
+@import '../../theme/index.scss';
+@import './../Typography/Typography.module.scss';
+@import './../Button/Button.module.scss';
+
+.resourceWrapper {
+  padding: 40px 16px 0;
+  max-width: 938px;
+  margin: 0 auto;
+  color: $dark;
+  @include font-regular;
+
+  @include mobile {
+    padding: 32px 16px 0px 16px;
+  }
+
+  img {
+    max-width: 100%;
+    margin: 1rem 0;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0px 0px 16px;
+  }
+
+  .defaultBold {
+    b,
+    strong {
+      @include font-bold;
+    }
+  }
+
+  h1,
+  [styleType*='h1'] {
+    @extend .h1;
+    @include font-bold;
+    text-transform: none;
+  }
+
+  h2,
+  [styleType*='h2'] {
+    @extend .h2;
+  }
+
+  h3,
+  [styleType*='h3'] {
+    @extend .h3;
+  }
+
+  h4,
+  [styleType*='h4'] {
+    @extend .h4;
+  }
+
+  h5,
+  [styleType*='h5'] {
+    @extend .h5;
+  }
+
+  h6,
+  [styleType*='h6'] {
+    @extend .h6;
+  }
+
+  [styleType*='p1'] {
+    @extend .p1;
+
+    @include mobile {
+      font-size: 1rem;
+    }
+  }
+
+  p {
+    @extend .p1;
+    margin-bottom: 2rem;
+  }
+
+  [styleType*='mb1'] {
+    margin-bottom: 1rem;
+  }
+
+  [styleType*='mb2'] {
+    margin-bottom: 2rem;
+  }
+
+  table[styleType*='vertical-align-top'] {
+    & td {
+      vertical-align: top;
+    }
+  }
+
+  table[styleType*='richTable'] {
+    border-collapse: collapse;
+
+    & tr:nth-of-type(odd) {
+      background-color: $gray-30;
+    }
+
+    & tr:first-child {
+      border-bottom: 2px solid $primary;
+    }
+  }
+
+  table[styleType*='wordBreak'] {
+    width: 100%;
+    word-break: break-word;
+  }
+
+  table[styleType*='hideTable'] {
+    @include mobile {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+  }
+
+  table[styleType*='showTable'] {
+    width: -webkit-fill-available;
+    @include tablet {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+  }
+
+  table[styleType*='halfTable'] {
+    border-collapse: collapse;
+
+    & tr:nth-of-type(odd) {
+      background-color: $gray-30;
+    }
+
+    & tr:first-child {
+      border-bottom: 2px solid $primary;
+    }
+
+    & td {
+      width: 50%;
+    }
+  }
+
+  hr {
+    margin: 32px 0px 64px 0px;
+    border: none;
+    border-top: 1px solid $light-gray;
+  }
+
+  strong {
+    font-family: 'PP OBJECT SANS BOLD';
+  }
+
+  th:not([styleType*='raw']) {
+    @extend .p1;
+    @include font-bold;
+    padding: 5px;
+    border: 1px solid $light-border-grey2;
+    margin: 0;
+
+    p {
+      @extend .p1;
+      margin: 0;
+    }
+  }
+
+  td:not([styleType*='raw']) {
+    @extend .p1;
+    margin: 0;
+    padding: 5px;
+    border: 1px solid $light-border-grey2;
+
+    p {
+      @extend .p1;
+      margin: 0;
+    }
+  }
+
+  a[styleType*='richButtonLink'] {
+    @extend .cta;
+    @extend .primary;
+    @extend .primaryHover;
+    display: inline-block;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    max-width: fit-content;
+
+    &:hover {
+      color: $white;
+    }
+
+    @include mobile {
+      padding: 0.625rem;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  @mixin card {
+    background: $light-bg-gray;
+    padding: 2rem;
+    border: 1px solid $light-gray;
+    border-radius: 2rem;
+    margin: 1rem 0;
+
+    @include mobile {
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+  }
+
+  div[styleType*='halfGreyCard'] {
+    @include card;
+    max-width: 50%;
+
+    @include mobile {
+      max-width: 100%;
+    }
+  }
+
+  div[styleType*='fullGreyCard'] {
+    @include card;
+  }
+
+  ol:not([styleType*='raw']) {
+    padding-left: 1.625rem;
+
+    & li {
+      @extend .p1;
+      margin: 0;
+      padding: 0 0 1rem 0.5rem;
+
+      &::marker {
+        @extend .p1;
+        font-family: 'PP Object Sans Bold';
+      }
+
+      p {
+        @extend .p1;
+        margin: 0;
+      }
+    }
+  }
+
+  ul:not([styleType*='raw']) {
+    list-style: none;
+    padding: 0;
+
+    & li {
+      @extend .p1;
+      position: relative;
+      margin: 0;
+      padding: 0 0 1rem 2rem;
+
+      p {
+        @extend .p1;
+        margin: 0;
+      }
+    }
+
+    & li:before {
+      content: '';
+      height: 6px;
+      width: 6px;
+      background-color: $dark;
+      display: inline-block;
+      border-radius: 100%;
+      position: absolute;
+      left: 0.625rem;
+      top: 0.5625rem;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+    @include font-bold;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  sup,
+  sub {
+    margin-right: 4px;
+    line-height: 0;
+  }
+
+  sup,
+  sub {
+    margin-right: 4px;
+  }
+}

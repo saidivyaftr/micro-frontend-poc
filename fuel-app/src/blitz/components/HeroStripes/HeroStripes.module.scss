@@ -1,0 +1,64 @@
+@import '../../theme/index.scss';
+@import '../../theme/_colors.scss';
+
+.root {
+  position: relative;
+  background-size: cover;
+  overflow-x: hidden;
+  background-color: $dark;
+  background-image: var(--bg-desktop);
+  @include tabletAndMobile {
+    min-height: 43rem;
+    background-image: var(--bg-mobile);
+    background-position: center;
+  }
+  @include mobile {
+    min-height: 37.5rem;
+  }
+}
+.removeRootMinHeight {
+  min-height: auto;
+}
+.innerWrapper {
+  padding: 8em 0;
+  @include tabletAndMobile {
+    padding: 4em 0;
+  }
+}
+
+.stripes {
+  position: absolute;
+  left: -202%;
+  top: 0;
+  width: 200%;
+  @include mobile {
+    display: none;
+  }
+}
+
+.stripe {
+  background-color: $secondary;
+  height: 52.6px;
+  margin-bottom: 26px;
+}
+
+.primaryStripe {
+  background-color: $primary;
+}
+
+.tertiaryStripe {
+  background-color: $white;
+}
+
+.container {
+  position: relative;
+  max-width: 1232px;
+  margin: auto;
+}
+
+.titleWrapper {
+  padding-left: 16px;
+  @include mobile {
+    padding-left: 24px;
+  }
+}

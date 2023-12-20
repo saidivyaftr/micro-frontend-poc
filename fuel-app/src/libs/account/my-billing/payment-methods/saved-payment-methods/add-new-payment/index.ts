@@ -1,0 +1,1 @@
+export { AddNewPaymentContainer } from './AddNewPaymentContainer'

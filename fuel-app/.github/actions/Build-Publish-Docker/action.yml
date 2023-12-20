@@ -1,0 +1,130 @@
+name: "Azure Docker Publish"
+description: "Build and Publish Docker Image to Azure Container Registry"
+
+inputs:
+  azure_credentials:
+    description: "Credentials object for azure cli"
+    required: true
+  registry_server:
+    description: "Server for image registry"
+    required: true
+  registry_username:
+    description: "Username for image registry"
+    required: true
+  registry_password:
+    description: "Password for image registry"
+    required: true
+  environment:
+    description: "The environment the build is for"
+    required: true
+  branch:
+    description: "The branch that is being built if this action is not being run from the same location"
+    required: false
+  dynatrace_registry:
+    description: "Server for dynatrace registry"
+    required: false
+  dynatrace_registry_username:
+    description: "Username for dynatrace registry"
+    required: false
+  dynatrace_registry_password:
+    description: "Password for dynatrace registry"
+    required: false
+
+#defaults:
+#  run:
+#    working-directory: "./"  # docker/build-push-action@v2 is not applying a working-directory
+
+outputs:
+  git-tag:
+    description: "Git Tag"
+    value: "${{steps.git-tag.outputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Git tag
+      id: git-tag
+      env: 
+        branch: $(echo ${GITHUB_REF#refs/heads/} | sed -r 's,/,-,g')
+        input_branch: $(echo ${inputs.branch} | sed -r 's,/,-,g')
+      run: |
+        echo "::set-output name=git_tag::${{ (inputs.branch != '' && env.input_branch || env.branch )}}"
+        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "::set-output name=environment::${{ inputs.environment }}"
+      shell: bash
+    - name: Formatted tag name
+      run: |
+        echo "Brach name: '${{ steps.git-tag.outputs.git_tag }}'"
+        echo "Short sha: '${{ steps.git-tag.outputs.sha_short }}'"
+        echo "Tag that is used: '${{inputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }}'"
+      shell: bash
+
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{ inputs.azure_credentials }}
+
+    - id: ip
+      run: |
+        ip=`dig +short myip.opendns.com @resolver1.opendns.com`
+        echo "::set-output name=address::$ip"
+      shell: bash
+    - run: |
+        if az acr show --name "${{ inputs.registry_server }}" | grep -q 'Premium'; then
+          az acr network-rule add --name "${{ inputs.registry_server }}" --ip-address "${{ steps.ip.outputs.address }}"
+          sleep 20
+        fi
+      shell: bash
+    - name: Login to Dynatrace DockerHub
+      if: ${{ inputs.environment == 'prod' }}
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ inputs.dynatrace_registry }}
+        username: ${{ inputs.dynatrace_registry_username }}
+        password: ${{ inputs.dynatrace_registry_password }}
+
+    - name: Login to Azure DockerHub
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ inputs.registry_server }}
+        username: ${{ inputs.registry_username }}
+        password: ${{ inputs.registry_password }}
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+#      with:
+#        driver: docker-container
+    # on PR no need to push, only build
+    - name: Build docker test image
+      if: ${{ inputs.environment != 'prod' }}
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ inputs.registry_server }}/${{ github.repository }}:${{inputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }}
+        target: test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    - name: Build docker prod image
+      if: ${{ inputs.environment == 'prod' }}
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ inputs.registry_server }}/${{ github.repository }}:${{inputs.environment}}.${{ steps.git-tag.outputs.git_tag }}.${{ steps.git-tag.outputs.sha_short }},${{ inputs.registry_server }}/${{ github.repository }}:latest
+        target: production
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    - name: Remove registry network rule
+      run: |
+        if az acr show --name "${{ inputs.registry_server }}" | grep -q 'Premium'; then
+          az acr network-rule remove --name "${{ inputs.registry_server }}" --ip-address "${{ steps.ip.outputs.address }}"
+        fi
+      shell: bash
+      if: always()
+
+    - name: Azure logout
+      run: az logout
+      shell: bash
+      if: always()

@@ -1,0 +1,7 @@
+export { default as HeroSection } from './HeroSection'
+export { default as FiberOfferings } from './FiberOfferings'
+export { default as CallToUpgrade } from './CallToUpgrade'
+export { default as ScheduleInstallationBanner } from './ScheduleInstallationBanner'
+export { default as FiberServices } from './FiberServices'
+export { default as SpecialAboutFiber } from './SpecialAboutFiber'
+export { default as FiberUpgradeFAQ } from './Faq'
