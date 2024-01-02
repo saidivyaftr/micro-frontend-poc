@@ -1,6 +1,7 @@
 /**
  * @type {import('next').NextConfig}
  */
+const { NextFederationPlugin } = require('@module-federation/nextjs-mf')
 const withPlugins = require('next-compose-plugins')
 // const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const webpack = require('webpack')
@@ -12,32 +13,38 @@ const sdkVersion = process.env.sdkVersion
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: false,
 })
-console.log(process.env.DOTCOM_URL)
-module.exports = withPlugins([withBundleAnalyzer], {
+const nextConfig =  withPlugins([withBundleAnalyzer], {
   staticPageGenerationTimeout: 1200000,
   experimental: {
     optimizeCss: true,
-    images: {
-      allowFutureImage: true,
-      domains: ['localhost', 'content-qat.frontier.com'],
-    },
+    forceSwcTransforms: true,
+    // images: {
+    //   allowFutureImage: true,
+    //   domains: ['localhost', 'content-qat.frontier.com'],
+    // },
   },
-  webpack: (config, { dev, isServer }) => {
-    if (isServer) {
-      return config
-    } else if (!isProduction) {
-      return config
-    }
-    // else if (isProduction) {
-    //   config.optimization.splitChunks.cacheGroups.commons.minChunks = 10;
-    //   return config
-    // }
-    // config.plugins.push(
-    //   new webpack.optimize.LimitChunkCountPlugin({
-    //     maxChunks: 3,
-    //   }),
-    // )
-    // config.optimization.minimizer.push(new OptimizeCSSAssetsPlugin({}))
+  reactStrictMode: true,
+  webpack: (config, options) => {
+    const { isServer } = options
+    config.experiments = { topLevelAwait: true }
+    config.plugins.push(
+      new NextFederationPlugin({
+        name: 'components',
+        remotes: {
+          shop: `app@http://localhost:3001/_next/static/${
+            isServer ? 'ssr' : 'chunks'
+          }/remoteEntry.js`,
+        },
+        filename: 'static/chunks/remoteEntry.js',
+        exposes: {
+          './Button': 'src/blitz/components/Button/index.tsx',
+          './Typography': 'src/blitz/components/Typography/index.tsx',
+          './Accordion': './src/blitz/components/Accordion/index.tsx',
+          './Footer': './src/components/DarkFooter/index.tsx',
+
+        },
+      }),
+    )
     return config
   },
   basePath,
@@ -148,8 +155,6 @@ module.exports = withPlugins([withBundleAnalyzer], {
     CALIFORNIA_API_SECRET:
       process.env.CALIFORNIA_API_SECRET,
     ONE_TRUST_DOMAIN_KEY: process.env.ONE_TRUST_DOMAIN_KEY,
-    ACCOUNT_EXPERIENCE_RATIO : process.env.ACCOUNT_EXPERIENCE_RATIO,
-    ACCOUNT_EXPERIENCE_COOKIE : process.env.ACCOUNT_EXPERIENCE_COOKIE,
     CDN_URL: process.env.CDN_URL
   },
   publicRuntimeConfig: {
@@ -172,6 +177,13 @@ module.exports = withPlugins([withBundleAnalyzer], {
         destination: '/why-frontier/why-fiber-internet/fiber-expansion',
         permanent: true,
       },
+      {
+        source: '/shop/tv/channels/showtime',
+        destination: '/shop/tv/channels/paramount-plus-with-showtime',
+        permanent: true,
+      },
     ]
   },
 })
+
+module.exports = nextConfig

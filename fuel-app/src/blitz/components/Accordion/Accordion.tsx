@@ -9,6 +9,7 @@ import colors from '@/shared-ui/colors'
 const ITEMS_PER_VIEW = 5
 
 const Accordion = (props: IAccordion) => {
+  console.log(props)
   const {
     list = [],
     titleClassName,
